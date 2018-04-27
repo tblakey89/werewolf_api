@@ -17,3 +17,7 @@ config :werewolf_api, WerewolfApi.Repo,
   database: "werewolf_api_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :werewolf_api, WerewolfApi.Guardian,
+       issuer: "werewolf_api",
+       secret_key: "beGjn1KAEwkutwiO28Y0rFy6Hbs0sLnY6obeUmbpTP9PbV6OrHh4qjgewFw9zanL"
