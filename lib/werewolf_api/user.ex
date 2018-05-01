@@ -4,9 +4,10 @@ defmodule WerewolfApi.User do
   alias WerewolfApi.User
 
   schema "users" do
-    field :email, :string
-    field :password, :string
-    field :username, :string
+    field(:email, :string)
+    field(:password, :string, virtual: true)
+    field(:password_hash, :string)
+    field(:username, :string)
 
     timestamps()
   end
@@ -33,6 +34,7 @@ defmodule WerewolfApi.User do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: password}} ->
         put_change(changeset, :password_hash, Comeonin.Bcrypt.hashpwsalt(password))
+
       _ ->
         changeset
     end

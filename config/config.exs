@@ -6,22 +6,24 @@
 use Mix.Config
 
 # General application configuration
-config :werewolf_api,
-  ecto_repos: [WerewolfApi.Repo]
+config :werewolf_api, ecto_repos: [WerewolfApi.Repo]
 
 # Configures the endpoint
 config :werewolf_api, WerewolfApiWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "felaXnGnmezcInMWq2Hczr6lVrIVkMlX1d3OUs9BcCJ6t/H0GOXdpBQ5qRqxkf79",
   render_errors: [view: WerewolfApiWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: WerewolfApi.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: WerewolfApi.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
+config :werewolf_api, WerewolfApi.AuthAccessPipeline,
+  module: WerewolfApi.Guardian,
+  error_handler: WerewolfApi.AuthErrorHandler
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

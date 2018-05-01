@@ -45,6 +45,6 @@ config :werewolf_api, WerewolfApi.Repo,
   hostname: "localhost",
   pool_size: 10
 
-  config :werewolf_api, WerewolfApi.Guardian,
-         issuer: "werewolf_api",
-         secret_key: "3LFz3icTUpreLyrxI4SNdHhTU5R5STMKSpzCHTnYCVf+uAHPRO+TodZHXJ3W0i/e"
+config :werewolf_api, WerewolfApi.Guardian,
+  issuer: "werewolf_api",
+  secret_key: "3LFz3icTUpreLyrxI4SNdHhTU5R5STMKSpzCHTnYCVf+uAHPRO+TodZHXJ3W0i/e"
