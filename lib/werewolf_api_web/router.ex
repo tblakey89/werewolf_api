@@ -19,6 +19,7 @@ defmodule WerewolfApiWeb.Router do
     pipe_through(:api)
     resources("/users", UserController, only: [:create])
     resources("/sessions", SessionController, only: [:create])
+    resources("/forgotten_password", ForgottenPasswordController, only: [:create, :update])
 
     # routes below must be authenticated
     pipe_through(:authenticated)

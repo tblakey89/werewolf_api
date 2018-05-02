@@ -4,10 +4,6 @@ defmodule WerewolfApi.Guardian do
   alias WerewolfApi.Repo
   alias WerewolfApi.User
 
-  # commit, format code
-  # think about security, how long should token be active, can it be refreshed?
-  # forgotten password and new password in a password controller
-
   def subject_for_token(resource, _claims) do
     sub = to_string(resource.id)
     {:ok, sub}

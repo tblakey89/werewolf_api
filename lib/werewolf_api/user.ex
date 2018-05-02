@@ -8,6 +8,8 @@ defmodule WerewolfApi.User do
     field(:password, :string, virtual: true)
     field(:password_hash, :string)
     field(:username, :string)
+    field(:forgotten_password_token, :string)
+    field(:forgotten_token_generated_at, :utc_datetime)
 
     timestamps()
   end
@@ -30,6 +32,39 @@ defmodule WerewolfApi.User do
     |> put_password_hash()
   end
 
+  def forgotten_password_changeset(%User{} = user) do
+    user
+    |> change(%{
+      forgotten_password_token: forgotten_password_token(),
+      forgotten_token_generated_at: NaiveDateTime.utc_now()
+    })
+  end
+
+  def update_password_changeset(%User{} = user, attrs) do
+    user
+    |> change(%{forgotten_password_token: nil, forgotten_token_generated_at: nil})
+    |> cast(attrs, ~w(password), [])
+    |> validate_length(:password, min: 8, max: 100)
+    |> put_password_hash()
+  end
+
+  def clear_forgotten_password_changeset(%User{} = user) do
+    user
+    |> change(%{
+      forgotten_password_token: nil,
+      forgotten_token_generated_at: nil
+    })
+  end
+
+  def check_token_valid(user) do
+    token_expiry = DateTime.to_unix(user.forgotten_token_generated_at) + 60 * 60 * 24
+
+    case DateTime.to_unix(DateTime.utc_now()) > token_expiry do
+      true -> {:error, :expired_token, user}
+      false -> :ok
+    end
+  end
+
   defp put_password_hash(changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: password}} ->
@@ -38,5 +73,11 @@ defmodule WerewolfApi.User do
       _ ->
         changeset
     end
+  end
+
+  defp forgotten_password_token do
+    :crypto.strong_rand_bytes(20)
+    |> Base.url_encode64()
+    |> binary_part(0, 20)
   end
 end
