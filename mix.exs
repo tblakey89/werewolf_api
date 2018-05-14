@@ -42,7 +42,8 @@ defmodule WerewolfApi.Mixfile do
       {:guardian, "~> 1.0"},
       {:comeonin, "~> 4.0"},
       {:bcrypt_elixir, "~> 0.12"},
-      {:ex_machina, "~> 2.2", only: :test}
+      {:ex_machina, "~> 2.2", only: :test},
+      {:cors_plug, "~> 1.5"}
     ]
   end
 

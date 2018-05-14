@@ -3,7 +3,6 @@ defmodule WerewolfApiWeb.ForgottenPasswordController do
   alias WerewolfApi.User
   alias WerewolfApi.Repo
 
-  # tests
   # don't forget to send email
 
   def create(conn, %{"forgotten" => %{"email" => email}}) do

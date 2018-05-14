@@ -44,6 +44,8 @@ defmodule WerewolfApiWeb.Endpoint do
     signing_salt: "H6NFQHp+"
   )
 
+  plug CORSPlug, origin: ["http://localhost:3000"]
+
   plug(WerewolfApiWeb.Router)
 
   @doc """
