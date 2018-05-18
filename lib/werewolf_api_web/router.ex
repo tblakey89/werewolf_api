@@ -23,6 +23,6 @@ defmodule WerewolfApiWeb.Router do
 
     # routes below must be authenticated
     pipe_through(:authenticated)
-    resources("/users", UserController, only: [:show])
+    resources("/users", UserController, only: [:show, :index])
   end
 end

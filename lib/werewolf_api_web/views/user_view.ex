@@ -3,19 +3,25 @@ defmodule WerewolfApiWeb.UserView do
 
   def render("show.json", %{user: user}) do
     %{
-      user: user_json(user)
+      user: render_one(user, WerewolfApiWeb.UserView, "user.json")
     }
   end
 
-  def render("error.json", %{changeset: changeset}) do
-    %{errors: Ecto.Changeset.traverse_errors(changeset, &translate_error/1)}
+  def render("index.json", %{users: users}) do
+    %{
+      users: render_many(users, WerewolfApiWeb.UserView, "user.json")
+    }
   end
 
-  defp user_json(user) do
+  def render("user.json", %{user: user}) do
     %{
       id: user.id,
       email: user.email,
       username: user.username
     }
+  end
+
+  def render("error.json", %{changeset: changeset}) do
+    %{errors: Ecto.Changeset.traverse_errors(changeset, &translate_error/1)}
   end
 end
