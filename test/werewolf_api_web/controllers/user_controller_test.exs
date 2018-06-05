@@ -58,6 +58,28 @@ defmodule WerewolfApiWeb.UserControllerTest do
     end
   end
 
+  describe "me/2" do
+    test "responds with current logged in user", %{conn: conn} do
+      user = insert(:user)
+
+      {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+      response =
+        conn
+        |> put_req_header("authorization", "bearer: " <> token)
+        |> get(user_path(conn, :me))
+        |> json_response(200)
+
+      assert response["user"]["email"] == user.email
+    end
+
+    test "responds 401 when not authenticated", %{conn: conn} do
+      conn
+      |> get(user_path(conn, :me))
+      |> response(401)
+    end
+  end
+
   describe "index/2" do
     test "responds with all users", %{conn: conn} do
       user = insert(:user)

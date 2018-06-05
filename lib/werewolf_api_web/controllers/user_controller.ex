@@ -26,6 +26,11 @@ defmodule WerewolfApiWeb.UserController do
     |> render("show.json", user: user)
   end
 
+  def me(conn, params) do
+    conn
+    |> render("show.json", user: Guardian.Plug.current_resource(conn))
+  end
+
   def index(conn, _params) do
     users = Repo.all(User)
 

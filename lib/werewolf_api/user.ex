@@ -1,7 +1,9 @@
 defmodule WerewolfApi.User do
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query, only: [from: 2]
   alias WerewolfApi.User
+  alias WerewolfApi.Repo
 
   schema "users" do
     field(:email, :string)
@@ -10,8 +12,15 @@ defmodule WerewolfApi.User do
     field(:username, :string)
     field(:forgotten_password_token, :string)
     field(:forgotten_token_generated_at, :utc_datetime)
+    many_to_many(:conversations, WerewolfApi.Conversation, join_through: "users_conversations")
 
     timestamps()
+  end
+
+  def find_by_user_ids(nil), do: []
+
+  def find_by_user_ids(user_ids) do
+    Repo.all(from(u in User, where: u.id in ^user_ids))
   end
 
   @doc false

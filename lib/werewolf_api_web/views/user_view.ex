@@ -21,6 +21,13 @@ defmodule WerewolfApiWeb.UserView do
     }
   end
 
+  def render("simple_user.json", %{user: user}) do
+    %{
+      id: user.id,
+      username: user.username
+    }
+  end
+
   def render("error.json", %{changeset: changeset}) do
     %{errors: Ecto.Changeset.traverse_errors(changeset, &translate_error/1)}
   end
