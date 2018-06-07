@@ -30,6 +30,30 @@ defmodule WerewolfApiWeb.ConversationControllerTest do
     end
   end
 
+  describe "show/2" do
+    test "responds with conversation", %{conn: conn} do
+      user = insert(:user)
+      conversation = insert(:conversation, users: [user])
+
+      response = show_response(conn, user, conversation, 200)
+
+      assert response["conversation"]["name"] == conversation.name
+    end
+
+    test "responds with 404, when not found", %{conn: conn} do
+      user = insert(:user)
+      conversation = insert(:conversation)
+
+      {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+      assert_error_sent(404, fn ->
+        conn
+        |> put_req_header("authorization", "bearer: " <> token)
+        |> get(conversation_path(conn, :show, conversation.id))
+      end)
+    end
+  end
+
   describe "create/2" do
     test "when valid", %{conn: conn} do
       user = insert(:user)
@@ -67,6 +91,15 @@ defmodule WerewolfApiWeb.ConversationControllerTest do
     conn
     |> put_req_header("authorization", "bearer: " <> token)
     |> get(conversation_path(conn, :index))
+    |> json_response(expected_response)
+  end
+
+  defp show_response(conn, user, conversation, expected_response) do
+    {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+    conn
+    |> put_req_header("authorization", "bearer: " <> token)
+    |> get(conversation_path(conn, :show, conversation.id))
     |> json_response(expected_response)
   end
 

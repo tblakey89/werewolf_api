@@ -3,13 +3,17 @@ defmodule WerewolfApiWeb.ConversationChannel do
   alias WerewolfApi.Repo
   alias WerewolfApi.Conversation
   alias WerewolfApi.Message
+  require IEx
 
   def join("conversation:" <> conversation_id, _message, socket) do
-    conversation = Repo.get(Conversation, String.to_integer(conversation_id))
+    conversation =
+      Guardian.Phoenix.Socket.current_resource(socket)
+      |> Ecto.assoc(:conversations)
+      |> Repo.get(String.to_integer(conversation_id))
 
-    case authorized_conversation?(conversation, socket) do
-      true -> {:ok, assign(socket, :conversation_id, conversation.id)}
-      false -> {:error, %{reason: "unauthorized"}}
+    case conversation do
+      nil -> {:error, %{reason: "unauthorized"}}
+      conversation -> {:ok, assign(socket, :conversation_id, conversation.id)}
     end
   end
 
@@ -35,15 +39,5 @@ defmodule WerewolfApiWeb.ConversationChannel do
       {:error, changeset} ->
         {:reply, {:error, %{errors: changeset}}, socket}
     end
-  end
-
-  defp authorized_conversation?(conversation, socket) do
-    user_id = Guardian.Phoenix.Socket.current_resource(socket).id
-    conversation = Repo.preload(conversation, :users)
-
-    Enum.map(conversation.users, fn user ->
-      user.id
-    end)
-    |> Enum.member?(user_id)
   end
 end

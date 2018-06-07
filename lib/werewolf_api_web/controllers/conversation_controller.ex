@@ -23,6 +23,17 @@ defmodule WerewolfApiWeb.ConversationController do
     render(conn, "index.json", conversations: conversations)
   end
 
+  def show(conn, %{"id" => id}) do
+    conversation =
+      Guardian.Plug.current_resource(conn)
+      |> Ecto.assoc(:conversations)
+      |> Repo.get!(id)
+      |> Repo.preload(:users)
+
+    conn
+    |> render("show.json", conversation: conversation)
+  end
+
   def create(conn, %{"conversation" => conversation_params}) do
     user = Guardian.Plug.current_resource(conn)
     changeset = Conversation.changeset(%Conversation{}, conversation_params, user)

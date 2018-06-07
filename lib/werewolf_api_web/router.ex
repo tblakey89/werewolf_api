@@ -26,7 +26,7 @@ defmodule WerewolfApiWeb.Router do
     get("/me", UserController, :me)
     resources("/users", UserController, only: [:show, :index])
 
-    resources "/conversations", ConversationController, only: [:create, :index] do
+    resources "/conversations", ConversationController, only: [:create, :index, :show] do
       resources("/messages", MessageController, only: [:index])
     end
   end
