@@ -5,10 +5,10 @@ defmodule WerewolfApiWeb.MessageController do
 
   def index(conn, %{"conversation_id" => conversation_id}) do
     # one day could limit this to retreive only 100 messages from
-    # certain time onwards
+    #  certain time onwards
     conversation =
       Repo.get(Conversation, conversation_id)
-      |> Repo.preload([messages: :user])
+      |> Repo.preload(messages: :user)
 
     conn
     |> render("index.json", messages: conversation.messages)

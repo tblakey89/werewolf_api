@@ -14,8 +14,7 @@ defmodule WerewolfApi.Conversation do
   end
 
   def active(query) do
-    from c in query,
-      where: not is_nil(c.last_message_at)
+    from(c in query, where: not is_nil(c.last_message_at))
   end
 
   @doc false

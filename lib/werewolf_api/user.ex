@@ -13,6 +13,7 @@ defmodule WerewolfApi.User do
     field(:forgotten_password_token, :string)
     field(:forgotten_token_generated_at, :utc_datetime)
     many_to_many(:conversations, WerewolfApi.Conversation, join_through: "users_conversations")
+    has_many(:messages, WerewolfApi.Message)
 
     timestamps()
   end

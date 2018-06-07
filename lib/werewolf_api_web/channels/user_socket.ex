@@ -3,6 +3,7 @@ defmodule WerewolfApiWeb.UserSocket do
 
   ## Channels
   channel("user:*", WerewolfApiWeb.UserChannel)
+  channel("conversation:*", WerewolfApiWeb.ConversationChannel)
 
   ## Transports
   transport(:websocket, Phoenix.Transports.WebSocket)

@@ -3,16 +3,14 @@ defmodule WerewolfApiWeb.ConversationController do
   alias WerewolfApi.Conversation
   alias WerewolfApi.Repo
 
-  # direct messages controller is nested within direct conversations
-  # do not need show, index on direct message controller will do
+  # need to load up last 100 messages for each conversation
+  # last message inserted at is last message at...
+  # unread messages can be worked out by adding a last viewed
+  # at to the user conversation join table, updates when user
+  # views the conversation (using the channel :p)
 
-  # need to create direct_conversation channel
   # need to subscribe to all direct conversations on front end
-  # don't need the direct_message recipient id, as only two users in conversation
-  # add index on direct messages on conversation_id
   # send conversations as part of 'me' function
-  # whenever new message is created change last message at of conversation
-  # direct message index works as suggested on front end
 
   def index(conn, params) do
     conversations =

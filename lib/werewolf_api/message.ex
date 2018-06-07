@@ -11,10 +11,9 @@ defmodule WerewolfApi.Message do
   end
 
   @doc false
-  def changeset(message, attrs, user) do
-    # use current user to generate message
+  def changeset(message, attrs) do
     message
-    |> cast(attrs, [:user_id, :body])
-    |> validate_required([:user_id, :body])
+    |> cast(attrs, [:body])
+    |> validate_required([:body])
   end
 end
