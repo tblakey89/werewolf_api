@@ -1,5 +1,6 @@
 defmodule WerewolfApiWeb.ConversationControllerTest do
   use WerewolfApiWeb.ConnCase
+  use Phoenix.ChannelTest
   import WerewolfApi.Factory
   import WerewolfApi.Guardian
 
@@ -58,13 +59,16 @@ defmodule WerewolfApiWeb.ConversationControllerTest do
     test "when valid", %{conn: conn} do
       user = insert(:user)
       second_user = insert(:user)
+      WerewolfApiWeb.Endpoint.subscribe("user:#{user.id}")
 
       conversation = %{
+        name: "test_name",
         user_ids: [second_user.id]
       }
 
       response = create_response(conn, user, conversation, 201)
 
+      assert_broadcast("new_conversation", %{name: "test_name"})
       assert Enum.at(response["conversation"]["users"], 0)["id"] == user.id
       assert Enum.at(response["conversation"]["users"], 1)["id"] == second_user.id
     end

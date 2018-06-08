@@ -7,4 +7,15 @@ defmodule WerewolfApiWeb.UserChannel do
       false -> {:error, %{reason: "unauthorized"}}
     end
   end
+
+  def broadcast_conversation_creation_to_users(conversation) do
+    # maybe move this into a task?
+    Enum.each(conversation.users, fn user ->
+      WerewolfApiWeb.Endpoint.broadcast(
+        "user:#{user.id}",
+        "new_conversation",
+        WerewolfApiWeb.ConversationView.render("conversation.json", %{conversation: conversation})
+      )
+    end)
+  end
 end

@@ -4,7 +4,7 @@ defmodule WerewolfApiWeb.ConversationController do
   alias WerewolfApi.Repo
 
   # need to load up last 100 messages for each conversation
-  # last message inserted at is last message at...
+  #  last message inserted at is last message at...
   # unread messages can be worked out by adding a last viewed
   # at to the user conversation join table, updates when user
   # views the conversation (using the channel :p)
@@ -41,6 +41,8 @@ defmodule WerewolfApiWeb.ConversationController do
     case Repo.insert(changeset) do
       {:ok, conversation} ->
         conversation = Repo.preload(conversation, [:users])
+
+        WerewolfApiWeb.UserChannel.broadcast_conversation_creation_to_users(conversation)
 
         conn
         |> put_status(:created)
