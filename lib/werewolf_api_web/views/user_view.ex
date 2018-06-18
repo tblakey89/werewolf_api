@@ -13,11 +13,26 @@ defmodule WerewolfApiWeb.UserView do
     }
   end
 
+  def render("me.json", %{user: user}) do
+    %{
+      user: render_one(user, WerewolfApiWeb.UserView, "user_and_conversations.json")
+    }
+  end
+
   def render("user.json", %{user: user}) do
     %{
       id: user.id,
       email: user.email,
       username: user.username
+    }
+  end
+
+  def render("user_and_conversations.json", %{user: user}) do
+    %{
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      conversations: render_many(user.conversations, WerewolfApiWeb.ConversationView, "conversation_with_messages.json")
     }
   end
 

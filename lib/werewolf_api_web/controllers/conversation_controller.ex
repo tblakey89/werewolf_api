@@ -36,9 +36,8 @@ defmodule WerewolfApiWeb.ConversationController do
 
   def create(conn, %{"conversation" => conversation_params}) do
     user = Guardian.Plug.current_resource(conn)
-    changeset = Conversation.changeset(%Conversation{}, conversation_params, user)
 
-    case Repo.insert(changeset) do
+    case Conversation.find_or_create(conversation_params, user) do
       {:ok, conversation} ->
         conversation = Repo.preload(conversation, [:users])
 

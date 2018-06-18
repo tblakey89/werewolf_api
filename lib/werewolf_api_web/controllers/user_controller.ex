@@ -27,8 +27,12 @@ defmodule WerewolfApiWeb.UserController do
   end
 
   def me(conn, params) do
+    user =
+      Guardian.Plug.current_resource(conn)
+      |> Repo.preload(conversations: [:users, :messages])
+
     conn
-    |> render("show.json", user: Guardian.Plug.current_resource(conn))
+    |> render("me.json", user: user)
   end
 
   def index(conn, _params) do

@@ -1,5 +1,6 @@
 defmodule WerewolfApiWeb.ConversationView do
   use WerewolfApiWeb, :view
+  alias WerewolfApi.Conversation
 
   def render("show.json", %{conversation: conversation}) do
     %{
@@ -28,6 +29,15 @@ defmodule WerewolfApiWeb.ConversationView do
       id: conversation.id,
       name: conversation.name,
       users: render_many(conversation.users, WerewolfApiWeb.UserView, "simple_user.json")
+    }
+  end
+
+  def render("conversation_with_messages.json", %{conversation: conversation}) do
+    %{
+      id: conversation.id,
+      name: conversation.name,
+      users: render_many(conversation.users, WerewolfApiWeb.UserView, "simple_user.json"),
+      messages: render_many(conversation.messages, WerewolfApiWeb.MessageView, "message.json"),
     }
   end
 

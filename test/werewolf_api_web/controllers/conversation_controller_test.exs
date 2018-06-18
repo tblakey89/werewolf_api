@@ -73,6 +73,21 @@ defmodule WerewolfApiWeb.ConversationControllerTest do
       assert Enum.at(response["conversation"]["users"], 1)["id"] == second_user.id
     end
 
+    test "when conversation exists already, return conversation", %{conn: conn} do
+      user = insert(:user)
+      second_user = insert(:user)
+      original_conversation = insert(:conversation, users: [user, second_user])
+
+      conversation = %{
+        name: "test_name",
+        user_ids: [second_user.id]
+      }
+
+      response = create_response(conn, user, conversation, 201)
+
+      assert response["conversation"]["id"] == original_conversation.id
+    end
+
     test "when missing second user", %{conn: conn} do
       user = insert(:user)
       conversation = %{user_ids: [], name: "test"}
