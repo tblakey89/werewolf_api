@@ -14,7 +14,7 @@ defmodule WerewolfApiWeb.UserChannel do
       WerewolfApiWeb.Endpoint.broadcast(
         "user:#{user.id}",
         "new_conversation",
-        WerewolfApiWeb.ConversationView.render("conversation.json", %{conversation: conversation})
+        WerewolfApiWeb.ConversationView.render("conversation_with_messages.json", %{conversation: conversation})
       )
     end)
   end

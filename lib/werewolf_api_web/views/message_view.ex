@@ -15,9 +15,10 @@ defmodule WerewolfApiWeb.MessageView do
   def render("message.json", %{message: message}) do
     %{
       id: message.id,
-      created_at: message.inserted_at,
+      created_at: DateTime.to_unix(DateTime.from_naive!(message.inserted_at, "Etc/UTC"), :millisecond),
       body: message.body,
-      sender: render_one(message.user, WerewolfApiWeb.UserView, "simple_user.json")
+      sender: render_one(message.user, WerewolfApiWeb.UserView, "simple_user.json"),
+      conversation_id: message.conversation_id
     }
   end
 end

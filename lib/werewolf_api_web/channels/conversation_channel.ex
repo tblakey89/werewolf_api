@@ -3,7 +3,6 @@ defmodule WerewolfApiWeb.ConversationChannel do
   alias WerewolfApi.Repo
   alias WerewolfApi.Conversation
   alias WerewolfApi.Message
-  require IEx
 
   def join("conversation:" <> conversation_id, _message, socket) do
     conversation =
