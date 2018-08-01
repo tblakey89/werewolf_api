@@ -15,7 +15,7 @@ defmodule WerewolfApiWeb.UserView do
 
   def render("me.json", %{user: user}) do
     %{
-      user: render_one(user, WerewolfApiWeb.UserView, "user_and_conversations.json")
+      user: render_one(user, WerewolfApiWeb.UserView, "user_and_associations.json")
     }
   end
 
@@ -27,12 +27,23 @@ defmodule WerewolfApiWeb.UserView do
     }
   end
 
-  def render("user_and_conversations.json", %{user: user}) do
+  def render("user_and_associations.json", %{user: user}) do
     %{
       id: user.id,
       email: user.email,
       username: user.username,
-      conversations: render_many(user.conversations, WerewolfApiWeb.ConversationView, "conversation_with_messages.json")
+      conversations:
+        render_many(
+          user.conversations,
+          WerewolfApiWeb.ConversationView,
+          "conversation_with_messages.json"
+        ),
+      games:
+        render_many(
+          user.games,
+          WerewolfApiWeb.GameView,
+          "game.json"
+        )
     }
   end
 

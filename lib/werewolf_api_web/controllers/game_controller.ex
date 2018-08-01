@@ -3,13 +3,11 @@ defmodule WerewolfApiWeb.GameController do
   alias WerewolfApi.Game
   alias WerewolfApi.Repo
 
-  # create game controller function
-  # do we want to include host as a game user
-  # do the front end create game dialog
-  # commit
   # do invitations for users
   # front end receiving invitation for users
   # commit
+
+  # only send games where users_game state is not rejected
 
   def create(conn, %{"game" => game_params}) do
     user = Guardian.Plug.current_resource(conn)
@@ -18,7 +16,8 @@ defmodule WerewolfApiWeb.GameController do
 
     case Repo.insert(changeset) do
       {:ok, game} ->
-        game = Repo.preload(game, [:users])
+        game = Repo.preload(game, users_games: :user)
+
         conn
         |> put_status(:created)
         |> render("show.json", game: game)

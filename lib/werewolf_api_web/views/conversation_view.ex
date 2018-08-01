@@ -37,7 +37,7 @@ defmodule WerewolfApiWeb.ConversationView do
       id: conversation.id,
       name: conversation.name,
       users: render_many(conversation.users, WerewolfApiWeb.UserView, "simple_user.json"),
-      messages: render_many(conversation.messages, WerewolfApiWeb.MessageView, "message.json"),
+      messages: render_many(conversation.messages, WerewolfApiWeb.MessageView, "message.json")
     }
   end
 

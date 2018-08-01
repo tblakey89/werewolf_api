@@ -24,6 +24,7 @@ defmodule WerewolfApi.Conversation do
     cond do
       length(conversations) > 0 ->
         {:ok, Enum.at(conversations, 0)}
+
       true ->
         changeset = __MODULE__.changeset(%__MODULE__{}, params, user)
         Repo.insert(changeset)
@@ -32,14 +33,22 @@ defmodule WerewolfApi.Conversation do
 
   def find_by_user_ids(params, user) do
     sorted_user_ids =
-      Enum.sort([user.id|params["user_ids"] || []])
+      Enum.sort([user.id | params["user_ids"] || []])
       |> Enum.map(&convert_user_id_to_integer/1)
 
     query =
-      from conversation in __MODULE__,
+      from(
+        conversation in __MODULE__,
         join: users_conversation in assoc(conversation, :users_conversations),
         group_by: conversation.id,
-        having: fragment("? = array_agg(? order by ?)", ^sorted_user_ids, users_conversation.user_id, users_conversation.user_id)
+        having:
+          fragment(
+            "? = array_agg(? order by ?)",
+            ^sorted_user_ids,
+            users_conversation.user_id,
+            users_conversation.user_id
+          )
+      )
 
     Repo.all(query)
   end
@@ -66,5 +75,6 @@ defmodule WerewolfApi.Conversation do
   defp convert_user_id_to_integer(user_id) when is_binary(user_id) do
     String.to_integer(user_id)
   end
+
   defp convert_user_id_to_integer(user_id), do: user_id
 end

@@ -17,7 +17,7 @@ defmodule WerewolfApiWeb.GameView do
     %{
       id: game.id,
       name: game.name,
-      users: render_many(game.users, WerewolfApiWeb.UserView, "simple_user.json")
+      users_games: render_many(game.users_games, WerewolfApiWeb.UsersGameView, "users_game.json")
     }
   end
 
