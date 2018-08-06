@@ -9,7 +9,7 @@ defmodule WerewolfApiWeb.InvitationController do
     with {:ok, users_game} <- find_users_game(id, user),
          changeset <- UsersGame.update_state_changeset(users_game, users_game_params),
          {:ok, users_game} <- Repo.update(changeset) do
-      # need to inform all game users of user joining/rejecting
+      WerewolfApiWeb.GameChannel.broadcast_game_update(users_game.game)
       render(conn, "success.json", %{users_game: users_game})
     else
       {:error, :invitation_not_found} -> invitation_not_found(conn)
@@ -19,8 +19,12 @@ defmodule WerewolfApiWeb.InvitationController do
 
   defp find_users_game(id, user) do
     case Repo.get_by(UsersGame, id: id, user_id: user.id) do
-      nil -> {:error, :invitation_not_found}
-      users_game -> {:ok, users_game}
+      nil ->
+        {:error, :invitation_not_found}
+
+      users_game ->
+        users_game = Repo.preload(users_game, :game)
+        {:ok, users_game}
     end
   end
 
