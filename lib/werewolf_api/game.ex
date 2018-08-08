@@ -8,6 +8,7 @@ defmodule WerewolfApi.Game do
     field(:state, :map)
     many_to_many(:users, WerewolfApi.User, join_through: "users_games")
     has_many(:users_games, WerewolfApi.UsersGame)
+    has_many(:game_messages, WerewolfApi.GameMessage)
 
     timestamps()
   end

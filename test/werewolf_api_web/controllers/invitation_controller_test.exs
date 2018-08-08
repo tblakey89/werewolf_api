@@ -1,14 +1,18 @@
 defmodule WerewolfApiWeb.InvitationControllerTest do
   use WerewolfApiWeb.ConnCase
+  use Phoenix.ChannelTest
   import WerewolfApi.Factory
   import WerewolfApi.Guardian
 
   describe "update/2" do
     test "when valid, accepting invite", %{conn: conn} do
       users_game = insert(:users_game, state: "pending")
+      game_id = users_game.game_id
+      WerewolfApiWeb.Endpoint.subscribe("game:#{game_id}")
 
       response = update_response(conn, users_game, %{state: "accepted"}, 200)
 
+      assert_broadcast("game_update", %{id: ^game_id})
       assert response["success"] == "Joined the game"
     end
 
