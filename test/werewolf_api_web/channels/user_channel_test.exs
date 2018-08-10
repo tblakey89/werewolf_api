@@ -27,6 +27,7 @@ defmodule WerewolfApiWeb.UserChannelTest do
       conversation =
         insert(:conversation, users: [user])
         |> Repo.preload(:messages)
+
       conversation_id = conversation.id
 
       WerewolfApiWeb.UserChannel.broadcast_conversation_creation_to_users(conversation)

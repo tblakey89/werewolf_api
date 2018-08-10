@@ -40,7 +40,7 @@ defmodule WerewolfApiWeb.GameChannel do
   end
 
   def broadcast_game_update(game) do
-    game = Repo.preload(game, users_games: :user)
+    game = Repo.preload(game, users_games: :user, game_messages: :user)
 
     WerewolfApiWeb.Endpoint.broadcast(
       "game:#{game.id}",

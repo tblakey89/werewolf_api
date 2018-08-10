@@ -16,7 +16,7 @@ defmodule WerewolfApiWeb.GameController do
 
     case Repo.insert(changeset) do
       {:ok, game} ->
-        game = Repo.preload(game, users_games: :user)
+        game = Repo.preload(game, users_games: :user, game_messages: :user)
 
         conn
         |> put_status(:created)
