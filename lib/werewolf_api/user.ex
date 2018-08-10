@@ -4,6 +4,7 @@ defmodule WerewolfApi.User do
   import Ecto.Query, only: [from: 2]
   alias WerewolfApi.User
   alias WerewolfApi.Repo
+  require IEx
 
   schema "users" do
     field(:email, :string)
@@ -43,6 +44,12 @@ defmodule WerewolfApi.User do
     |> cast(attrs, ~w(password), [])
     |> validate_length(:password, min: 8, max: 100)
     |> put_password_hash()
+  end
+
+  def update_changeset(%User{} = user, attrs) do
+    user
+    |> cast(attrs, [], [])
+    |> optional_password_update(attrs)
   end
 
   def forgotten_password_changeset(%User{} = user) do
@@ -85,6 +92,21 @@ defmodule WerewolfApi.User do
 
       _ ->
         changeset
+    end
+  end
+
+  defp optional_password_update(changeset, attrs) do
+    case attrs["password"] do
+      nil ->
+        changeset
+
+      "" ->
+        changeset
+
+      password ->
+        cast(changeset, attrs, ~w(password), [])
+        |> validate_length(:password, min: 8, max: 100)
+        |> put_password_hash()
     end
   end
 

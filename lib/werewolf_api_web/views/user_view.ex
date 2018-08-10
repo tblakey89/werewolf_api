@@ -57,4 +57,8 @@ defmodule WerewolfApiWeb.UserView do
   def render("error.json", %{changeset: changeset}) do
     %{errors: Ecto.Changeset.traverse_errors(changeset, &translate_error/1)}
   end
+
+  def render("error.json", %{message: message}) do
+    %{error: message}
+  end
 end

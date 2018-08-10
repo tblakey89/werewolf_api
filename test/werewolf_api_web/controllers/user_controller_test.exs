@@ -2,6 +2,8 @@ defmodule WerewolfApiWeb.UserControllerTest do
   use WerewolfApiWeb.ConnCase
   import WerewolfApi.Factory
   import WerewolfApi.Guardian
+  alias WerewolfApi.User
+  alias WerewolfApi.Repo
 
   describe "create/2" do
     test "when valid" do
@@ -102,5 +104,57 @@ defmodule WerewolfApiWeb.UserControllerTest do
       |> get(user_path(conn, :index))
       |> response(401)
     end
+  end
+
+  describe "update/2" do
+    test "updates user and changes password", %{conn: conn} do
+      user = insert(:user)
+
+      response = update_response(conn, user.id, user, %{password: "newpassword"}, 200)
+
+      assert response["user"]["email"] == user.email
+      assert Repo.get(User, user.id).password_hash != user.password_hash
+    end
+
+    test "updates user without password", %{conn: conn} do
+      user = insert(:user)
+
+      response = update_response(conn, user.id, user, %{password: ""}, 200)
+
+      assert response["user"]["email"] == user.email
+      assert Repo.get(User, user.id).password_hash == user.password_hash
+    end
+
+    test "can't update when short password", %{conn: conn} do
+      user = insert(:user)
+
+      response = update_response(conn, user.id, user, %{password: "short"}, 422)
+
+      assert response["errors"]["password"] == ["should be at least 8 character(s)"]
+    end
+
+    test "can't update other user", %{conn: conn} do
+      user = insert(:user)
+      other_user = insert(:user)
+
+      response = update_response(conn, other_user.id, user, %{password: "newpassword"}, 403)
+
+      assert response["error"] == "Not allowed."
+    end
+
+    test "responds 401 when not authenticated", %{conn: conn} do
+      conn
+      |> put(user_path(conn, :update, 10, user: %{password: "new_password"}))
+      |> response(401)
+    end
+  end
+
+  defp update_response(conn, id, user, user_attrs, expected_response) do
+    {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+    conn
+    |> put_req_header("authorization", "bearer: " <> token)
+    |> put(user_path(conn, :update, id, user: user_attrs))
+    |> json_response(expected_response)
   end
 end

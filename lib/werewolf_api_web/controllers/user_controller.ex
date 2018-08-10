@@ -13,9 +13,7 @@ defmodule WerewolfApiWeb.UserController do
         |> render("show.json", user: user)
 
       {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render("error.json", changeset: changeset)
+        unprocessable_entity(conn, changeset)
     end
   end
 
@@ -26,7 +24,7 @@ defmodule WerewolfApiWeb.UserController do
     |> render("show.json", user: user)
   end
 
-  def me(conn, params) do
+  def me(conn, _params) do
     user =
       Guardian.Plug.current_resource(conn)
       |> Repo.preload(
@@ -43,5 +41,30 @@ defmodule WerewolfApiWeb.UserController do
 
     conn
     |> render("index.json", users: users)
+  end
+
+  def update(conn, %{"id" => id, "user" => user_params}) do
+    user = Guardian.Plug.current_resource(conn)
+
+    with true <- user.id == String.to_integer(id),
+         changeset <- User.update_changeset(user, user_params),
+         {:ok, user} <- Repo.update(changeset) do
+      render(conn, "show.json", user: user)
+    else
+      false -> forbidden(conn)
+      {:error, changeset} -> unprocessable_entity(conn, changeset)
+    end
+  end
+
+  defp unprocessable_entity(conn, changeset) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> render("error.json", changeset: changeset)
+  end
+
+  defp forbidden(conn) do
+    conn
+    |> put_status(:forbidden)
+    |> render("error.json", message: "Not allowed.")
   end
 end
