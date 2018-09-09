@@ -10,6 +10,7 @@ config :werewolf_api, ecto_repos: [WerewolfApi.Repo]
 
 # Configures the endpoint
 config :werewolf_api, WerewolfApiWeb.Endpoint,
+  http: [ip: {0, 0, 0, 0}, port: 4000],
   url: [host: "localhost"],
   secret_key_base: "felaXnGnmezcInMWq2Hczr6lVrIVkMlX1d3OUs9BcCJ6t/H0GOXdpBQ5qRqxkf79",
   render_errors: [view: WerewolfApiWeb.ErrorView, accepts: ~w(json)],

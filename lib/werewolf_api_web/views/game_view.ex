@@ -23,6 +23,13 @@ defmodule WerewolfApiWeb.GameView do
     }
   end
 
+  def render("state.json", %{state: state, game_id: game_id}) do
+    %{
+      id: game_id,
+      state: state
+    }
+  end
+
   def render("error.json", %{changeset: changeset}) do
     %{errors: Ecto.Changeset.traverse_errors(changeset, &translate_error/1)}
   end

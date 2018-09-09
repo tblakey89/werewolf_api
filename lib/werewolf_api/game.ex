@@ -1,9 +1,11 @@
 defmodule WerewolfApi.Game do
   use Ecto.Schema
   import Ecto.Changeset
+  alias WerewolfApi.Repo
 
   schema "games" do
     field(:name, :string)
+    field(:time_period, :string)
     field(:complete, :boolean)
     field(:state, :map)
     many_to_many(:users, WerewolfApi.User, join_through: "users_games")
@@ -11,6 +13,16 @@ defmodule WerewolfApi.Game do
     has_many(:game_messages, WerewolfApi.GameMessage)
 
     timestamps()
+  end
+
+  def find_from_id(id) do
+    Repo.get(__MODULE__, id)
+  end
+
+  def update_state(id, state) do
+     find_from_id(id)
+     |> state_changeset(state)
+     |> Repo.update()
   end
 
   @doc false
@@ -29,5 +41,9 @@ defmodule WerewolfApi.Game do
     |> cast(attrs, [:name])
     |> cast_assoc(:users_games)
     |> validate_required([:name])
+  end
+
+  def state_changeset(game, state) do
+    change(game, state: state)
   end
 end

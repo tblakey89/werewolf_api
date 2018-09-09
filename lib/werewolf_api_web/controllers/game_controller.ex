@@ -3,10 +3,6 @@ defmodule WerewolfApiWeb.GameController do
   alias WerewolfApi.Game
   alias WerewolfApi.Repo
 
-  # do invitations for users
-  # front end receiving invitation for users
-  # commit
-
   # only send games where users_game state is not rejected
 
   def create(conn, %{"game" => game_params}) do
@@ -17,6 +13,8 @@ defmodule WerewolfApiWeb.GameController do
     case Repo.insert(changeset) do
       {:ok, game} ->
         game = Repo.preload(game, users_games: :user, game_messages: :user)
+
+        Werewolf.GameSupervisor.start_game(user, game.id, :day)
 
         conn
         |> put_status(:created)

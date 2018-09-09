@@ -43,7 +43,8 @@ defmodule WerewolfApi.Mixfile do
       {:comeonin, "~> 4.0"},
       {:bcrypt_elixir, "~> 0.12"},
       {:ex_machina, "~> 2.2", only: :test},
-      {:cors_plug, "~> 1.5"}
+      {:cors_plug, "~> 1.5"},
+      {:werewolf, path: "../werewolf"}
     ]
   end
 
