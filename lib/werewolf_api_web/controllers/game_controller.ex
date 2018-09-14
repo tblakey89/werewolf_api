@@ -14,7 +14,10 @@ defmodule WerewolfApiWeb.GameController do
       {:ok, game} ->
         game = Repo.preload(game, users_games: :user, game_messages: :user)
 
-        Werewolf.GameSupervisor.start_game(user, game.id, :day)
+        # do we need to handle game creation failure, or just let it fail?
+        {:ok, _} = WerewolfApi.GameServer.start_game(user, game.id, :day)
+
+        update_state(game)
 
         conn
         |> put_status(:created)
@@ -25,5 +28,12 @@ defmodule WerewolfApiWeb.GameController do
         |> put_status(:unprocessable_entity)
         |> render("error.json", changeset: changeset)
     end
+  end
+
+  defp update_state(game) do
+    Task.async(fn ->
+      {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
+      WerewolfApi.Game.update_state(game, state)
+    end)
   end
 end

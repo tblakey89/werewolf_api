@@ -1,11 +1,4 @@
 defmodule WerewolfApi.GameServer do
-  # tasks
-  # need to test backup module
-  # need to clean state of secrets before passing to all users
-  # need a way to send user role, and role of other werewolves, etc...
-  # test Game module
-  # call this module in game_controller create
-
   def start_game(user, game_id, time_period) do
     Werewolf.GameSupervisor.start_game(user, game_id, time_period)
   end
@@ -18,25 +11,25 @@ defmodule WerewolfApi.GameServer do
   def add_player(game_id, user) do
     get_pid(game_id)
     |> Werewolf.GameServer.add_player(user)
-    |> handle_response(game_id)
+    |> handle_response(game_id, user)
   end
 
   def game_ready(game_id, user) do
     get_pid(game_id)
     |> Werewolf.GameServer.game_ready(user)
-    |> handle_response(game_id)
+    |> handle_response(game_id, user)
   end
 
   def launch_game(game_id, user) do
     get_pid(game_id)
     |> Werewolf.GameServer.launch_game(user)
-    |> handle_response(game_id)
+    |> handle_response(game_id, user)
   end
 
   def action(game_id, user, target, action_type) do
     get_pid(game_id)
     |> Werewolf.GameServer.game_ready(user, target, action_type)
-    |> handle_response(game_id)
+    |> handle_response(game_id, user)
   end
 
   def end_phase(game_id) do
@@ -49,17 +42,19 @@ defmodule WerewolfApi.GameServer do
         WerewolfApiWeb.GameChannel.broadcast_state_update(game_id, state)
         update_game_state(game_id, state)
         :ok
+
       {:error, reason} ->
         {:error, reason}
     end
   end
 
-  defp handle_response(response, game_id) do
+  defp handle_response(response, game_id, user) do
     case response do
       {:ok, state} ->
-        WerewolfApiWeb.GameChannel.broadcast_state_update(game_id, state)
+        WerewolfApiWeb.GameChannel.broadcast_state_update(game_id, state, user)
         update_game_state(game_id, state)
         :ok
+
       {:error, reason} ->
         {:error, reason}
     end
@@ -82,6 +77,7 @@ defmodule WerewolfApi.GameServer do
     game =
       WerewolfApi.Game.find_from_id(game_id)
       |> WerewolfApi.Repo.preload(users_games: :user)
+
     host = Enum.find(game.users_games, fn user_game -> user_game.state == :host end)
     {:ok, pid} = Werewolf.GameSupervisor.start_game(host, game_id, game.time_period, game.state)
     pid

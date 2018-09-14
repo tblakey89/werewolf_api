@@ -42,10 +42,10 @@ defmodule WerewolfApi.GameServerTest do
 
       :ok = WerewolfApi.GameServer.add_player(game.id, user)
 
-      assert_broadcast("state_update", %{state: state})
+      assert_broadcast("state_update", state)
 
-      assert state.game.players[user.id].id == user.id
-      assert length(Map.keys(state.game.players)) == 2
+      assert state.players[user.id].id == user.id
+      assert length(Map.keys(state.players)) == 2
 
       :timer.sleep(10)
 

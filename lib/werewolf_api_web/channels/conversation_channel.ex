@@ -18,6 +18,7 @@ defmodule WerewolfApiWeb.ConversationChannel do
 
   def handle_in("new_message", params, socket) do
     # need to work out way to handle unread messages
+    # need to make saving message a task
     changeset =
       Guardian.Phoenix.Socket.current_resource(socket)
       |> Ecto.build_assoc(:messages, conversation_id: socket.assigns.conversation_id)

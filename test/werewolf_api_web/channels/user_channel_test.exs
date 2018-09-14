@@ -23,7 +23,7 @@ defmodule WerewolfApiWeb.UserChannelTest do
   end
 
   describe "broadcast_conversation_creation_to_users" do
-    test "when function called game_update is broadcast", %{user: user} do
+    test "when function called new_conversation is broadcast", %{user: user} do
       conversation =
         insert(:conversation, users: [user])
         |> Repo.preload(:messages)
@@ -32,6 +32,20 @@ defmodule WerewolfApiWeb.UserChannelTest do
 
       WerewolfApiWeb.UserChannel.broadcast_conversation_creation_to_users(conversation)
       assert_broadcast("new_conversation", %{id: ^conversation_id})
+    end
+  end
+
+  describe "broadcast_game_creation_to_users" do
+    test "when function called, new_game is broadcast", %{user: user} do
+      game = insert(:game)
+      insert(:users_game, user: user, game: game)
+
+      game_id = game.id
+
+      Werewolf.GameSupervisor.start_game(user, game_id, :day)
+
+      WerewolfApiWeb.UserChannel.broadcast_game_creation_to_users(game)
+      assert_broadcast("new_game", %{id: ^game_id})
     end
   end
 end

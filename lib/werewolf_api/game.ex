@@ -19,10 +19,15 @@ defmodule WerewolfApi.Game do
     Repo.get(__MODULE__, id)
   end
 
+  def update_state(game = %__MODULE__{}, state) do
+    state_changeset(game, state)
+    |> Repo.update()
+  end
+
   def update_state(id, state) do
-     find_from_id(id)
-     |> state_changeset(state)
-     |> Repo.update()
+    find_from_id(id)
+    |> state_changeset(state)
+    |> Repo.update()
   end
 
   @doc false
