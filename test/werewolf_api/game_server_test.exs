@@ -37,12 +37,13 @@ defmodule WerewolfApi.GameServerTest do
       game = insert(:game)
       start_game(game)
       user = insert(:user)
+      insert(:users_game, user: user, game: game)
 
-      WerewolfApiWeb.Endpoint.subscribe("game:#{game.id}")
+      WerewolfApiWeb.Endpoint.subscribe("user:#{user.id}")
 
       :ok = WerewolfApi.GameServer.add_player(game.id, user)
 
-      assert_broadcast("state_update", state)
+      assert_broadcast("game_state_update", state)
 
       assert state.players[user.id].id == user.id
       assert length(Map.keys(state.players)) == 2

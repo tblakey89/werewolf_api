@@ -1,6 +1,7 @@
 defmodule WerewolfApi.UsersGame do
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query, only: [from: 2]
 
   schema "users_games" do
     field(:state, :string, default: "pending")
@@ -21,5 +22,13 @@ defmodule WerewolfApi.UsersGame do
     |> cast(attrs, ["state"])
     |> force_change(:state, attrs["state"])
     |> validate_inclusion(:state, ~w(accepted rejected))
+  end
+
+  def by_game_id(game_id) do
+    query =
+      from ug in __MODULE__,
+      where: ug.game_id == ^game_id and ug.state != "rejected",
+      preload: [:user]
+    WerewolfApi.Repo.all(query)
   end
 end

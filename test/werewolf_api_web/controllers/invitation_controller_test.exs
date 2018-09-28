@@ -4,11 +4,19 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
   import WerewolfApi.Factory
   import WerewolfApi.Guardian
 
+  setup do
+    user = insert(:user)
+    game = insert(:game)
+    WerewolfApi.GameServer.start_game(user, game.id, :day)
+
+    {:ok, game: game}
+  end
+
   describe "update/2" do
-    test "when valid, accepting invite", %{conn: conn} do
-      users_game = insert(:users_game, state: "pending")
-      game_id = users_game.game_id
-      WerewolfApiWeb.Endpoint.subscribe("game:#{game_id}")
+    test "when valid, accepting invite", %{conn: conn, game: game} do
+      users_game = insert(:users_game, state: "pending", game: game)
+      game_id = game.id
+      WerewolfApiWeb.Endpoint.subscribe("user:#{users_game.user_id}")
 
       response = update_response(conn, users_game, %{state: "accepted"}, 200)
 
@@ -16,23 +24,23 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
       assert response["success"] == "Joined the game"
     end
 
-    test "when valid, rejecting invite", %{conn: conn} do
-      users_game = insert(:users_game, state: "pending")
+    test "when valid, rejecting invite", %{conn: conn, game: game} do
+      users_game = insert(:users_game, state: "pending", game: game)
 
       response = update_response(conn, users_game, %{state: "rejected"}, 200)
 
       assert response["success"] == "Rejected the invitation"
     end
 
-    test "when state is missing", %{conn: conn} do
-      users_game = insert(:users_game, state: "pending")
+    test "when state is missing", %{conn: conn, game: game} do
+      users_game = insert(:users_game, state: "pending", game: game)
 
       response = update_response(conn, users_game, %{state: nil}, 422)
 
       assert response["errors"]["state"] == ["is invalid"]
     end
 
-    test "when user not invited", %{conn: conn} do
+    test "when user not invited", %{conn: conn, game: game} do
       user = insert(:user)
       users_game = insert(:users_game, state: "pending")
 

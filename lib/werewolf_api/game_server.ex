@@ -32,14 +32,14 @@ defmodule WerewolfApi.GameServer do
     |> handle_response(game_id, user)
   end
 
-  def end_phase(game_id) do
+  def end_phase(game_id, user) do
     response =
       get_pid(game_id)
       |> Werewolf.GameServer.end_phase()
 
     case response do
       {win_status, target, phases, state} ->
-        WerewolfApiWeb.GameChannel.broadcast_state_update(game_id, state)
+        WerewolfApiWeb.UserChannel.broadcast_state_update(game_id, state, user)
         update_game_state(game_id, state)
         :ok
 
@@ -51,7 +51,7 @@ defmodule WerewolfApi.GameServer do
   defp handle_response(response, game_id, user) do
     case response do
       {:ok, state} ->
-        WerewolfApiWeb.GameChannel.broadcast_state_update(game_id, state, user)
+        WerewolfApiWeb.UserChannel.broadcast_state_update(game_id, state, user)
         update_game_state(game_id, state)
         :ok
 

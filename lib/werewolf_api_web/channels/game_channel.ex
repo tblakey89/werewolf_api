@@ -38,30 +38,4 @@ defmodule WerewolfApiWeb.GameChannel do
         {:reply, {:error, %{errors: changeset}}, socket}
     end
   end
-
-  def broadcast_game_update(game) do
-    game = Repo.preload(game, users_games: :user, game_messages: :user)
-
-    WerewolfApiWeb.Endpoint.broadcast(
-      "game:#{game.id}",
-      "game_update",
-      WerewolfApiWeb.GameView.render("game.json", %{
-        game: game
-      })
-    )
-  end
-
-  def broadcast_state_update(game_id, state, user) do
-    WerewolfApiWeb.Endpoint.broadcast(
-      "game:#{game_id}",
-      "state_update",
-      WerewolfApiWeb.GameView.render("state.json", %{
-        data: %{
-          state: state,
-          game_id: game_id,
-          user: user
-        }
-      })
-    )
-  end
 end

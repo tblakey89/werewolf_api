@@ -33,7 +33,8 @@ defmodule WerewolfApiWeb.GameController do
   defp update_state(game) do
     Task.async(fn ->
       {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
-      WerewolfApi.Game.update_state(game, state)
+      {:ok, game} = WerewolfApi.Game.update_state(game, state)
+      WerewolfApiWeb.UserChannel.broadcast_game_creation_to_users(game)
     end)
   end
 end

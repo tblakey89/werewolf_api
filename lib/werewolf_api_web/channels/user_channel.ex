@@ -23,18 +23,45 @@ defmodule WerewolfApiWeb.UserChannel do
   end
 
   def broadcast_game_creation_to_users(game) do
-    Task.async(fn ->
-      {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
-      game = WerewolfApi.Repo.preload(game, users_games: :user, game_messages: :user)
+    broadcast_game_change_to_each_user("new_game", game)
+  end
 
-      Enum.each(game.users_games, fn user_game ->
+  def broadcast_game_update(game) do
+    broadcast_game_change_to_each_user("game_update", game)
+  end
+
+  def broadcast_state_update(game_id, state, user) do
+    Task.async(fn ->
+      users_games = WerewolfApi.UsersGame.by_game_id(game_id)
+      Enum.each(users_games, fn(users_game) ->
         WerewolfApiWeb.Endpoint.broadcast(
-          "user:#{user_game.user_id}",
-          "new_game",
+          "user:#{users_game.user_id}",
+          "game_state_update",
+          WerewolfApiWeb.GameView.render("state.json", %{
+            data: %{
+              state: state,
+              game_id: game_id,
+              user: users_game.user
+            }
+          })
+        )
+      end)
+    end)
+  end
+
+  defp broadcast_game_change_to_each_user(event, game) do
+    Task.async(fn ->
+      game = WerewolfApi.Repo.preload(game, users_games: :user, game_messages: :user)
+      {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
+
+      Enum.each(game.users_games, fn(users_game) ->
+        WerewolfApiWeb.Endpoint.broadcast(
+          "user:#{users_game.user_id}",
+          event,
           WerewolfApiWeb.GameView.render("game_with_state.json", %{
             game: game,
             state: state,
-            user: user_game.user
+            user: users_game.user
           })
         )
       end)

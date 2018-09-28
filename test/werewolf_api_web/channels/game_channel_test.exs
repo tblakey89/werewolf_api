@@ -39,46 +39,4 @@ defmodule WerewolfApiWeb.GameChannelTest do
       assert_reply(ref, :error)
     end
   end
-
-  describe "broadcast_game_update/1" do
-    test "when function called game_update is broadcast", %{game: game} do
-      game_id = game.id
-
-      WerewolfApiWeb.GameChannel.broadcast_game_update(game)
-      assert_broadcast("game_update", %{id: ^game_id})
-    end
-  end
-
-  describe "broadcast_state_update/2" do
-    test "when function called game_state is broadcast", %{game: game, user: user} do
-      game_id = game.id
-
-      state = %{
-        game: %Werewolf.Game{
-          end_phase_unix_time: nil,
-          id: 178,
-          phase_length: :day,
-          phases: 0,
-          players: %{
-            1 => %Werewolf.Player{
-              actions: %{
-                1 => %Werewolf.Action{
-                  type: :vote,
-                  target: 2
-                }
-              },
-              alive: true,
-              host: true,
-              id: 1,
-              role: :none
-            }
-          }
-        },
-        rules: %Werewolf.Rules{state: :initialized}
-      }
-
-      WerewolfApiWeb.GameChannel.broadcast_state_update(game_id, state, user)
-      assert_broadcast("state_update", %{id: ^game_id, players: %{1 => %{id: 1}}})
-    end
-  end
 end

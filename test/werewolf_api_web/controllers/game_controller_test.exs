@@ -1,5 +1,6 @@
 defmodule WerewolfApiWeb.GameControllerTest do
   use WerewolfApiWeb.ConnCase
+  use Phoenix.ChannelTest
   import WerewolfApi.Factory
   import WerewolfApi.Guardian
 
@@ -8,10 +9,14 @@ defmodule WerewolfApiWeb.GameControllerTest do
       user = insert(:user)
       second_user = insert(:user)
 
+      game_name = "test_name"
+
       game = %{
         name: "test_name",
         user_ids: [second_user.id]
       }
+
+      WerewolfApiWeb.Endpoint.subscribe("user:#{second_user.id}")
 
       response = create_response(conn, user, game, 201)
 
@@ -20,6 +25,7 @@ defmodule WerewolfApiWeb.GameControllerTest do
       assert Enum.at(response["game"]["users_games"], 0)["state"] == "host"
       assert Enum.at(response["game"]["users_games"], 1)["user"]["id"] == second_user.id
       assert Enum.at(response["game"]["users_games"], 1)["state"] == "pending"
+      assert_broadcast("new_game", %{name: ^game_name})
     end
 
     test "when name is missing", %{conn: conn} do
