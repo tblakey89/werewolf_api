@@ -23,7 +23,7 @@ defmodule WerewolfApiWeb.GameView do
     }
   end
 
-  def render("game_with_state.json", %{game: game, state: state, user: user}) do
+  def render("game_with_state.json", %{data: %{game: game, state: state, user: user}}) do
     %{
       id: game.id,
       name: game.name,
@@ -61,6 +61,7 @@ defmodule WerewolfApiWeb.GameView do
     Enum.reduce(players, %{}, fn {key, player}, accumulator ->
       player_map =
         case key == user.id do
+          # werewolf need to see other werewolf
           true ->
             render_one(%{player: player}, WerewolfApiWeb.GameView, "self_player.json", as: :data)
 
@@ -91,7 +92,7 @@ defmodule WerewolfApiWeb.GameView do
     %{
       id: player.id,
       alive: player.alive,
-      role: if(player.alive, do: nil, else: player.role)
+      role: if(player.alive, do: 'Unknown', else: player.role)
     }
   end
 

@@ -20,11 +20,11 @@ defmodule WerewolfApiWeb.GameControllerTest do
 
       response = create_response(conn, user, game, 201)
 
-      assert response["game"]["name"] == game.name
-      assert Enum.at(response["game"]["users_games"], 0)["user"]["id"] == user.id
-      assert Enum.at(response["game"]["users_games"], 0)["state"] == "host"
-      assert Enum.at(response["game"]["users_games"], 1)["user"]["id"] == second_user.id
-      assert Enum.at(response["game"]["users_games"], 1)["state"] == "pending"
+      assert response["name"] == game.name
+      assert Enum.at(response["users_games"], 0)["user"]["id"] == user.id
+      assert Enum.at(response["users_games"], 0)["state"] == "host"
+      assert Enum.at(response["users_games"], 1)["user"]["id"] == second_user.id
+      assert Enum.at(response["users_games"], 1)["state"] == "pending"
       assert_broadcast("new_game", %{name: ^game_name})
     end
 

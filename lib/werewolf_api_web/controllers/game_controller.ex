@@ -18,10 +18,11 @@ defmodule WerewolfApiWeb.GameController do
         {:ok, _} = WerewolfApi.GameServer.start_game(user, game.id, :day)
 
         update_state(game)
+        {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
 
         conn
         |> put_status(:created)
-        |> render("show.json", game: game)
+        |> render("game_with_state.json", data: %{game: game, user: user, state: state})
 
       {:error, changeset} ->
         conn

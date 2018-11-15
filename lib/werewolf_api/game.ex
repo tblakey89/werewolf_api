@@ -19,6 +19,12 @@ defmodule WerewolfApi.Game do
     Repo.get(__MODULE__, id)
   end
 
+  def current_state(game) do
+    # here, if game no longer active return from game.state
+    {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
+    state
+  end
+
   def update_state(game = %__MODULE__{}, state) do
     state_changeset(game, state)
     |> Repo.update()

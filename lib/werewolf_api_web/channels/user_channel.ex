@@ -58,11 +58,11 @@ defmodule WerewolfApiWeb.UserChannel do
         WerewolfApiWeb.Endpoint.broadcast(
           "user:#{users_game.user_id}",
           event,
-          WerewolfApiWeb.GameView.render("game_with_state.json", %{
+          WerewolfApiWeb.GameView.render("game_with_state.json", %{data: %{
             game: game,
             state: state,
             user: users_game.user
-          })
+          }})
         )
       end)
     end)

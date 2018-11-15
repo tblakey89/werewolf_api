@@ -40,9 +40,12 @@ defmodule WerewolfApiWeb.UserView do
         ),
       games:
         render_many(
-          user.games,
+          Enum.map(user.games, fn(game) ->
+            %{game: game, user: user, state: WerewolfApi.Game.current_state(game)}
+          end),
           WerewolfApiWeb.GameView,
-          "game.json"
+          "game_with_state.json",
+          as: :data
         )
     }
   end
