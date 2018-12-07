@@ -2,6 +2,8 @@ defmodule WerewolfApiWeb.GameChannel do
   use Phoenix.Channel
   alias WerewolfApi.Repo
   alias WerewolfApi.GameMessage
+  alias WerewolfApi.GameServer
+  alias WerewolfApiWeb.UserChannel
 
   def join("game:" <> game_id, _message, socket) do
     game =
@@ -36,6 +38,19 @@ defmodule WerewolfApiWeb.GameChannel do
 
       {:error, changeset} ->
         {:reply, {:error, %{errors: changeset}}, socket}
+    end
+  end
+
+  def handle_in("launch_game", params, socket) do
+    user = Guardian.Phoenix.Socket.current_resource(socket)
+    game_id = socket.assigns.game_id
+    case GameServer.launch_game(game_id, user) do
+      :ok ->
+        state = GameServer.get_state(game_id)
+        UserChannel.broadcast_state_update(game_id, state, user)
+        {:reply, :ok, socket}
+      {:error, message} ->
+        {:reply, {:error, %{errors: message}}, socket}
     end
   end
 end
