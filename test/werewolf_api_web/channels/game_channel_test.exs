@@ -44,6 +44,7 @@ defmodule WerewolfApiWeb.GameChannelTest do
     test "launch_game responds with ok on success" do
       # this test is flaky?
       user = insert(:user)
+
       state = %{
         game: %Werewolf.Game{
           end_phase_unix_time: nil,
@@ -67,6 +68,7 @@ defmodule WerewolfApiWeb.GameChannelTest do
         },
         rules: %Werewolf.Rules{state: :ready}
       }
+
       game = insert(:game, state: state)
       game_id = game.id
       user_id = user.id
@@ -77,12 +79,18 @@ defmodule WerewolfApiWeb.GameChannelTest do
       {:ok, _, user_socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
 
       ref = push(game_socket, "launch_game", %{})
-      assert_broadcast("game_state_update", %{id: ^game_id, players: %{^user_id => %{id: ^user_id}}})
+
+      assert_broadcast("game_state_update", %{
+        id: ^game_id,
+        players: %{^user_id => %{id: ^user_id}}
+      })
+
       assert_reply(ref, :ok)
     end
 
     test "launch_game responds with error on failure" do
       user = insert(:user)
+
       state = %{
         game: %Werewolf.Game{
           end_phase_unix_time: nil,
@@ -106,6 +114,7 @@ defmodule WerewolfApiWeb.GameChannelTest do
         },
         rules: %Werewolf.Rules{state: :initialised}
       }
+
       game = insert(:game, state: state)
       game_id = game.id
       user_id = user.id
@@ -116,7 +125,12 @@ defmodule WerewolfApiWeb.GameChannelTest do
       {:ok, _, user_socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
 
       ref = push(game_socket, "launch_game", %{})
-      refute_broadcast("game_state_update", %{id: ^game_id, players: %{^user_id => %{id: ^user_id}}})
+
+      refute_broadcast("game_state_update", %{
+        id: ^game_id,
+        players: %{^user_id => %{id: ^user_id}}
+      })
+
       assert_reply(ref, :error)
     end
   end

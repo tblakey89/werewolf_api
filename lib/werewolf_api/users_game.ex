@@ -26,9 +26,12 @@ defmodule WerewolfApi.UsersGame do
 
   def by_game_id(game_id) do
     query =
-      from ug in __MODULE__,
-      where: ug.game_id == ^game_id and ug.state != "rejected",
-      preload: [:user]
+      from(
+        ug in __MODULE__,
+        where: ug.game_id == ^game_id and ug.state != "rejected",
+        preload: [:user]
+      )
+
     WerewolfApi.Repo.all(query)
   end
 end

@@ -14,12 +14,6 @@ defmodule WerewolfApi.GameServer do
     |> handle_response(game_id, user)
   end
 
-  def game_ready(game_id, user) do
-    get_pid(game_id)
-    |> Werewolf.GameServer.game_ready(user)
-    |> handle_response(game_id, user)
-  end
-
   def launch_game(game_id, user) do
     get_pid(game_id)
     |> Werewolf.GameServer.launch_game(user)

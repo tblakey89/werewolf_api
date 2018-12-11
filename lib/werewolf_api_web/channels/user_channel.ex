@@ -33,7 +33,8 @@ defmodule WerewolfApiWeb.UserChannel do
   def broadcast_state_update(game_id, state, user) do
     Task.async(fn ->
       users_games = WerewolfApi.UsersGame.by_game_id(game_id)
-      Enum.each(users_games, fn(users_game) ->
+
+      Enum.each(users_games, fn users_game ->
         WerewolfApiWeb.Endpoint.broadcast(
           "user:#{users_game.user_id}",
           "game_state_update",
@@ -54,15 +55,17 @@ defmodule WerewolfApiWeb.UserChannel do
       game = WerewolfApi.Repo.preload(game, users_games: :user, game_messages: :user)
       {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
 
-      Enum.each(game.users_games, fn(users_game) ->
+      Enum.each(game.users_games, fn users_game ->
         WerewolfApiWeb.Endpoint.broadcast(
           "user:#{users_game.user_id}",
           event,
-          WerewolfApiWeb.GameView.render("game_with_state.json", %{data: %{
-            game: game,
-            state: state,
-            user: users_game.user
-          }})
+          WerewolfApiWeb.GameView.render("game_with_state.json", %{
+            data: %{
+              game: game,
+              state: state,
+              user: users_game.user
+            }
+          })
         )
       end)
     end)
