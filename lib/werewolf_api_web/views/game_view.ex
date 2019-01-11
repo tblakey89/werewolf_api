@@ -78,13 +78,8 @@ defmodule WerewolfApiWeb.GameView do
       id: player.id,
       alive: player.alive,
       role: player.role,
-      actions:
-        Enum.reduce(player.actions, %{}, fn {key, action}, accumulator ->
-          Map.put(accumulator, key, %{
-            type: action.type,
-            target: action.target
-          })
-        end)
+      host: player.host,
+      actions: player.actions
     }
   end
 
@@ -92,7 +87,8 @@ defmodule WerewolfApiWeb.GameView do
     %{
       id: player.id,
       alive: player.alive,
-      role: if(player.alive, do: 'Unknown', else: player.role)
+      host: player.host,
+      role: if(player.alive, do: "Unknown", else: player.role)
     }
   end
 

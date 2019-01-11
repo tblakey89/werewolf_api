@@ -9,7 +9,7 @@ defmodule WerewolfApiWeb.UserChannel do
   end
 
   def broadcast_conversation_creation_to_users(conversation) do
-    Task.async(fn ->
+    Task.start_link(fn ->
       Enum.each(conversation.users, fn user ->
         WerewolfApiWeb.Endpoint.broadcast(
           "user:#{user.id}",
@@ -31,7 +31,7 @@ defmodule WerewolfApiWeb.UserChannel do
   end
 
   def broadcast_state_update(game_id, state, user) do
-    Task.async(fn ->
+    Task.start_link(fn ->
       users_games = WerewolfApi.UsersGame.by_game_id(game_id)
 
       Enum.each(users_games, fn users_game ->
@@ -51,7 +51,7 @@ defmodule WerewolfApiWeb.UserChannel do
   end
 
   defp broadcast_game_change_to_each_user(event, game) do
-    Task.async(fn ->
+    Task.start_link(fn ->
       game = WerewolfApi.Repo.preload(game, users_games: :user, game_messages: :user)
       {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
 

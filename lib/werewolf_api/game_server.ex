@@ -22,7 +22,7 @@ defmodule WerewolfApi.GameServer do
 
   def action(game_id, user, target, action_type) do
     get_pid(game_id)
-    |> Werewolf.GameServer.game_ready(user, target, action_type)
+    |> Werewolf.GameServer.action(user, target, action_type)
     |> handle_response(game_id, user)
   end
 
@@ -62,7 +62,8 @@ defmodule WerewolfApi.GameServer do
   end
 
   defp update_game_state(game_id, state) do
-    Task.async(fn ->
+    #
+    Task.start_link(fn ->
       WerewolfApi.Game.update_state(game_id, state)
     end)
   end
