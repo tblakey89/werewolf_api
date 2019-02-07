@@ -36,6 +36,12 @@ defmodule WerewolfApi.Game do
     |> Repo.update()
   end
 
+  def clean_state(state) do
+    # does this belong in werewolf application?
+    Map.delete(state, :broadcast_func)
+    |> Map.delete(:timer)
+  end
+
   @doc false
   def changeset(game, attrs, user) do
     participants =
@@ -55,6 +61,6 @@ defmodule WerewolfApi.Game do
   end
 
   def state_changeset(game, state) do
-    change(game, state: state)
+    change(game, state: clean_state(state))
   end
 end

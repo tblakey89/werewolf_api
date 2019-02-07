@@ -1,6 +1,9 @@
 defmodule WerewolfApi.GameServer do
+  alias WerewolfApi.Announcement
+  alias WerewolfApi.Game
+
   def start_game(user, game_id, time_period) do
-    Werewolf.GameSupervisor.start_game(user, game_id, time_period)
+    Werewolf.GameSupervisor.start_game(user, game_id, time_period, nil, &handle_game_callback/2)
   end
 
   def get_state(game_id) do
@@ -9,32 +12,50 @@ defmodule WerewolfApi.GameServer do
   end
 
   def add_player(game_id, user) do
-    get_pid(game_id)
-    |> Werewolf.GameServer.add_player(user)
-    |> handle_response(game_id, user)
+    response =
+      get_pid(game_id)
+      |> Werewolf.GameServer.add_player(user)
+
+    case response do
+      {:ok, :add_player, _user, state} -> handle_success(game_id, user, state)
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   def launch_game(game_id, user) do
-    get_pid(game_id)
-    |> Werewolf.GameServer.launch_game(user)
-    |> handle_response(game_id, user)
+    response =
+      get_pid(game_id)
+      |> Werewolf.GameServer.launch_game(user)
+
+    case response do
+      {:ok, :launch_game, state} -> handle_success(game_id, user, state)
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   def action(game_id, user, target, action_type) do
-    get_pid(game_id)
-    |> Werewolf.GameServer.action(user, target, action_type)
-    |> handle_response(game_id, user)
+    response =
+      get_pid(game_id)
+      |> Werewolf.GameServer.action(user, target, action_type)
+
+    case response do
+      {:ok, state} ->
+        update_game_state(game_id, state)
+        handle_success(game_id, user, state)
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
-  def end_phase(game_id, user) do
+  def end_phase(game_id) do
     response =
       get_pid(game_id)
       |> Werewolf.GameServer.end_phase()
 
     case response do
       {win_status, target, phases, state} ->
-        WerewolfApiWeb.UserChannel.broadcast_state_update(game_id, state, user)
-        update_game_state(game_id, state)
+        WerewolfApiWeb.UserChannel.broadcast_state_update(game_id, Game.clean_state(state))
         :ok
 
       {:error, reason} ->
@@ -42,16 +63,14 @@ defmodule WerewolfApi.GameServer do
     end
   end
 
-  defp handle_response(response, game_id, user) do
-    case response do
-      {:ok, state} ->
-        WerewolfApiWeb.UserChannel.broadcast_state_update(game_id, state, user)
-        update_game_state(game_id, state)
-        :ok
+  def receive_end_phase({_win_status, _target, _phases, state}) do
+    WerewolfApiWeb.UserChannel.broadcast_state_update(state.game.id, Game.clean_state(state))
+    :ok
+  end
 
-      {:error, reason} ->
-        {:error, reason}
-    end
+  defp handle_success(game_id, _user, state) do
+    WerewolfApiWeb.UserChannel.broadcast_state_update(game_id, Game.clean_state(state))
+    :ok
   end
 
   defp get_pid(game_id) do
@@ -62,9 +81,18 @@ defmodule WerewolfApi.GameServer do
   end
 
   defp update_game_state(game_id, state) do
-    #
     Task.start_link(fn ->
       WerewolfApi.Game.update_state(game_id, state)
+    end)
+  end
+
+  defp handle_game_callback(state, game_response) do
+    Task.start_link(fn ->
+      game = WerewolfApi.Repo.get(WerewolfApi.Game, state.game.id)
+
+      Announcement.announce(game, state, game_response)
+
+      WerewolfApi.Game.update_state(game, state)
     end)
   end
 
@@ -74,7 +102,16 @@ defmodule WerewolfApi.GameServer do
       |> WerewolfApi.Repo.preload(users_games: :user)
 
     host = Enum.find(game.users_games, fn user_game -> user_game.state == :host end)
-    {:ok, pid} = Werewolf.GameSupervisor.start_game(host, game_id, game.time_period, game.state)
+
+    {:ok, pid} =
+      Werewolf.GameSupervisor.start_game(
+        host,
+        game_id,
+        game.time_period,
+        game.state,
+        &handle_game_callback/2
+      )
+
     pid
   end
 end

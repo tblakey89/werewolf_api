@@ -91,7 +91,7 @@ defmodule WerewolfApiWeb.UserChannelTest do
       }
 
       WerewolfApi.GameServer.start_game(user, game_id, :day)
-      WerewolfApiWeb.UserChannel.broadcast_state_update(game_id, state, user)
+      WerewolfApiWeb.UserChannel.broadcast_state_update(game_id, state)
       assert_broadcast("game_state_update", %{id: ^game_id, players: %{1 => %{id: 1}}})
     end
   end

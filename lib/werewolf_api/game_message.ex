@@ -16,7 +16,7 @@ defmodule WerewolfApi.GameMessage do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:body])
+    |> cast(params, [:body, :bot])
     |> validate_required([:body])
   end
 end

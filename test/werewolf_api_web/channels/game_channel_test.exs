@@ -42,13 +42,16 @@ defmodule WerewolfApiWeb.GameChannelTest do
 
   describe "launch_game event" do
     test "launch_game responds with ok on success" do
-      # this test is flaky?
       user = insert(:user)
+      game = insert(:game)
+      game_id = game.id
+      user_id = user.id
+      insert(:users_game, user: user, game: game)
 
       state = %{
         game: %Werewolf.Game{
           end_phase_unix_time: nil,
-          id: 178,
+          id: game_id,
           phase_length: :day,
           phases: 0,
           players: %{
@@ -72,10 +75,8 @@ defmodule WerewolfApiWeb.GameChannelTest do
         rules: %Werewolf.Rules{state: :ready}
       }
 
-      game = insert(:game, state: state)
-      game_id = game.id
-      user_id = user.id
-      insert(:users_game, user: user, game: game)
+      WerewolfApi.Game.update_state(game, state)
+
       {:ok, jwt, _} = encode_and_sign(user)
       {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
       {:ok, _, game_socket} = subscribe_and_join(socket, "game:#{game.id}", %{})
@@ -96,7 +97,7 @@ defmodule WerewolfApiWeb.GameChannelTest do
 
       state = %{
         game: %Werewolf.Game{
-          end_phase_unix_time: nil,
+          end_phase_unix_time: 1000,
           id: 178,
           phase_length: :day,
           phases: 0,
@@ -148,7 +149,7 @@ defmodule WerewolfApiWeb.GameChannelTest do
 
       state = %{
         game: %Werewolf.Game{
-          end_phase_unix_time: nil,
+          end_phase_unix_time: 1000,
           id: 178,
           phase_length: :day,
           phases: 2,
@@ -197,7 +198,7 @@ defmodule WerewolfApiWeb.GameChannelTest do
 
       state = %{
         game: %Werewolf.Game{
-          end_phase_unix_time: nil,
+          end_phase_unix_time: 1000,
           id: 178,
           phase_length: :day,
           phases: 2,

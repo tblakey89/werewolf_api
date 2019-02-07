@@ -30,7 +30,7 @@ defmodule WerewolfApiWeb.UserChannel do
     broadcast_game_change_to_each_user("game_update", game)
   end
 
-  def broadcast_state_update(game_id, state, user) do
+  def broadcast_state_update(game_id, state) do
     Task.start_link(fn ->
       users_games = WerewolfApi.UsersGame.by_game_id(game_id)
 
