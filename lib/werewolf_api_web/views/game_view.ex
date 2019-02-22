@@ -58,6 +58,8 @@ defmodule WerewolfApiWeb.GameView do
   end
 
   def render("players.json", %{data: %{players: players, user: user}}) do
+    current_player = players[user.id]
+
     Enum.reduce(players, %{}, fn {key, player}, accumulator ->
       player_map =
         case key == user.id do
@@ -66,7 +68,12 @@ defmodule WerewolfApiWeb.GameView do
             render_one(%{player: player}, WerewolfApiWeb.GameView, "self_player.json", as: :data)
 
           false ->
-            render_one(%{player: player}, WerewolfApiWeb.GameView, "other_player.json", as: :data)
+            render_one(
+              %{player: player, current_player: current_player},
+              WerewolfApiWeb.GameView,
+              "other_player.json",
+              as: :data
+            )
         end
 
       Map.put(accumulator, key, player_map)
@@ -83,16 +90,26 @@ defmodule WerewolfApiWeb.GameView do
     }
   end
 
-  def render("other_player.json", %{data: %{player: player}}) do
+  def render("other_player.json", %{data: %{player: player, current_player: current_player}}) do
     %{
       id: player.id,
       alive: player.alive,
       host: player.host,
-      role: if(player.alive, do: "Unknown", else: player.role)
+      role:
+        if(
+          player.alive &&
+            !(current_player && current_player.role == :werewolf && player.role == :werewolf),
+          do: "Unknown",
+          else: player.role
+        )
     }
   end
 
   def render("error.json", %{changeset: changeset}) do
     %{errors: Ecto.Changeset.traverse_errors(changeset, &translate_error/1)}
+  end
+
+  def render("error.json", %{message: message}) do
+    %{error: message}
   end
 end

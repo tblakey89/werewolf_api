@@ -43,23 +43,24 @@ defmodule WerewolfApi.Announcement do
     end
   end
 
-  def announce(game, _state, {:no_win, target, phase_number})
+  def announce(game, state, {:no_win, target, phase_number})
       when Integer.is_even(phase_number) do
     target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
-    day_phase_number = phase_number / 2
+    role = state.game.players[target].role
+    day_phase_number = round(phase_number / 2)
 
     broadcast_message(
       game,
-      "The sun came up on a new day, and #{target_user.username} was found dead. Day phase #{
-        day_phase_number
-      } begins now."
+      "The sun came up on a new day, and #{target_user.username} was found dead. It turns out #{
+        target_user.username
+      } was a #{role}. Day phase #{day_phase_number} begins now."
     )
   end
 
   def announce(game, state, {:no_win, target, phase_number}) when Integer.is_odd(phase_number) do
     target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
     role = state.game.players[target].role
-    night_phase_number = phase_number / 2 + 1
+    night_phase_number = round(phase_number / 2)
 
     broadcast_message(
       game,

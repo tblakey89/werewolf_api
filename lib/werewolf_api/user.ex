@@ -4,7 +4,6 @@ defmodule WerewolfApi.User do
   import Ecto.Query, only: [from: 2]
   alias WerewolfApi.User
   alias WerewolfApi.Repo
-  require IEx
 
   schema "users" do
     field(:email, :string)

@@ -25,9 +25,28 @@ defmodule WerewolfApiWeb.GameController do
         |> render("game_with_state.json", data: %{game: game, user: user, state: state})
 
       {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render("error.json", changeset: changeset)
+        unprocessable_entity(conn, changeset)
+    end
+  end
+
+  def update(conn, %{"id" => id, "game" => game_params}) do
+    user = Guardian.Plug.current_resource(conn)
+
+    game =
+      Repo.get(Game, id)
+      |> Repo.preload(users_games: :user, game_messages: :user)
+
+    host_id = Game.find_host_id(game)
+
+    with true <- user.id == host_id,
+         changeset <- Game.update_changeset(game, game_params),
+         {:ok, game} <- Repo.update(changeset),
+         game <- Repo.preload(game, users_games: :user, game_messages: :user) do
+      WerewolfApiWeb.UserChannel.broadcast_game_update(game)
+      render(conn, "show.json", game: game)
+    else
+      false -> forbidden(conn)
+      {:error, changeset} -> unprocessable_entity(conn, changeset)
     end
   end
 
@@ -37,5 +56,17 @@ defmodule WerewolfApiWeb.GameController do
       {:ok, game} = WerewolfApi.Game.update_state(game, state)
       WerewolfApiWeb.UserChannel.broadcast_game_creation_to_users(game)
     end)
+  end
+
+  defp forbidden(conn) do
+    conn
+    |> put_status(:forbidden)
+    |> render("error.json", message: "Not allowed.")
+  end
+
+  defp unprocessable_entity(conn, changeset) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> render("error.json", changeset: changeset)
   end
 end

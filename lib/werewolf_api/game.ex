@@ -42,6 +42,15 @@ defmodule WerewolfApi.Game do
     |> Map.delete(:timer)
   end
 
+  def find_host_id(game) do
+    host_users_game =
+      Enum.find(game.users_games, fn users_game ->
+        users_game.state == "host"
+      end)
+
+    host_users_game.user_id
+  end
+
   @doc false
   def changeset(game, attrs, user) do
     participants =
@@ -58,6 +67,25 @@ defmodule WerewolfApi.Game do
     |> cast(attrs, [:name])
     |> cast_assoc(:users_games)
     |> validate_required([:name])
+  end
+
+  def update_changeset(game, attrs) do
+    participants =
+      Enum.map(WerewolfApi.User.find_by_user_ids(attrs["user_ids"]), fn participant ->
+        %{user_id: participant.id}
+      end)
+
+    existing_users_games =
+      Enum.map(game.users_games, fn users_game ->
+        %{user_id: users_game.user_id, id: users_game.id, state: users_game.state}
+      end)
+
+    # surely there has to be a better way?
+    attrs = %{users_games: Enum.concat(participants, existing_users_games)}
+
+    game
+    |> cast(attrs, [])
+    |> cast_assoc(:users_games)
   end
 
   def state_changeset(game, state) do
