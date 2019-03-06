@@ -23,7 +23,8 @@ defmodule WerewolfApiWeb.UserView do
     %{
       id: user.id,
       email: user.email,
-      username: user.username
+      username: user.username,
+      avatar: WerewolfApi.Avatar.url({user.avatar, user}, :thumb, signed: true)
     }
   end
 
@@ -32,6 +33,7 @@ defmodule WerewolfApiWeb.UserView do
       id: user.id,
       email: user.email,
       username: user.username,
+      avatar: WerewolfApi.Avatar.url({user.avatar, user}, :thumb),
       conversations:
         render_many(
           user.conversations,
@@ -53,7 +55,8 @@ defmodule WerewolfApiWeb.UserView do
   def render("simple_user.json", %{user: user}) do
     %{
       id: user.id,
-      username: user.username
+      username: user.username,
+      avatar: WerewolfApi.Avatar.url({user.avatar, user}, :thumb)
     }
   end
 

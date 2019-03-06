@@ -2,6 +2,7 @@ defmodule WerewolfApiWeb.UserController do
   use WerewolfApiWeb, :controller
   alias WerewolfApi.User
   alias WerewolfApi.Repo
+  require IEx
 
   def create(conn, %{"user" => user_params}) do
     changeset = User.registration_changeset(%User{}, user_params)
@@ -49,6 +50,20 @@ defmodule WerewolfApiWeb.UserController do
     with true <- user.id == String.to_integer(id),
          changeset <- User.update_changeset(user, user_params),
          {:ok, user} <- Repo.update(changeset) do
+      render(conn, "show.json", user: user)
+    else
+      false -> forbidden(conn)
+      {:error, changeset} -> unprocessable_entity(conn, changeset)
+    end
+  end
+
+  def avatar(conn, %{"user_id" => id, "user" => user_params}) do
+    user = Guardian.Plug.current_resource(conn)
+
+    with true <- user.id == String.to_integer(id),
+         changeset <- User.avatar_changeset(user, user_params),
+         {:ok, user} <- Repo.update(changeset) do
+      WerewolfApiWeb.UserChannel.broadcast_avatar_update(user)
       render(conn, "show.json", user: user)
     else
       false -> forbidden(conn)

@@ -1,9 +1,18 @@
 defmodule WerewolfApiWeb.UserControllerTest do
   use WerewolfApiWeb.ConnCase
+  use Phoenix.ChannelTest
   import WerewolfApi.Factory
   import WerewolfApi.Guardian
   alias WerewolfApi.User
   alias WerewolfApi.Repo
+
+  @upload_folder "test/uploads"
+
+  setup_all do
+    on_exit(fn ->
+      File.rm_rf!(@upload_folder)
+    end)
+  end
 
   describe "create/2" do
     test "when valid" do
@@ -149,12 +158,63 @@ defmodule WerewolfApiWeb.UserControllerTest do
     end
   end
 
+  describe "avatar/2" do
+    test "updates user's avatar", %{conn: conn} do
+      user = insert(:user)
+      file = %Plug.Upload{path: "test/support/images/test_image.png", filename: "test_image.png"}
+
+      WerewolfApiWeb.Endpoint.subscribe("user:#{user.id}")
+
+      response = avatar_response(conn, user.id, user, %{avatar: file}, 200)
+
+      assert response["user"]["avatar"] ==
+               "/#{@upload_folder}/#{user.id}_#{user.username}_thumb.png"
+
+      assert_broadcast("new_avatar", %{})
+    end
+
+    test "updates avatar without avatar", %{conn: conn} do
+      user = insert(:user)
+
+      response = avatar_response(conn, user.id, user, %{avatar: ""}, 422)
+
+      assert response["errors"]["avatar"] == ["can't be blank"]
+    end
+
+    test "can't update when trying to update other user", %{conn: conn} do
+      user = insert(:user)
+      other_user = insert(:user)
+      file = %Plug.Upload{path: "test/support/images/test_image.png", filename: "test_image.png"}
+
+      response = avatar_response(conn, other_user.id, user, %{avatar: file}, 403)
+
+      assert response["error"] == "Not allowed."
+    end
+
+    test "responds 401 when not authenticated", %{conn: conn} do
+      file = %Plug.Upload{path: "test/support/images/test_image.png", filename: "test_image.png"}
+
+      conn
+      |> put(user_avatar_path(conn, :avatar, 10), %{user: %{avatar: file}})
+      |> response(401)
+    end
+  end
+
   defp update_response(conn, id, user, user_attrs, expected_response) do
     {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
 
     conn
     |> put_req_header("authorization", "bearer: " <> token)
     |> put(user_path(conn, :update, id, user: user_attrs))
+    |> json_response(expected_response)
+  end
+
+  defp avatar_response(conn, id, user, user_attrs, expected_response) do
+    {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+    conn
+    |> put_req_header("authorization", "bearer: " <> token)
+    |> put(user_avatar_path(conn, :avatar, id), %{user: user_attrs})
     |> json_response(expected_response)
   end
 end

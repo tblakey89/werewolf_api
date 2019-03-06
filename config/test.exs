@@ -21,3 +21,7 @@ config :werewolf_api, WerewolfApi.Repo,
 config :werewolf_api, WerewolfApi.Guardian,
   issuer: "werewolf_api",
   secret_key: "beGjn1KAEwkutwiO28Y0rFy6Hbs0sLnY6obeUmbpTP9PbV6OrHh4qjgewFw9zanL"
+
+config :arc,
+  storage: Arc.Storage.Local,
+  storage_dir: "test/uploads"

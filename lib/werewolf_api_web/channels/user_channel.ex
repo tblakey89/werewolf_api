@@ -8,6 +8,15 @@ defmodule WerewolfApiWeb.UserChannel do
     end
   end
 
+  def broadcast_avatar_update(user) do
+    # only do for current user
+    WerewolfApiWeb.Endpoint.broadcast(
+      "user:#{user.id}",
+      "new_avatar",
+      WerewolfApiWeb.UserView.render("user.json", %{user: user})
+    )
+  end
+
   def broadcast_conversation_creation_to_users(conversation) do
     Task.start_link(fn ->
       Enum.each(conversation.users, fn user ->

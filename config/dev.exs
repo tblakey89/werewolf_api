@@ -48,3 +48,17 @@ config :werewolf_api, WerewolfApi.Repo,
 config :werewolf_api, WerewolfApi.Guardian,
   issuer: "werewolf_api",
   secret_key: "3LFz3icTUpreLyrxI4SNdHhTU5R5STMKSpzCHTnYCVf+uAHPRO+TodZHXJ3W0i/e"
+
+config :arc,
+  bucket: {:system, "S3_BUCKET"},
+  virtual_host: true
+
+config :ex_aws,
+  access_key_id: {:system, "AWS_ACCESS_KEY_ID"},
+  secret_access_key: {:system, "AWS_SECRET_ACCESS_KEY"},
+  region: "eu-west-2",
+  s3: [
+    scheme: "https://",
+    host: "s3.eu-west-2.amazonaws.com",
+    region: "eu-west-2"
+  ]

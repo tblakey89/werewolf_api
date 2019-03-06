@@ -1,5 +1,6 @@
 defmodule WerewolfApi.User do
   use Ecto.Schema
+  use Arc.Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query, only: [from: 2]
   alias WerewolfApi.User
@@ -12,6 +13,7 @@ defmodule WerewolfApi.User do
     field(:username, :string)
     field(:forgotten_password_token, :string)
     field(:forgotten_token_generated_at, :utc_datetime)
+    field(:avatar, WerewolfApi.Avatar.Type)
     many_to_many(:conversations, WerewolfApi.Conversation, join_through: "users_conversations")
     many_to_many(:games, WerewolfApi.Game, join_through: "users_games")
     has_many(:users_games, WerewolfApi.UsersGame)
@@ -73,6 +75,12 @@ defmodule WerewolfApi.User do
       forgotten_password_token: nil,
       forgotten_token_generated_at: nil
     })
+  end
+
+  def avatar_changeset(%User{} = user, attrs) do
+    user
+    |> cast_attachments(attrs, [:avatar])
+    |> validate_required([:avatar])
   end
 
   def check_token_valid(user) do
