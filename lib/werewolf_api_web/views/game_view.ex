@@ -17,6 +17,7 @@ defmodule WerewolfApiWeb.GameView do
     %{
       id: game.id,
       name: game.name,
+      token: game.invitation_token,
       users_games: render_many(game.users_games, WerewolfApiWeb.UsersGameView, "users_game.json"),
       messages:
         render_many(game.game_messages, WerewolfApiWeb.GameMessageView, "game_message.json")
@@ -27,6 +28,7 @@ defmodule WerewolfApiWeb.GameView do
     %{
       id: game.id,
       name: game.name,
+      token: game.invitation_token,
       users_games: render_many(game.users_games, WerewolfApiWeb.UsersGameView, "users_game.json"),
       messages:
         render_many(game.game_messages, WerewolfApiWeb.GameMessageView, "game_message.json"),

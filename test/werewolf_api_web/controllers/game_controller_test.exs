@@ -21,6 +21,7 @@ defmodule WerewolfApiWeb.GameControllerTest do
       response = create_response(conn, user, game, 201)
 
       assert response["name"] == game.name
+      assert response["token"]
       assert Enum.at(response["users_games"], 0)["user"]["id"] == user.id
       assert Enum.at(response["users_games"], 0)["state"] == "host"
       assert Enum.at(response["users_games"], 1)["user"]["id"] == second_user.id

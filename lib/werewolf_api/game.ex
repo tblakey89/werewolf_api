@@ -8,6 +8,7 @@ defmodule WerewolfApi.Game do
     field(:time_period, :string)
     field(:complete, :boolean)
     field(:state, :map)
+    field(:invitation_token, :string)
     many_to_many(:users, WerewolfApi.User, join_through: "users_games")
     has_many(:users_games, WerewolfApi.UsersGame)
     has_many(:game_messages, WerewolfApi.GameMessage)
@@ -62,9 +63,13 @@ defmodule WerewolfApi.Game do
       Map.put_new(attrs, "users_games", [
         %{user_id: user.id, state: "host"} | participants
       ])
+      |> Map.put_new(
+        "invitation_token",
+        :crypto.strong_rand_bytes(15) |> Base.url_encode64() |> binary_part(0, 15)
+      )
 
     game
-    |> cast(attrs, [:name])
+    |> cast(attrs, [:name, :invitation_token])
     |> cast_assoc(:users_games)
     |> validate_required([:name])
   end
