@@ -13,7 +13,7 @@ defmodule WerewolfApi.UsersGame do
 
   def changeset(users_game, attrs) do
     users_game
-    |> cast(attrs, [:user_id, :state, :id])
+    |> cast(attrs, [:user_id, :game_id, :state, :id])
     |> validate_required([:user_id])
   end
 

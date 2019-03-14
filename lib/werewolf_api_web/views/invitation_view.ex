@@ -3,9 +3,15 @@ defmodule WerewolfApiWeb.InvitationView do
 
   def render("success.json", %{users_game: users_game}) do
     case users_game.state do
-      "accepted" -> %{success: "Joined the game"}
+      "accepted" -> %{success: "Joined the game", game_id: users_game.game_id}
       "rejected" -> %{success: "Rejected the invitation"}
     end
+  end
+
+  def render("ok.json", %{game: game}) do
+    %{
+      name: game.name
+    }
   end
 
   def render("error.json", %{message: message}) do

@@ -6,6 +6,7 @@ defmodule WerewolfApi.Game do
   schema "games" do
     field(:name, :string)
     field(:time_period, :string)
+    field(:started, :boolean)
     field(:complete, :boolean)
     field(:state, :map)
     field(:invitation_token, :string)
@@ -65,7 +66,7 @@ defmodule WerewolfApi.Game do
       ])
       |> Map.put_new(
         "invitation_token",
-        :crypto.strong_rand_bytes(15) |> Base.url_encode64() |> binary_part(0, 15)
+        generate_game_token()
       )
 
     game
@@ -95,5 +96,9 @@ defmodule WerewolfApi.Game do
 
   def state_changeset(game, state) do
     change(game, state: clean_state(state))
+  end
+
+  def generate_game_token() do
+    :crypto.strong_rand_bytes(15) |> Base.url_encode64() |> binary_part(0, 15)
   end
 end
