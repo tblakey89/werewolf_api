@@ -1,6 +1,7 @@
 defmodule WerewolfApi.Game do
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query, only: [from: 2]
   alias WerewolfApi.Repo
 
   schema "games" do
@@ -100,5 +101,14 @@ defmodule WerewolfApi.Game do
 
   def generate_game_token() do
     :crypto.strong_rand_bytes(15) |> Base.url_encode64() |> binary_part(0, 15)
+  end
+
+  def participating_games(user_id) do
+    from(
+      g in WerewolfApi.Game,
+      join: ug in WerewolfApi.UsersGame,
+      where: ug.user_id == ^user_id and ug.game_id == g.id and ug.state != "rejected",
+      preload: [users_games: :user, game_messages: :user]
+    )
   end
 end

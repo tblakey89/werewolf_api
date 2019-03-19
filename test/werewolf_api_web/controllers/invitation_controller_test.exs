@@ -26,9 +26,14 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
 
     test "when valid, rejecting invite", %{conn: conn, game: game} do
       users_game = insert(:users_game, state: "pending", game: game)
+      game_id = game.id
+      users_game_id = users_game.id
+      WerewolfApiWeb.Endpoint.subscribe("user:#{users_game.user_id}")
 
       response = update_response(conn, users_game, %{state: "rejected"}, 200)
 
+      refute_broadcast("game_update", %{id: ^game_id})
+      assert_broadcast("invitation_rejected", %{id: ^users_game_id})
       assert response["success"] == "Rejected the invitation"
     end
 

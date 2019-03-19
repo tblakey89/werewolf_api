@@ -46,7 +46,7 @@ defmodule WerewolfApiWeb.GameChannelTest do
       game = insert(:game)
       game_id = game.id
       user_id = user.id
-      insert(:users_game, user: user, game: game)
+      insert(:users_game, user: user, game: game, state: "host")
 
       state = %{
         game: %Werewolf.Game{
@@ -139,6 +139,58 @@ defmodule WerewolfApiWeb.GameChannelTest do
       })
 
       assert_reply(ref, :error)
+    end
+
+    test "launch_game not broadcast if invitation pending, user invite rejected" do
+      user = insert(:user)
+      game = insert(:game)
+      game_id = game.id
+      user_id = user.id
+      insert(:users_game, user: user, game: game)
+
+      state = %{
+        game: %Werewolf.Game{
+          end_phase_unix_time: nil,
+          id: game_id,
+          phase_length: :day,
+          phases: 0,
+          players: %{
+            user.id => %Werewolf.Player{
+              actions: %{
+                1 => %{
+                  vote: %Werewolf.Action{
+                    type: :vote,
+                    target: 2,
+                    option: :none
+                  }
+                }
+              },
+              alive: true,
+              host: true,
+              id: user.id,
+              role: :none
+            }
+          }
+        },
+        rules: %Werewolf.Rules{state: :ready}
+      }
+
+      WerewolfApi.Game.update_state(game, state)
+
+      {:ok, jwt, _} = encode_and_sign(user)
+      {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
+      {:ok, _, game_socket} = subscribe_and_join(socket, "game:#{game.id}", %{})
+      {:ok, _, user_socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
+
+      ref = push(game_socket, "launch_game", %{})
+
+      refute_broadcast("game_state_update", %{
+        id: ^game_id
+      })
+
+      assert_broadcast("invitation_rejected", %{
+        game_id: ^game_id
+      })
     end
   end
 

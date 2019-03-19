@@ -59,9 +59,33 @@ defmodule WerewolfApiWeb.UserChannel do
     end)
   end
 
+  def broadcast_invitation_rejected_to_users(game_id) do
+    Task.start_link(fn ->
+      users_games = WerewolfApi.Repo.all(WerewolfApi.UsersGame.rejected(game_id))
+
+      Enum.each(users_games, fn users_game ->
+        broadcast_invitation_rejected(users_game)
+      end)
+    end)
+  end
+
+  def broadcast_invitation_rejected(users_game) do
+    WerewolfApiWeb.Endpoint.broadcast(
+      "user:#{users_game.user_id}",
+      "invitation_rejected",
+      WerewolfApiWeb.UsersGameView.render("simple_users_game.json", %{users_game: users_game})
+    )
+  end
+
   defp broadcast_game_change_to_each_user(event, game) do
     Task.start_link(fn ->
-      game = WerewolfApi.Repo.preload(game, users_games: :user, game_messages: :user)
+      game =
+        WerewolfApi.Repo.preload(
+          game,
+          users_games: WerewolfApi.UsersGame.pending_and_accepted_only_with_user(game.id),
+          game_messages: :user
+        )
+
       {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
 
       Enum.each(game.users_games, fn users_game ->

@@ -95,4 +95,38 @@ defmodule WerewolfApiWeb.UserChannelTest do
       assert_broadcast("game_state_update", %{id: ^game_id, players: %{1 => %{id: 1}}})
     end
   end
+
+  describe "broadcast_invitation_rejected_to_users/1" do
+    test "when function called invitation_rejected is broadcast, invite is rejected", %{
+      game: game,
+      user: user
+    } do
+      users_game = insert(:users_game, user: user, game: game, state: "rejected")
+      users_game_id = users_game.id
+
+      WerewolfApiWeb.UserChannel.broadcast_invitation_rejected_to_users(game.id)
+      assert_broadcast("invitation_rejected", %{id: ^users_game_id})
+    end
+
+    test "when function called invitation_rejected is broadcast, invite is not rejected", %{
+      game: game,
+      user: user
+    } do
+      users_game = insert(:users_game, user: user, game: game)
+      users_game_id = users_game.id
+
+      WerewolfApiWeb.UserChannel.broadcast_invitation_rejected_to_users(game.id)
+      refute_broadcast("invitation_rejected", %{id: ^users_game_id})
+    end
+  end
+
+  describe "broadcast_invitation_rejected/1" do
+    test "when function called invitation_rejected is broadcast", %{game: game, user: user} do
+      users_game = insert(:users_game, user: user, game: game, state: "rejected")
+      users_game_id = users_game.id
+
+      WerewolfApiWeb.UserChannel.broadcast_invitation_rejected(users_game)
+      assert_broadcast("invitation_rejected", %{id: ^users_game_id})
+    end
+  end
 end

@@ -3,6 +3,7 @@ defmodule WerewolfApiWeb.GameChannel do
   alias WerewolfApi.Repo
   alias WerewolfApi.GameMessage
   alias WerewolfApi.GameServer
+  alias WerewolfApi.UsersGame
   alias WerewolfApiWeb.UserChannel
 
   def join("game:" <> game_id, _message, socket) do

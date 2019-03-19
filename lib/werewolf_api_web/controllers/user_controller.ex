@@ -26,11 +26,13 @@ defmodule WerewolfApiWeb.UserController do
   end
 
   def me(conn, _params) do
+    user = Guardian.Plug.current_resource(conn)
+
     user =
-      Guardian.Plug.current_resource(conn)
-      |> Repo.preload(
+      Repo.preload(
+        user,
         conversations: [:users, messages: :user],
-        games: [users_games: :user, game_messages: :user]
+        games: WerewolfApi.Game.participating_games(user.id)
       )
 
     conn

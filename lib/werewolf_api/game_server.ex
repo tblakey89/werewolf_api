@@ -28,8 +28,13 @@ defmodule WerewolfApi.GameServer do
       |> Werewolf.GameServer.launch_game(user)
 
     case response do
-      {:ok, :launch_game, state} -> handle_success(game_id, user, state)
-      {:error, reason} -> {:error, reason}
+      {:ok, :launch_game, state} ->
+        WerewolfApi.UsersGame.reject_pending_invitations(game_id)
+        WerewolfApiWeb.UserChannel.broadcast_invitation_rejected_to_users(game_id)
+        handle_success(game_id, user, state)
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

@@ -42,6 +42,22 @@ defmodule WerewolfApiWeb.InvitationController do
     end
   end
 
+  # pattern matching update must come before general update
+  def update(conn, %{"id" => id, "users_game" => %{"state" => "rejected"} = users_game_params}) do
+    user = Guardian.Plug.current_resource(conn)
+
+    with {:ok, users_game} <- find_users_game(id, user),
+         changeset <- UsersGame.update_state_changeset(users_game, users_game_params),
+         {:ok, users_game} <- Repo.update(changeset) do
+      WerewolfApiWeb.UserChannel.broadcast_game_update(users_game.game)
+      WerewolfApiWeb.UserChannel.broadcast_invitation_rejected(users_game)
+      render(conn, "success.json", %{users_game: users_game})
+    else
+      {:error, :invitation_not_found} -> invitation_not_found(conn)
+      {:error, %Ecto.Changeset{} = changeset} -> unprocessable_entity(conn, changeset)
+    end
+  end
+
   def update(conn, %{"id" => id, "users_game" => users_game_params}) do
     user = Guardian.Plug.current_resource(conn)
 

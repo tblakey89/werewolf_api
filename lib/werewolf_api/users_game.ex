@@ -34,4 +34,25 @@ defmodule WerewolfApi.UsersGame do
 
     WerewolfApi.Repo.all(query)
   end
+
+  def pending(game_id) do
+    from(ug in __MODULE__, where: ug.state == "pending" and ug.game_id == ^game_id)
+  end
+
+  def rejected(game_id) do
+    from(ug in __MODULE__, where: ug.state == "rejected" and ug.game_id == ^game_id)
+  end
+
+  def pending_and_accepted_only_with_user(game_id) do
+    from(
+      ug in __MODULE__,
+      where: ug.game_id == ^game_id and ug.state != "rejected",
+      preload: :user
+    )
+  end
+
+  def reject_pending_invitations(game_id) do
+    __MODULE__.pending(game_id)
+    |> WerewolfApi.Repo.update_all(set: [state: "rejected"])
+  end
 end

@@ -84,6 +84,21 @@ defmodule WerewolfApiWeb.UserControllerTest do
       assert response["user"]["email"] == user.email
     end
 
+    test "responds with no games if rejected game", %{conn: conn} do
+      user = insert(:user)
+      insert(:users_game, user: user, state: "rejected")
+
+      {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+      response =
+        conn
+        |> put_req_header("authorization", "bearer: " <> token)
+        |> get(user_path(conn, :me))
+        |> json_response(200)
+
+      assert length(response["user"]["games"]) == 0
+    end
+
     test "responds 401 when not authenticated", %{conn: conn} do
       conn
       |> get(user_path(conn, :me))
