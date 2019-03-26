@@ -9,6 +9,10 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
     game = insert(:game)
     WerewolfApi.GameServer.start_game(user, game.id, :day)
 
+    on_exit(fn ->
+      Werewolf.GameSupervisor.stop_game(game.id)
+    end)
+
     {:ok, game: game, user: user}
   end
 
@@ -122,7 +126,8 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
       assert response["name"] == game.name
     end
 
-    test "when game is not joinable", %{conn: conn, user: user} do
+    test "when game is not joinable", %{conn: conn} do
+      user = insert(:user)
       game = insert(:game, started: true)
 
       response = show_response(conn, user, game.invitation_token, 403)
@@ -130,7 +135,8 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
       assert response["error"] == "Game already started"
     end
 
-    test "when game already joined", %{conn: conn, user: user, game: game} do
+    test "when game already joined", %{conn: conn, game: game} do
+      user = insert(:user)
       users_game = insert(:users_game, state: "pending", game: game, user: user)
 
       response = show_response(conn, user, game.invitation_token, 403)

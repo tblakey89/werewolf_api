@@ -85,7 +85,7 @@ defmodule WerewolfApi.AnnouncementTest do
   end
 
   describe "announce/3 end of night phase" do
-    test "announces villager win of game", %{user: user, game: game} do
+    test "announces target of werewolves", %{user: user, game: game} do
       phase_number = 2
 
       WerewolfApi.Announcement.announce(
@@ -98,10 +98,23 @@ defmodule WerewolfApi.AnnouncementTest do
       assert sent_message =~ user.username
       assert sent_message =~ "sun came up"
     end
+
+    test "announces no target", %{user: user, game: game} do
+      phase_number = 2
+
+      WerewolfApi.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:no_win, :none, phase_number}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message})
+      assert sent_message =~ "everyone seemed to be ok"
+    end
   end
 
   describe "announce/3 end of day phase" do
-    test "announces villager win of game", %{user: user, game: game} do
+    test "announces target of vote", %{user: user, game: game} do
       phase_number = 1
 
       WerewolfApi.Announcement.announce(
@@ -114,6 +127,19 @@ defmodule WerewolfApi.AnnouncementTest do
       assert sent_message =~ user.username
       assert sent_message =~ "villager"
       assert sent_message =~ "The people voted"
+    end
+
+    test "announces no target", %{user: user, game: game} do
+      phase_number = 1
+
+      WerewolfApi.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:no_win, :none, phase_number}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message})
+      assert sent_message =~ "but no decision could be made"
     end
   end
 

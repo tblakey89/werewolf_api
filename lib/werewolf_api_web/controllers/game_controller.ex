@@ -15,7 +15,13 @@ defmodule WerewolfApiWeb.GameController do
         game = Repo.preload(game, users_games: :user, game_messages: :user)
 
         # do we need to handle game creation failure, or just let it fail?
-        {:ok, _} = WerewolfApi.GameServer.start_game(user, game.id, :day)
+        # ensure phase_length is turned to atom
+        {:ok, _} =
+          WerewolfApi.GameServer.start_game(
+            user,
+            game.id,
+            String.to_atom(game.time_period)
+          )
 
         update_state(game)
         {:ok, state} = WerewolfApi.GameServer.get_state(game.id)

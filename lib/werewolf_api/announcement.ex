@@ -43,6 +43,18 @@ defmodule WerewolfApi.Announcement do
     end
   end
 
+  def announce(game, state, {:no_win, :none, phase_number})
+      when Integer.is_even(phase_number) do
+    day_phase_number = round(phase_number / 2)
+
+    broadcast_message(
+      game,
+      "The sun came up on a new day, everyone left their homes, and everyone seemed to be ok. Day phase #{
+        day_phase_number
+      } begins now."
+    )
+  end
+
   def announce(game, state, {:no_win, target, phase_number})
       when Integer.is_even(phase_number) do
     target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
@@ -54,6 +66,17 @@ defmodule WerewolfApi.Announcement do
       "The sun came up on a new day, and #{target_user.username} was found dead. It turns out #{
         target_user.username
       } was a #{role}. Day phase #{day_phase_number} begins now."
+    )
+  end
+
+  def announce(game, state, {:no_win, :none, phase_number}) when Integer.is_odd(phase_number) do
+    night_phase_number = round(phase_number / 2)
+
+    broadcast_message(
+      game,
+      "The people voted, but no decision could be made. Everyone went to bed hoping they would make it through the night. Night phase #{
+        night_phase_number
+      } begins now."
     )
   end
 

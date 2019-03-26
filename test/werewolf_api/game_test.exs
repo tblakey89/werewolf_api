@@ -1,6 +1,7 @@
 defmodule WerewolfApi.GameTest do
   use ExUnit.Case
   import WerewolfApi.Factory
+  alias WerewolfApi.Game
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(WerewolfApi.Repo)
@@ -35,12 +36,38 @@ defmodule WerewolfApi.GameTest do
         rules: %Werewolf.Rules{state: :initialized}
       }
 
-      WerewolfApi.Game.update_state(game.id, state)
+      Game.update_state(game.id, state)
 
-      updated_game = WerewolfApi.Repo.get(WerewolfApi.Game, game.id)
+      updated_game = WerewolfApi.Repo.get(Game, game.id)
 
       assert updated_game.state["game"]["id"] == state.game.id
       assert updated_game.state["game"]["phase_length"] == "day"
+    end
+  end
+
+  describe "mark_game_as_complete/2" do
+    test "when villager win" do
+      game = insert(:game)
+      {:ok, game} = Game.mark_game_as_complete(game, {:villager_win, :ok, :ok})
+      assert game.finished
+    end
+
+    test "when werewolf win" do
+      game = insert(:game)
+      {:ok, game} = Game.mark_game_as_complete(game, {:werewolf_win, :ok, :ok})
+      assert game.finished
+    end
+
+    test "when no win" do
+      game = insert(:game)
+      {:ok, game} = Game.mark_game_as_complete(game, {:no_win, :ok, :ok})
+      refute game.finished
+    end
+
+    test "when launching game" do
+      game = insert(:game)
+      {:ok, game} = Game.mark_game_as_complete(game, {:launch_game, :ok})
+      refute game.finished
     end
   end
 end

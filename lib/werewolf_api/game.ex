@@ -8,7 +8,7 @@ defmodule WerewolfApi.Game do
     field(:name, :string)
     field(:time_period, :string)
     field(:started, :boolean)
-    field(:complete, :boolean)
+    field(:finished, :utc_datetime)
     field(:state, :map)
     field(:invitation_token, :string)
     many_to_many(:users, WerewolfApi.User, join_through: "users_games")
@@ -71,9 +71,9 @@ defmodule WerewolfApi.Game do
       )
 
     game
-    |> cast(attrs, [:name, :invitation_token])
+    |> cast(attrs, [:name, :invitation_token, :time_period])
     |> cast_assoc(:users_games)
-    |> validate_required([:name])
+    |> validate_required([:name, :time_period])
   end
 
   def update_changeset(game, attrs) do
@@ -111,4 +111,15 @@ defmodule WerewolfApi.Game do
       preload: [users_games: :user, game_messages: :user]
     )
   end
+
+  def mark_game_as_complete(game, {game_status, _, _}) do
+    if game_status in [:villager_win, :werewolf_win] do
+      change(game, finished: DateTime.utc_now())
+      |> Repo.update()
+    else
+      {:ok, game}
+    end
+  end
+
+  def mark_game_as_complete(game, _), do: {:ok, game}
 end

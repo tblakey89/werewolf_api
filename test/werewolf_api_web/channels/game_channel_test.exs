@@ -94,6 +94,9 @@ defmodule WerewolfApiWeb.GameChannelTest do
 
     test "launch_game responds with error on failure" do
       user = insert(:user)
+      game = insert(:game)
+      game_id = game.id
+      user_id = user.id
 
       state = %{
         game: %Werewolf.Game{
@@ -122,9 +125,8 @@ defmodule WerewolfApiWeb.GameChannelTest do
         rules: %Werewolf.Rules{state: :initialised}
       }
 
-      game = insert(:game, state: state)
-      game_id = game.id
-      user_id = user.id
+      WerewolfApi.Game.update_state(game, state)
+
       insert(:users_game, user: user, game: game)
       {:ok, jwt, _} = encode_and_sign(user)
       {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
@@ -184,10 +186,6 @@ defmodule WerewolfApiWeb.GameChannelTest do
 
       ref = push(game_socket, "launch_game", %{})
 
-      refute_broadcast("game_state_update", %{
-        id: ^game_id
-      })
-
       assert_broadcast("invitation_rejected", %{
         game_id: ^game_id
       })
@@ -198,11 +196,14 @@ defmodule WerewolfApiWeb.GameChannelTest do
     test "action responds with ok on success" do
       user = insert(:user)
       other_id = user.id + 1
+      game = insert(:game)
+      game_id = game.id
+      user_id = user.id
 
       state = %{
         game: %Werewolf.Game{
           end_phase_unix_time: 1000,
-          id: 178,
+          id: game_id,
           phase_length: :day,
           phases: 2,
           players: %{
@@ -225,9 +226,8 @@ defmodule WerewolfApiWeb.GameChannelTest do
         rules: %Werewolf.Rules{state: :day_phase}
       }
 
-      game = insert(:game, state: state)
-      game_id = game.id
-      user_id = user.id
+      WerewolfApi.Game.update_state(game, state)
+
       insert(:users_game, user: user, game: game)
       {:ok, jwt, _} = encode_and_sign(user)
       {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
@@ -247,11 +247,14 @@ defmodule WerewolfApiWeb.GameChannelTest do
     test "action responds with error on failure" do
       user = insert(:user)
       other_id = user.id + 1
+      game = insert(:game)
+      game_id = game.id
+      user_id = user.id
 
       state = %{
         game: %Werewolf.Game{
           end_phase_unix_time: 1000,
-          id: 178,
+          id: game_id,
           phase_length: :day,
           phases: 2,
           players: %{
@@ -267,9 +270,8 @@ defmodule WerewolfApiWeb.GameChannelTest do
         rules: %Werewolf.Rules{state: :ready}
       }
 
-      game = insert(:game, state: state)
-      game_id = game.id
-      user_id = user.id
+      WerewolfApi.Game.update_state(game, state)
+
       insert(:users_game, user: user, game: game)
       {:ok, jwt, _} = encode_and_sign(user)
       {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})

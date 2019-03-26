@@ -12,8 +12,9 @@ defmodule WerewolfApiWeb.GameControllerTest do
       game_name = "test_name"
 
       game = %{
-        name: "test_name",
-        user_ids: [second_user.id]
+        name: game_name,
+        user_ids: [second_user.id],
+        time_period: "day"
       }
 
       WerewolfApiWeb.Endpoint.subscribe("user:#{second_user.id}")

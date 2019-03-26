@@ -4,7 +4,6 @@ defmodule WerewolfApi.GameFactory do
       def game_factory do
         %WerewolfApi.Game{
           name: "Test game",
-          complete: false,
           invitation_token: WerewolfApi.Game.generate_game_token()
         }
       end

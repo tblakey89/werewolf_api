@@ -1,6 +1,7 @@
 defmodule WerewolfApi.GameServer do
   alias WerewolfApi.Announcement
   alias WerewolfApi.Game
+  require IEx
 
   def start_game(user, game_id, time_period) do
     Werewolf.GameSupervisor.start_game(user, game_id, time_period, nil, &handle_game_callback/2)
@@ -68,13 +69,7 @@ defmodule WerewolfApi.GameServer do
     end
   end
 
-  def receive_end_phase({_win_status, _target, _phases, state}) do
-    WerewolfApiWeb.UserChannel.broadcast_state_update(state.game.id, Game.clean_state(state))
-    :ok
-  end
-
   defp handle_success(game_id, _user, state) do
-    WerewolfApiWeb.UserChannel.broadcast_state_update(game_id, Game.clean_state(state))
     :ok
   end
 
@@ -97,6 +92,8 @@ defmodule WerewolfApi.GameServer do
 
       Announcement.announce(game, state, game_response)
 
+      WerewolfApiWeb.UserChannel.broadcast_state_update(game.id, state)
+      WerewolfApi.Game.mark_game_as_complete(game, state)
       WerewolfApi.Game.update_state(game, state)
     end)
   end
