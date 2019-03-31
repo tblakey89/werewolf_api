@@ -51,6 +51,8 @@ defmodule WerewolfApi.Mixfile do
       {:hackney, "~> 1.6"},
       {:poison, "~> 3.1"},
       {:sweet_xml, "~> 0.6"},
+      {:edeliver, ">= 1.6.0"},
+      {:distillery, "~> 2.0", warn_missing: false},
       {:werewolf, path: "../werewolf"}
     ]
   end
