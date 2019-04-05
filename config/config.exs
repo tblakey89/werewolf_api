@@ -25,6 +25,20 @@ config :werewolf_api, WerewolfApi.AuthAccessPipeline,
   module: WerewolfApi.Guardian,
   error_handler: WerewolfApi.AuthErrorHandler
 
+config :arc,
+  bucket: {:system, "S3_BUCKET"},
+  virtual_host: true
+
+config :ex_aws,
+  access_key_id: {:system, "AWS_ACCESS_KEY_ID"},
+  secret_access_key: {:system, "AWS_SECRET_ACCESS_KEY"},
+  region: "eu-west-2",
+  s3: [
+    scheme: "https://",
+    host: "s3.eu-west-2.amazonaws.com",
+    region: "eu-west-2"
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
