@@ -1,0 +1,4 @@
+#!/usr/bin/env zsh
+mix edeliver build release
+mix edeliver deploy release to production
+mix edeliver restart production
