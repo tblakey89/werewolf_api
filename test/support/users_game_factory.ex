@@ -4,7 +4,8 @@ defmodule WerewolfApi.UsersGameFactory do
       def users_game_factory do
         %WerewolfApi.UsersGame{
           user: build(:user),
-          game: build(:game)
+          game: build(:game),
+          last_read_at: DateTime.utc_now()
         }
       end
     end

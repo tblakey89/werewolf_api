@@ -8,12 +8,12 @@ defmodule WerewolfApiWeb.GameChannelTest do
   setup do
     user = insert(:user)
     game = insert(:game)
-    insert(:users_game, user: user, game: game)
+    users_game = insert(:users_game, user: user, game: game)
     {:ok, jwt, _} = encode_and_sign(user)
     {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
     {:ok, _, socket} = subscribe_and_join(socket, "game:#{game.id}", %{})
 
-    {:ok, socket: socket, game: game, user: user}
+    {:ok, socket: socket, game: game, user: user, users_game: users_game}
   end
 
   describe "join channel" do
@@ -286,6 +286,16 @@ defmodule WerewolfApiWeb.GameChannelTest do
       })
 
       assert_reply(ref, :error)
+    end
+  end
+
+  describe "read_game event" do
+    test "users_game is updated", %{socket: socket, users_game: users_game} do
+      ref = push(socket, "read_game", %{})
+      original_last_read_at = users_game.last_read_at
+      assert_reply(ref, :ok)
+      new_last_read_at = Repo.get(WerewolfApi.UsersGame, users_game.id).last_read_at
+      assert(original_last_read_at < new_last_read_at)
     end
   end
 end

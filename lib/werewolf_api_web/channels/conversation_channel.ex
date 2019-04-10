@@ -17,7 +17,6 @@ defmodule WerewolfApiWeb.ConversationChannel do
   end
 
   def handle_in("new_message", params, socket) do
-    # need to work out way to handle unread messages
     # need to make saving message a task
     changeset =
       Guardian.Phoenix.Socket.current_resource(socket)
@@ -34,10 +33,23 @@ defmodule WerewolfApiWeb.ConversationChannel do
           WerewolfApiWeb.MessageView.render("message.json", %{message: message})
         )
 
+        update_last_read_at(socket)
         {:reply, :ok, socket}
 
       {:error, changeset} ->
         {:reply, {:error, %{errors: changeset}}, socket}
     end
+  end
+
+  def handle_in("read_conversation", params, socket) do
+    update_last_read_at(socket)
+    {:reply, :ok, socket}
+  end
+
+  defp update_last_read_at(socket) do
+    WerewolfApi.UsersConversation.update_last_read_at(
+      Guardian.Phoenix.Socket.current_resource(socket).id,
+      socket.assigns.conversation_id
+    )
   end
 end

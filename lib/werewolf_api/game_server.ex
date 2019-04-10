@@ -1,7 +1,6 @@
 defmodule WerewolfApi.GameServer do
   alias WerewolfApi.Announcement
   alias WerewolfApi.Game
-  require IEx
 
   def start_game(user, game_id, time_period) do
     Werewolf.GameSupervisor.start_game(user, game_id, time_period, nil, &handle_game_callback/2)

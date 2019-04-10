@@ -5,4 +5,5 @@ defmodule WerewolfApi.Factory do
   use WerewolfApi.MessageFactory
   use WerewolfApi.GameFactory
   use WerewolfApi.UsersGameFactory
+  use WerewolfApi.UsersConversationFactory
 end

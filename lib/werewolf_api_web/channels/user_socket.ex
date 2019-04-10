@@ -12,6 +12,7 @@ defmodule WerewolfApiWeb.UserSocket do
     Phoenix.Transports.WebSocket,
     check_origin: false
   )
+
   # transport :longpoll, Phoenix.Transports.LongPoll
 
   # Socket params are passed from the client and can

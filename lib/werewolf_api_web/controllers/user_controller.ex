@@ -2,7 +2,7 @@ defmodule WerewolfApiWeb.UserController do
   use WerewolfApiWeb, :controller
   alias WerewolfApi.User
   alias WerewolfApi.Repo
-  require IEx
+  import Ecto.Query, only: [from: 2]
 
   def create(conn, %{"user" => user_params}) do
     changeset = User.registration_changeset(%User{}, user_params)
@@ -31,7 +31,11 @@ defmodule WerewolfApiWeb.UserController do
     user =
       Repo.preload(
         user,
-        conversations: [:users, messages: :user],
+        conversations: [
+          :users,
+          :users_conversations,
+          [messages: from(m in WerewolfApi.Message, order_by: [desc: m.id], preload: :user)]
+        ],
         games: WerewolfApi.Game.participating_games(user.id)
       )
 

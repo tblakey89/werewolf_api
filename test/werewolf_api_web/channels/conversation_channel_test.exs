@@ -7,12 +7,13 @@ defmodule WerewolfApiWeb.ConversationChannelTest do
 
   setup do
     user = insert(:user)
-    conversation = insert(:conversation, users: [user])
+    conversation = insert(:conversation)
+    users_conversation = insert(:users_conversation, user: user, conversation: conversation)
     {:ok, jwt, _} = encode_and_sign(user)
     {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
     {:ok, _, socket} = subscribe_and_join(socket, "conversation:#{conversation.id}", %{})
 
-    {:ok, socket: socket}
+    {:ok, socket: socket, users_conversation: users_conversation}
   end
 
   describe "join channel" do
@@ -36,6 +37,22 @@ defmodule WerewolfApiWeb.ConversationChannelTest do
     test "new_message fails to broadcast new message when invalid", %{socket: socket} do
       ref = push(socket, "new_message", %{})
       assert_reply(ref, :error)
+    end
+  end
+
+  describe "read_conversation event" do
+    test "users_conversation is updated", %{
+      socket: socket,
+      users_conversation: users_conversation
+    } do
+      ref = push(socket, "read_conversation", %{})
+      original_last_read_at = users_conversation.last_read_at
+      assert_reply(ref, :ok)
+
+      new_last_read_at =
+        Repo.get(WerewolfApi.UsersConversation, users_conversation.id).last_read_at
+
+      assert(original_last_read_at < new_last_read_at)
     end
   end
 end

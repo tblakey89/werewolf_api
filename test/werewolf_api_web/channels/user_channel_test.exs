@@ -27,7 +27,7 @@ defmodule WerewolfApiWeb.UserChannelTest do
     test "when function called new_conversation is broadcast", %{user: user} do
       conversation =
         insert(:conversation, users: [user])
-        |> Repo.preload(:messages)
+        |> Repo.preload([:messages, :users_conversations])
 
       conversation_id = conversation.id
 

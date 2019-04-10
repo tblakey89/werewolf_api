@@ -2,9 +2,11 @@ defmodule WerewolfApi.UsersGame do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query, only: [from: 2]
+  alias WerewolfApi.Repo
 
   schema "users_games" do
     field(:state, :string, default: "pending")
+    field(:last_read_at, :utc_datetime, default: DateTime.utc_now())
     belongs_to(:game, WerewolfApi.Game)
     belongs_to(:user, WerewolfApi.User)
 
@@ -32,7 +34,7 @@ defmodule WerewolfApi.UsersGame do
         preload: [:user]
       )
 
-    WerewolfApi.Repo.all(query)
+    Repo.all(query)
   end
 
   def pending(game_id) do
@@ -53,6 +55,12 @@ defmodule WerewolfApi.UsersGame do
 
   def reject_pending_invitations(game_id) do
     __MODULE__.pending(game_id)
-    |> WerewolfApi.Repo.update_all(set: [state: "rejected"])
+    |> Repo.update_all(set: [state: "rejected"])
+  end
+
+  def update_last_read_at(user_id, game_id) do
+    Repo.get_by(__MODULE__, user_id: user_id, game_id: game_id)
+    |> change(last_read_at: DateTime.utc_now())
+    |> Repo.update()
   end
 end

@@ -108,7 +108,13 @@ defmodule WerewolfApi.Game do
       g in WerewolfApi.Game,
       join: ug in WerewolfApi.UsersGame,
       where: ug.user_id == ^user_id and ug.game_id == g.id and ug.state != "rejected",
-      preload: [users_games: :user, game_messages: :user]
+      preload: [
+        [
+          game_messages:
+            ^from(m in WerewolfApi.GameMessage, order_by: [desc: m.id], preload: :user)
+        ],
+        users_games: :user
+      ]
     )
   end
 

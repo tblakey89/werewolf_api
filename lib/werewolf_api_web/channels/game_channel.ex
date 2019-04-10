@@ -35,6 +35,7 @@ defmodule WerewolfApiWeb.GameChannel do
           WerewolfApiWeb.GameMessageView.render("game_message.json", %{game_message: game_message})
         )
 
+        update_last_read_at(socket)
         {:reply, :ok, socket}
 
       {:error, changeset} ->
@@ -58,6 +59,11 @@ defmodule WerewolfApiWeb.GameChannel do
     |> handle_game_response(socket, game_id, user)
   end
 
+  def handle_in("read_game", params, socket) do
+    update_last_read_at(socket)
+    {:reply, :ok, socket}
+  end
+
   defp handle_game_response(response, socket, game_id, user) do
     case response do
       :ok ->
@@ -66,5 +72,12 @@ defmodule WerewolfApiWeb.GameChannel do
       {:error, message} ->
         {:reply, {:error, %{errors: message}}, socket}
     end
+  end
+
+  defp update_last_read_at(socket) do
+    WerewolfApi.UsersGame.update_last_read_at(
+      Guardian.Phoenix.Socket.current_resource(socket).id,
+      socket.assigns.game_id
+    )
   end
 end

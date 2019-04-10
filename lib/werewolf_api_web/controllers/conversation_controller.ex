@@ -39,7 +39,7 @@ defmodule WerewolfApiWeb.ConversationController do
 
     case Conversation.find_or_create(conversation_params, user) do
       {:ok, conversation} ->
-        conversation = Repo.preload(conversation, [:users, :messages])
+        conversation = Repo.preload(conversation, [:users, :messages, :users_conversations])
 
         WerewolfApiWeb.UserChannel.broadcast_conversation_creation_to_users(conversation)
 
