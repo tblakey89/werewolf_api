@@ -2,7 +2,7 @@ defmodule WerewolfApiWeb.ConversationChannel do
   use Phoenix.Channel
   alias WerewolfApi.Repo
   alias WerewolfApi.Conversation
-  alias WerewolfApi.Message
+  alias WerewolfApi.Conversation.Message
 
   def join("conversation:" <> conversation_id, _message, socket) do
     conversation =

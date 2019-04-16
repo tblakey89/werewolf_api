@@ -3,7 +3,7 @@ defmodule WerewolfApiWeb.ConversationChannelTest do
   import WerewolfApi.Factory
   import WerewolfApi.Guardian
   alias WerewolfApi.Repo
-  alias WerewolfApi.Message
+  alias WerewolfApi.Conversation.Message
 
   setup do
     user = insert(:user)

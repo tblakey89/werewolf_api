@@ -8,7 +8,7 @@ defmodule WerewolfApi.Conversation do
     field(:name, :string)
     field(:last_message_at, :utc_datetime)
     many_to_many(:users, WerewolfApi.User, join_through: "users_conversations")
-    has_many(:messages, WerewolfApi.Message)
+    has_many(:messages, WerewolfApi.Conversation.Message)
     has_many(:users_conversations, WerewolfApi.UsersConversation)
 
     timestamps()
@@ -19,7 +19,11 @@ defmodule WerewolfApi.Conversation do
   end
 
   def find_or_create(params, user) do
-    conversations = find_by_user_ids(params, user)
+    sorted_user_ids =
+      Enum.sort([user.id | params["user_ids"] || []])
+      |> Enum.map(&convert_user_id_to_integer/1)
+
+    conversations = find_by_user_ids(sorted_user_ids)
 
     cond do
       length(conversations) > 0 ->
@@ -31,11 +35,24 @@ defmodule WerewolfApi.Conversation do
     end
   end
 
-  def find_by_user_ids(params, user) do
+  def find_or_create(params) do
     sorted_user_ids =
-      Enum.sort([user.id | params["user_ids"] || []])
+      Enum.sort(params["user_ids"])
       |> Enum.map(&convert_user_id_to_integer/1)
 
+    conversations = find_by_user_ids(sorted_user_ids)
+
+    cond do
+      length(conversations) > 0 ->
+        {:ok, Enum.at(conversations, 0)}
+
+      true ->
+        changeset = __MODULE__.changeset(%__MODULE__{}, params)
+        Repo.insert(changeset)
+    end
+  end
+
+  def find_by_user_ids(sorted_user_ids) do
     query =
       from(
         conversation in __MODULE__,
@@ -60,6 +77,15 @@ defmodule WerewolfApi.Conversation do
     conversation
     |> cast(attrs, [:name])
     |> put_assoc(:users, [user | participants])
+    |> validate_user_amount(:users)
+  end
+
+  def changeset(conversation, attrs) do
+    participants = WerewolfApi.User.find_by_user_ids(attrs["user_ids"])
+
+    conversation
+    |> cast(attrs, [:name])
+    |> put_assoc(:users, participants)
     |> validate_user_amount(:users)
   end
 

@@ -3,7 +3,7 @@ defmodule WerewolfApi.Repo.Migrations.AddTimestampsToUsersConversations do
 
   def change do
     alter table(:users_conversations) do
-    timestamps default: fragment("now()"), null: false
-  end
+      timestamps default: fragment("now()"), null: false
+    end
   end
 end

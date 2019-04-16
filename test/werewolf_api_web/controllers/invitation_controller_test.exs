@@ -7,7 +7,7 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
   setup do
     user = insert(:user)
     game = insert(:game)
-    WerewolfApi.GameServer.start_game(user, game.id, :day)
+    WerewolfApi.Game.Server.start_game(user, game.id, :day)
 
     on_exit(fn ->
       Werewolf.GameSupervisor.stop_game(game.id)

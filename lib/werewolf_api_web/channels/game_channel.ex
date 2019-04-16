@@ -1,8 +1,8 @@
 defmodule WerewolfApiWeb.GameChannel do
   use Phoenix.Channel
   alias WerewolfApi.Repo
-  alias WerewolfApi.GameMessage
-  alias WerewolfApi.GameServer
+  alias WerewolfApi.Game.Message
+  alias WerewolfApi.Game.Server
   alias WerewolfApi.UsersGame
   alias WerewolfApiWeb.UserChannel
 
@@ -23,7 +23,7 @@ defmodule WerewolfApiWeb.GameChannel do
     changeset =
       Guardian.Phoenix.Socket.current_resource(socket)
       |> Ecto.build_assoc(:game_messages, game_id: socket.assigns.game_id)
-      |> GameMessage.changeset(params)
+      |> Message.changeset(params)
 
     case Repo.insert(changeset) do
       {:ok, game_message} ->
@@ -47,7 +47,7 @@ defmodule WerewolfApiWeb.GameChannel do
     user = Guardian.Phoenix.Socket.current_resource(socket)
     game_id = socket.assigns.game_id
 
-    GameServer.launch_game(game_id, user)
+    Server.launch_game(game_id, user)
     |> handle_game_response(socket, game_id, user)
   end
 
@@ -55,7 +55,7 @@ defmodule WerewolfApiWeb.GameChannel do
     user = Guardian.Phoenix.Socket.current_resource(socket)
     game_id = socket.assigns.game_id
 
-    GameServer.action(game_id, user, params["target"], String.to_atom(params["action_type"]))
+    Server.action(game_id, user, params["target"], String.to_atom(params["action_type"]))
     |> handle_game_response(socket, game_id, user)
   end
 

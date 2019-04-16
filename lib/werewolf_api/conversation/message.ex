@@ -1,9 +1,10 @@
-defmodule WerewolfApi.Message do
+defmodule WerewolfApi.Conversation.Message do
   use Ecto.Schema
   import Ecto.Changeset
 
   schema "messages" do
     field(:body, :string)
+    field(:bot, :boolean, default: false)
     belongs_to(:user, WerewolfApi.User)
     belongs_to(:conversation, WerewolfApi.Conversation)
 

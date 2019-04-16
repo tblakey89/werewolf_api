@@ -1,4 +1,4 @@
-defmodule WerewolfApi.Announcement do
+defmodule WerewolfApi.Game.Announcement do
   require Integer
 
   def announce(game, _state, {:ok, :add_player, user}) do
@@ -97,8 +97,8 @@ defmodule WerewolfApi.Announcement do
 
   defp broadcast_message(game, message) do
     changeset =
-      Ecto.build_assoc(game, :game_messages, user_id: 0)
-      |> WerewolfApi.GameMessage.changeset(%{bot: true, body: message})
+      Ecto.build_assoc(game, :messages, user_id: 0)
+      |> WerewolfApi.Game.Message.changeset(%{bot: true, body: message})
 
     case WerewolfApi.Repo.insert(changeset) do
       {:ok, game_message} ->

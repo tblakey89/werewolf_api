@@ -13,7 +13,8 @@ defmodule WerewolfApi.Game do
     field(:invitation_token, :string)
     many_to_many(:users, WerewolfApi.User, join_through: "users_games")
     has_many(:users_games, WerewolfApi.UsersGame)
-    has_many(:game_messages, WerewolfApi.GameMessage)
+    has_many(:messages, WerewolfApi.Game.Message)
+    belongs_to(:conversation, WerewolfApi.Conversation)
 
     timestamps()
   end
@@ -24,7 +25,7 @@ defmodule WerewolfApi.Game do
 
   def current_state(game) do
     # here, if game no longer active return from game.state
-    {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
+    {:ok, state} = WerewolfApi.Game.Server.get_state(game.id)
     state
   end
 
@@ -110,22 +111,10 @@ defmodule WerewolfApi.Game do
       where: ug.user_id == ^user_id and ug.game_id == g.id and ug.state != "rejected",
       preload: [
         [
-          game_messages:
-            ^from(m in WerewolfApi.GameMessage, order_by: [desc: m.id], preload: :user)
+          messages: ^from(m in WerewolfApi.Game.Message, order_by: [desc: m.id], preload: :user)
         ],
         users_games: :user
       ]
     )
   end
-
-  def mark_game_as_complete(game, {game_status, _, _}) do
-    if game_status in [:villager_win, :werewolf_win] do
-      change(game, finished: DateTime.utc_now())
-      |> Repo.update()
-    else
-      {:ok, game}
-    end
-  end
-
-  def mark_game_as_complete(game, _), do: {:ok, game}
 end

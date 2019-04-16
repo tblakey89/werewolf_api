@@ -1,4 +1,4 @@
-defmodule WerewolfApi.GameServerTest do
+defmodule WerewolfApi.Game.ServerTest do
   use Phoenix.ChannelTest
   use ExUnit.Case
   import WerewolfApi.Factory
@@ -13,7 +13,7 @@ defmodule WerewolfApi.GameServerTest do
       user = insert(:user)
       game = insert(:game)
 
-      WerewolfApi.GameServer.start_game(user, game.id, :day)
+      WerewolfApi.Game.Server.start_game(user, game.id, :day)
 
       assert Werewolf.GameSupervisor.pid_from_name(game.id) != nil
     end
@@ -26,7 +26,7 @@ defmodule WerewolfApi.GameServerTest do
 
       WerewolfApiWeb.Endpoint.subscribe("game:#{game.id}")
 
-      {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
+      {:ok, state} = WerewolfApi.Game.Server.get_state(game.id)
 
       assert state.game.id == game.id
     end
@@ -41,7 +41,7 @@ defmodule WerewolfApi.GameServerTest do
 
       WerewolfApiWeb.Endpoint.subscribe("user:#{user.id}")
 
-      :ok = WerewolfApi.GameServer.add_player(game.id, user)
+      :ok = WerewolfApi.Game.Server.add_player(game.id, user)
 
       assert_broadcast("game_state_update", state)
 
@@ -61,18 +61,18 @@ defmodule WerewolfApi.GameServerTest do
       start_game(game)
       user = insert(:user)
 
-      {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
+      {:ok, state} = WerewolfApi.Game.Server.get_state(game.id)
 
       WerewolfApi.Game.update_state(game.id, state)
 
       Werewolf.GameSupervisor.stop_game(game.id)
 
-      assert :ok == WerewolfApi.GameServer.add_player(game.id, user)
+      assert :ok == WerewolfApi.Game.Server.add_player(game.id, user)
     end
   end
 
   defp start_game(game) do
     user = insert(:user)
-    WerewolfApi.GameServer.start_game(user, game.id, :day)
+    WerewolfApi.Game.Server.start_game(user, game.id, :day)
   end
 end

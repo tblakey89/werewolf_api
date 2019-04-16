@@ -17,8 +17,8 @@ defmodule WerewolfApi.User do
     many_to_many(:conversations, WerewolfApi.Conversation, join_through: "users_conversations")
     many_to_many(:games, WerewolfApi.Game, join_through: "users_games")
     has_many(:users_games, WerewolfApi.UsersGame)
-    has_many(:messages, WerewolfApi.Message)
-    has_many(:game_messages, WerewolfApi.GameMessage)
+    has_many(:messages, WerewolfApi.Conversation.Message)
+    has_many(:game_messages, WerewolfApi.Game.Message)
 
     timestamps()
   end

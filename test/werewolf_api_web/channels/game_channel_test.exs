@@ -3,7 +3,7 @@ defmodule WerewolfApiWeb.GameChannelTest do
   import WerewolfApi.Factory
   import WerewolfApi.Guardian
   alias WerewolfApi.Repo
-  alias WerewolfApi.GameMessage
+  alias WerewolfApi.Game.Message
 
   setup do
     user = insert(:user)
@@ -31,7 +31,7 @@ defmodule WerewolfApiWeb.GameChannelTest do
       ref = push(socket, "new_message", %{"body" => sent_message})
       assert_broadcast("new_message", %{body: sent_message})
       assert_reply(ref, :ok)
-      assert Repo.get_by(GameMessage, body: sent_message)
+      assert Repo.get_by(Message, body: sent_message)
     end
 
     test "new_message fails to broadcast new message when invalid", %{socket: socket} do
@@ -48,29 +48,41 @@ defmodule WerewolfApiWeb.GameChannelTest do
       user_id = user.id
       insert(:users_game, user: user, game: game, state: "host")
 
+      players =
+        Enum.reduce(0..6, %{}, fn i, acc ->
+          player = insert(:user)
+
+          Map.put_new(acc, player.id, %Werewolf.Player{
+            actions: %{},
+            alive: true,
+            host: false,
+            id: player.id,
+            role: :none
+          })
+        end)
+        |> Map.put(user.id, %Werewolf.Player{
+          actions: %{
+            1 => %{
+              vote: %Werewolf.Action{
+                type: :vote,
+                target: 2,
+                option: :none
+              }
+            }
+          },
+          alive: true,
+          host: true,
+          id: user.id,
+          role: :none
+        })
+
       state = %{
         game: %Werewolf.Game{
           end_phase_unix_time: nil,
           id: game_id,
           phase_length: :day,
           phases: 0,
-          players: %{
-            user.id => %Werewolf.Player{
-              actions: %{
-                1 => %{
-                  vote: %Werewolf.Action{
-                    type: :vote,
-                    target: 2,
-                    option: :none
-                  }
-                }
-              },
-              alive: true,
-              host: true,
-              id: user.id,
-              role: :none
-            }
-          }
+          players: players
         },
         rules: %Werewolf.Rules{state: :ready}
       }

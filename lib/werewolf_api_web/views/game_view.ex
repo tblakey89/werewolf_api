@@ -21,8 +21,7 @@ defmodule WerewolfApiWeb.GameView do
       created_at:
         DateTime.to_unix(DateTime.from_naive!(game.inserted_at, "Etc/UTC"), :millisecond),
       users_games: render_many(game.users_games, WerewolfApiWeb.UsersGameView, "users_game.json"),
-      messages:
-        render_many(game.game_messages, WerewolfApiWeb.GameMessageView, "game_message.json")
+      messages: render_many(game.messages, WerewolfApiWeb.GameMessageView, "game_message.json")
     }
   end
 
@@ -34,8 +33,7 @@ defmodule WerewolfApiWeb.GameView do
         DateTime.to_unix(DateTime.from_naive!(game.inserted_at, "Etc/UTC"), :millisecond),
       token: game.invitation_token,
       users_games: render_many(game.users_games, WerewolfApiWeb.UsersGameView, "users_game.json"),
-      messages:
-        render_many(game.game_messages, WerewolfApiWeb.GameMessageView, "game_message.json"),
+      messages: render_many(game.messages, WerewolfApiWeb.GameMessageView, "game_message.json"),
       state:
         render_one(
           %{state: state, game_id: game.id, user: user},

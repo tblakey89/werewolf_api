@@ -83,10 +83,10 @@ defmodule WerewolfApiWeb.UserChannel do
         WerewolfApi.Repo.preload(
           game,
           users_games: WerewolfApi.UsersGame.pending_and_accepted_only_with_user(game.id),
-          game_messages: :user
+          messages: :user
         )
 
-      {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
+      {:ok, state} = WerewolfApi.Game.Server.get_state(game.id)
 
       Enum.each(game.users_games, fn users_game ->
         WerewolfApiWeb.Endpoint.broadcast(

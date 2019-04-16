@@ -29,7 +29,7 @@ defmodule WerewolfApiWeb.InvitationController do
              game_id: game.id,
              state: "accepted"
            }),
-         :ok <- WerewolfApi.GameServer.add_player(game.id, user),
+         :ok <- Game.Server.add_player(game.id, user),
          {:ok, users_game} <- Repo.insert(changeset) do
       WerewolfApiWeb.UserChannel.broadcast_game_update(game)
       render(conn, "success.json", %{users_game: users_game})
@@ -63,7 +63,7 @@ defmodule WerewolfApiWeb.InvitationController do
 
     with {:ok, users_game} <- find_users_game(id, user),
          changeset <- UsersGame.update_state_changeset(users_game, users_game_params),
-         :ok <- WerewolfApi.GameServer.add_player(users_game.game_id, user),
+         :ok <- Game.Server.add_player(users_game.game_id, user),
          {:ok, users_game} <- Repo.update(changeset) do
       WerewolfApiWeb.UserChannel.broadcast_game_update(users_game.game)
       render(conn, "success.json", %{users_game: users_game})

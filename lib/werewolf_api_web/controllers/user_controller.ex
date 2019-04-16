@@ -34,7 +34,10 @@ defmodule WerewolfApiWeb.UserController do
         conversations: [
           :users,
           :users_conversations,
-          [messages: from(m in WerewolfApi.Message, order_by: [desc: m.id], preload: :user)]
+          [
+            messages:
+              from(m in WerewolfApi.Conversation.Message, order_by: [desc: m.id], preload: :user)
+          ]
         ],
         games: WerewolfApi.Game.participating_games(user.id)
       )

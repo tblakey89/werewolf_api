@@ -1,4 +1,4 @@
-defmodule WerewolfApi.AnnouncementTest do
+defmodule WerewolfApi.Game.AnnouncementTest do
   use ExUnit.Case
   use WerewolfApiWeb.ChannelCase
   import WerewolfApi.Factory
@@ -17,7 +17,11 @@ defmodule WerewolfApi.AnnouncementTest do
 
   describe "announce/3 add_player" do
     test "announces a new player joining", %{user: user, game: game} do
-      WerewolfApi.Announcement.announce(game, state(user.id, game.id), {:ok, :add_player, user})
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:ok, :add_player, user}
+      )
 
       assert_broadcast("new_message", %{body: sent_message})
       assert sent_message =~ user.username
@@ -26,7 +30,7 @@ defmodule WerewolfApi.AnnouncementTest do
 
   describe "announce/3 launch_game" do
     test "announces launch of game", %{user: user, game: game} do
-      WerewolfApi.Announcement.announce(game, state(user.id, game.id), {:ok, :launch_game})
+      WerewolfApi.Game.Announcement.announce(game, state(user.id, game.id), {:ok, :launch_game})
 
       assert_broadcast("new_message", %{body: sent_message})
       assert sent_message =~ "game has launched"
@@ -38,7 +42,7 @@ defmodule WerewolfApi.AnnouncementTest do
       target = insert(:user)
       phase_number = 1
 
-      WerewolfApi.Announcement.announce(
+      WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
         {:villager_win, target.id, phase_number}
@@ -55,7 +59,7 @@ defmodule WerewolfApi.AnnouncementTest do
       target = insert(:user)
       phase_number = 2
 
-      WerewolfApi.Announcement.announce(
+      WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
         {:werewolf_win, target.id, phase_number}
@@ -71,7 +75,7 @@ defmodule WerewolfApi.AnnouncementTest do
       target = insert(:user)
       phase_number = 1
 
-      WerewolfApi.Announcement.announce(
+      WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
         {:werewolf_win, target.id, phase_number}
@@ -88,7 +92,7 @@ defmodule WerewolfApi.AnnouncementTest do
     test "announces target of werewolves", %{user: user, game: game} do
       phase_number = 2
 
-      WerewolfApi.Announcement.announce(
+      WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
         {:no_win, user.id, phase_number}
@@ -102,7 +106,7 @@ defmodule WerewolfApi.AnnouncementTest do
     test "announces no target", %{user: user, game: game} do
       phase_number = 2
 
-      WerewolfApi.Announcement.announce(
+      WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
         {:no_win, :none, phase_number}
@@ -117,7 +121,7 @@ defmodule WerewolfApi.AnnouncementTest do
     test "announces target of vote", %{user: user, game: game} do
       phase_number = 1
 
-      WerewolfApi.Announcement.announce(
+      WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
         {:no_win, user.id, phase_number}
@@ -132,7 +136,7 @@ defmodule WerewolfApi.AnnouncementTest do
     test "announces no target", %{user: user, game: game} do
       phase_number = 1
 
-      WerewolfApi.Announcement.announce(
+      WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
         {:no_win, :none, phase_number}

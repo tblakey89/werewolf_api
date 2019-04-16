@@ -1,4 +1,4 @@
-defmodule WerewolfApi.GameServer do
+defmodule WerewolfApi.Game.Server do
   alias WerewolfApi.Announcement
   alias WerewolfApi.Game
 
@@ -45,7 +45,6 @@ defmodule WerewolfApi.GameServer do
 
     case response do
       {:ok, state} ->
-        update_game_state(game_id, state)
         handle_success(game_id, user, state)
 
       {:error, reason} ->
@@ -79,21 +78,12 @@ defmodule WerewolfApi.GameServer do
     end
   end
 
-  defp update_game_state(game_id, state) do
-    Task.start_link(fn ->
-      WerewolfApi.Game.update_state(game_id, state)
-    end)
-  end
-
   defp handle_game_callback(state, game_response) do
     Task.start_link(fn ->
-      game = WerewolfApi.Repo.get(WerewolfApi.Game, state.game.id)
-
-      Announcement.announce(game, state, game_response)
-
+      game = WerewolfApi.Repo.get(Game, state.game.id)
+      {:ok, game} = Game.Event.handle(game, state, game_response)
+      Game.Announcement.announce(game, state, game_response)
       WerewolfApiWeb.UserChannel.broadcast_state_update(game.id, state)
-      WerewolfApi.Game.mark_game_as_complete(game, state)
-      WerewolfApi.Game.update_state(game, state)
     end)
   end
 

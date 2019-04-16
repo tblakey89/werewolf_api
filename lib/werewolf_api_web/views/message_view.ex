@@ -18,8 +18,15 @@ defmodule WerewolfApiWeb.MessageView do
       created_at:
         DateTime.to_unix(DateTime.from_naive!(message.inserted_at, "Etc/UTC"), :millisecond),
       body: message.body,
-      sender: render_one(message.user, WerewolfApiWeb.UserView, "simple_user.json"),
+      bot: message.bot,
+      sender: render_optional_user(message),
       conversation_id: message.conversation_id
     }
+  end
+
+  defp render_optional_user(%{user_id: 0}), do: nil
+
+  defp render_optional_user(game_message) do
+    render_one(game_message.user, WerewolfApiWeb.UserView, "simple_user.json")
   end
 end

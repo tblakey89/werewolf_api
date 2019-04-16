@@ -12,19 +12,19 @@ defmodule WerewolfApiWeb.GameController do
 
     case Repo.insert(changeset) do
       {:ok, game} ->
-        game = Repo.preload(game, users_games: :user, game_messages: :user)
+        game = Repo.preload(game, users_games: :user, messages: :user)
 
         # do we need to handle game creation failure, or just let it fail?
         # ensure phase_length is turned to atom
         {:ok, _} =
-          WerewolfApi.GameServer.start_game(
+          Game.Server.start_game(
             user,
             game.id,
             String.to_atom(game.time_period)
           )
 
         update_state(game)
-        {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
+        {:ok, state} = Game.Server.get_state(game.id)
 
         conn
         |> put_status(:created)
@@ -40,14 +40,14 @@ defmodule WerewolfApiWeb.GameController do
 
     game =
       Repo.get(Game, id)
-      |> Repo.preload(users_games: :user, game_messages: :user)
+      |> Repo.preload(users_games: :user, messages: :user)
 
     host_id = Game.find_host_id(game)
 
     with true <- user.id == host_id,
          changeset <- Game.update_changeset(game, game_params),
          {:ok, game} <- Repo.update(changeset),
-         game <- Repo.preload(game, users_games: :user, game_messages: :user) do
+         game <- Repo.preload(game, users_games: :user, messages: :user) do
       WerewolfApiWeb.UserChannel.broadcast_game_update(game)
       render(conn, "show.json", game: game)
     else
@@ -58,7 +58,7 @@ defmodule WerewolfApiWeb.GameController do
 
   defp update_state(game) do
     Task.start_link(fn ->
-      {:ok, state} = WerewolfApi.GameServer.get_state(game.id)
+      {:ok, state} = Game.Server.get_state(game.id)
       {:ok, game} = WerewolfApi.Game.update_state(game, state)
       WerewolfApiWeb.UserChannel.broadcast_game_creation_to_users(game)
     end)

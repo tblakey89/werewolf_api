@@ -1,4 +1,4 @@
-defmodule WerewolfApi.GameMessage do
+defmodule WerewolfApi.Game.Message do
   use Ecto.Schema
   import Ecto.Changeset
 
