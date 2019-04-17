@@ -29,8 +29,6 @@ defmodule WerewolfApi.Game.Server do
 
     case response do
       {:ok, :launch_game, state} ->
-        WerewolfApi.UsersGame.reject_pending_invitations(game_id)
-        WerewolfApiWeb.UserChannel.broadcast_invitation_rejected_to_users(game_id)
         handle_success(game_id, user, state)
 
       {:error, reason} ->
@@ -81,9 +79,8 @@ defmodule WerewolfApi.Game.Server do
   defp handle_game_callback(state, game_response) do
     Task.start_link(fn ->
       game = WerewolfApi.Repo.get(Game, state.game.id)
-      {:ok, game} = Game.Event.handle(game, state, game_response)
+      Game.Event.handle(game, state, game_response)
       Game.Announcement.announce(game, state, game_response)
-      WerewolfApiWeb.UserChannel.broadcast_state_update(game.id, state)
     end)
   end
 

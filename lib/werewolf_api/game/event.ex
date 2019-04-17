@@ -5,13 +5,17 @@ defmodule WerewolfApi.Game.Event do
 
   def handle(game, state, {:ok, :launch_game}) do
     {:ok, conversation} = Conversation.find_or_create(%{"user_ids" => werewolf_player_ids(state)})
-
     Conversation.Announcement.announce(conversation, {:werewolf, game.name})
 
-    game
-    |> Game.state_changeset(state)
-    |> Ecto.Changeset.change(conversation_id: conversation.id)
-    |> Repo.update()
+    {:ok, game} =
+      game
+      |> Game.state_changeset(state)
+      |> Ecto.Changeset.change(conversation_id: conversation.id)
+      |> Repo.update()
+
+    WerewolfApi.UsersGame.reject_pending_invitations(game.id)
+    WerewolfApiWeb.UserChannel.broadcast_invitation_rejected_to_users(game.id)
+    WerewolfApiWeb.UserChannel.broadcast_game_update(game)
   end
 
   def handle(game, state, {game_status, _, _}) when game_status !== :ok do
@@ -21,10 +25,13 @@ defmodule WerewolfApi.Game.Event do
     else
       Game.update_state(game, state)
     end
+
+    WerewolfApiWeb.UserChannel.broadcast_state_update(game.id, state)
   end
 
   def handle(game, state, _game_response) do
     Game.update_state(game, state)
+    WerewolfApiWeb.UserChannel.broadcast_state_update(game.id, state)
   end
 
   defp werewolf_player_ids(state) do

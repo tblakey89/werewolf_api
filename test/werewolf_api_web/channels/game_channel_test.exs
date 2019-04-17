@@ -48,41 +48,13 @@ defmodule WerewolfApiWeb.GameChannelTest do
       user_id = user.id
       insert(:users_game, user: user, game: game, state: "host")
 
-      players =
-        Enum.reduce(0..6, %{}, fn i, acc ->
-          player = insert(:user)
-
-          Map.put_new(acc, player.id, %Werewolf.Player{
-            actions: %{},
-            alive: true,
-            host: false,
-            id: player.id,
-            role: :none
-          })
-        end)
-        |> Map.put(user.id, %Werewolf.Player{
-          actions: %{
-            1 => %{
-              vote: %Werewolf.Action{
-                type: :vote,
-                target: 2,
-                option: :none
-              }
-            }
-          },
-          alive: true,
-          host: true,
-          id: user.id,
-          role: :none
-        })
-
       state = %{
         game: %Werewolf.Game{
           end_phase_unix_time: nil,
           id: game_id,
           phase_length: :day,
           phases: 0,
-          players: players
+          players: build_players(user.id)
         },
         rules: %Werewolf.Rules{state: :ready}
       }
@@ -96,9 +68,9 @@ defmodule WerewolfApiWeb.GameChannelTest do
 
       ref = push(game_socket, "launch_game", %{})
 
-      assert_broadcast("game_state_update", %{
+      assert_broadcast("game_update", %{
         id: ^game_id,
-        players: %{^user_id => %{id: ^user_id}}
+        state: %{players: %{^user_id => %{id: ^user_id}}}
       })
 
       assert_reply(ref, :ok)
@@ -116,23 +88,7 @@ defmodule WerewolfApiWeb.GameChannelTest do
           id: 178,
           phase_length: :day,
           phases: 0,
-          players: %{
-            user.id => %Werewolf.Player{
-              actions: %{
-                1 => %{
-                  vote: %Werewolf.Action{
-                    type: :vote,
-                    target: 2,
-                    option: :none
-                  }
-                }
-              },
-              alive: true,
-              host: true,
-              id: user.id,
-              role: :none
-            }
-          }
+          players: build_players(user.id)
         },
         rules: %Werewolf.Rules{state: :initialised}
       }
@@ -147,9 +103,9 @@ defmodule WerewolfApiWeb.GameChannelTest do
 
       ref = push(game_socket, "launch_game", %{})
 
-      refute_broadcast("game_state_update", %{
+      refute_broadcast("game_update", %{
         id: ^game_id,
-        players: %{^user_id => %{id: ^user_id}}
+        state: %{players: %{^user_id => %{id: ^user_id}}}
       })
 
       assert_reply(ref, :error)
@@ -168,23 +124,7 @@ defmodule WerewolfApiWeb.GameChannelTest do
           id: game_id,
           phase_length: :day,
           phases: 0,
-          players: %{
-            user.id => %Werewolf.Player{
-              actions: %{
-                1 => %{
-                  vote: %Werewolf.Action{
-                    type: :vote,
-                    target: 2,
-                    option: :none
-                  }
-                }
-              },
-              alive: true,
-              host: true,
-              id: user.id,
-              role: :none
-            }
-          }
+          players: build_players(user.id)
         },
         rules: %Werewolf.Rules{state: :ready}
       }
@@ -309,5 +249,34 @@ defmodule WerewolfApiWeb.GameChannelTest do
       new_last_read_at = Repo.get(WerewolfApi.UsersGame, users_game.id).last_read_at
       assert(original_last_read_at < new_last_read_at)
     end
+  end
+
+  defp build_players(user_id) do
+    Enum.reduce(0..6, %{}, fn i, acc ->
+      player = insert(:user)
+
+      Map.put_new(acc, player.id, %Werewolf.Player{
+        actions: %{},
+        alive: true,
+        host: false,
+        id: player.id,
+        role: :none
+      })
+    end)
+    |> Map.put(user_id, %Werewolf.Player{
+      actions: %{
+        1 => %{
+          vote: %Werewolf.Action{
+            type: :vote,
+            target: 2,
+            option: :none
+          }
+        }
+      },
+      alive: true,
+      host: true,
+      id: user_id,
+      role: :none
+    })
   end
 end
