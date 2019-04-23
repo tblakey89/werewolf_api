@@ -8,11 +8,12 @@ defmodule WerewolfApi.Conversation.Announcement do
   defp broadcast_conversation(conversation, message) do
     changeset =
       Ecto.build_assoc(conversation, :messages, user_id: 0)
-      |> WerewolfApi.Conversation.Message.changeset(%{bot: true, body: message})
+      |> WerewolfApi.Conversation.Message.changeset(%{body: message})
+      |> Ecto.Changeset.change(bot: true)
 
     case WerewolfApi.Repo.insert(changeset) do
       {:ok, _message} ->
-        WerewolfApi.Repo.preload(conversation, [:users, :messages, :users_conversations])
+        WerewolfApi.Repo.preload(conversation, [:users, :users_conversations, messages: :user])
         |> WerewolfApiWeb.UserChannel.broadcast_conversation_creation_to_users()
 
       {:error, changeset} ->

@@ -1,5 +1,4 @@
 defmodule WerewolfApi.Game.Server do
-  alias WerewolfApi.Announcement
   alias WerewolfApi.Game
 
   def start_game(user, game_id, time_period) do

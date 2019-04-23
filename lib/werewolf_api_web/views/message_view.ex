@@ -26,7 +26,7 @@ defmodule WerewolfApiWeb.MessageView do
 
   defp render_optional_user(%{user_id: 0}), do: nil
 
-  defp render_optional_user(game_message) do
-    render_one(game_message.user, WerewolfApiWeb.UserView, "simple_user.json")
+  defp render_optional_user(message) do
+    render_one(message.user, WerewolfApiWeb.UserView, "simple_user.json")
   end
 end
