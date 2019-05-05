@@ -77,6 +77,34 @@ defmodule WerewolfApiWeb.UserChannel do
     )
   end
 
+  def broadcast_friend_request(friendship) do
+    Task.start_link(fn ->
+      friendship = WerewolfApi.Repo.preload(friendship, [:friend, :user])
+
+      Enum.each([friendship.user, friendship.friend], fn user ->
+        WerewolfApiWeb.Endpoint.broadcast(
+          "user:#{user.id}",
+          "new_friend_request",
+          WerewolfApiWeb.FriendView.render("friendship.json", %{friend: friendship})
+        )
+      end)
+    end)
+  end
+
+  def broadcast_friend_request_updated(friendship) do
+    Task.start_link(fn ->
+      friendship = WerewolfApi.Repo.preload(friendship, [:friend, :user])
+
+      Enum.each([friendship.user, friendship.friend], fn user ->
+        WerewolfApiWeb.Endpoint.broadcast(
+          "user:#{user.id}",
+          "friend_request_updated",
+          WerewolfApiWeb.FriendView.render("friendship.json", %{friend: friendship})
+        )
+      end)
+    end)
+  end
+
   defp broadcast_game_change_to_each_user(event, game) do
     Task.start_link(fn ->
       game =

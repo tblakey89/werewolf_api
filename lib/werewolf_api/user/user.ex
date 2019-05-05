@@ -19,6 +19,15 @@ defmodule WerewolfApi.User do
     has_many(:users_games, WerewolfApi.UsersGame)
     has_many(:messages, WerewolfApi.Conversation.Message)
     has_many(:game_messages, WerewolfApi.Game.Message)
+    has_many(:friendships, User.Friend)
+    has_many(:reverse_friendships, User.Friend, foreign_key: :friend_id)
+
+    many_to_many(
+      :friends,
+      User,
+      join_through: "friends",
+      join_keys: [user_id: :id, friend_id: :id]
+    )
 
     timestamps()
   end

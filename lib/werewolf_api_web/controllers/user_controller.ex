@@ -31,6 +31,8 @@ defmodule WerewolfApiWeb.UserController do
     user =
       Repo.preload(
         user,
+        friendships: [:friend, :user],
+        reverse_friendships: [:friend, :user],
         conversations: [
           :users,
           :users_conversations,

@@ -35,5 +35,7 @@ defmodule WerewolfApiWeb.Router do
 
     resources("/games", GameController, only: [:create, :update])
     resources("/invitations", InvitationController, only: [:show, :create, :update])
+
+    resources("/friends", FriendController, only: [:create, :update])
   end
 end

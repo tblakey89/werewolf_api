@@ -129,4 +129,30 @@ defmodule WerewolfApiWeb.UserChannelTest do
       assert_broadcast("invitation_rejected", %{id: ^users_game_id})
     end
   end
+
+  describe "broadcast_friend_request/1" do
+    test "when function called new_friend_request is broadcast", %{user: user} do
+      friend = insert(:user)
+      friendship = insert(:friend, user: user, friend: friend)
+      friend_id = friend.id
+
+      {:ok, jwt, _} = encode_and_sign(friend)
+      {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
+      {:ok, _, socket} = subscribe_and_join(socket, "user:#{friend.id}", %{})
+
+      WerewolfApiWeb.UserChannel.broadcast_friend_request(friendship)
+      assert_broadcast("new_friend_request", %{friend: %{id: ^friend_id}})
+    end
+  end
+
+  describe "broadcast_friend_request_updated/1" do
+    test "when function called friend_request_updated is broadcast", %{user: user} do
+      friend = insert(:user)
+      friendship = insert(:friend, user: user, friend: friend, state: "accepted")
+      friend_id = friend.id
+
+      WerewolfApiWeb.UserChannel.broadcast_friend_request_updated(friendship)
+      assert_broadcast("friend_request_updated", %{friend: %{id: ^friend_id}})
+    end
+  end
 end

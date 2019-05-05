@@ -34,6 +34,12 @@ defmodule WerewolfApiWeb.UserView do
       email: user.email,
       username: user.username,
       avatar: WerewolfApi.Avatar.url({user.avatar, user}, :thumb),
+      friendships:
+        render_many(
+          user.friendships ++ user.reverse_friendships,
+          WerewolfApiWeb.FriendView,
+          "friendship.json"
+        ),
       conversations:
         render_many(
           user.conversations,
