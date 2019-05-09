@@ -42,5 +42,5 @@
   "sweet_xml": {:hex, :sweet_xml, "0.6.6", "fc3e91ec5dd7c787b6195757fbcf0abc670cee1e4172687b45183032221b66b8", [:mix], [], "hexpm"},
   "unicode_util_compat": {:hex, :unicode_util_compat, "0.4.1", "d869e4c68901dd9531385bb0c8c40444ebf624e60b6962d95952775cac5e90cd", [:rebar3], [], "hexpm"},
   "uuid": {:hex, :uuid, "1.1.8", "e22fc04499de0de3ed1116b770c7737779f226ceefa0badb3592e64d5cfb4eb9", [:mix], [], "hexpm"},
-  "werewolf": {:git, "https://github.com/tblakey89/werewolf.git", "9ea9f7839baa68ed04047b65aee9c2d0b26b3363", []},
+  "werewolf": {:git, "https://github.com/tblakey89/werewolf.git", "583dc15bc2c372a3e196ac5c0a71265951d40a94", []},
 }
