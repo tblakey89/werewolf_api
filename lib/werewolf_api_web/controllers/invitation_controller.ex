@@ -47,7 +47,8 @@ defmodule WerewolfApiWeb.InvitationController do
     user = Guardian.Plug.current_resource(conn)
 
     with {:ok, users_game} <- find_users_game(id, user),
-         changeset <- UsersGame.update_state_changeset(users_game, users_game_params),
+         changeset <-
+           UsersGame.update_state_changeset(users_game, state_change_params(users_game_params)),
          {:ok, users_game} <- Repo.update(changeset) do
       WerewolfApiWeb.UserChannel.broadcast_game_update(users_game.game)
       WerewolfApiWeb.UserChannel.broadcast_invitation_rejected(users_game)
@@ -62,7 +63,8 @@ defmodule WerewolfApiWeb.InvitationController do
     user = Guardian.Plug.current_resource(conn)
 
     with {:ok, users_game} <- find_users_game(id, user),
-         changeset <- UsersGame.update_state_changeset(users_game, users_game_params),
+         changeset <-
+           UsersGame.update_state_changeset(users_game, state_change_params(users_game_params)),
          :ok <- Game.Server.add_player(users_game.game_id, user),
          {:ok, users_game} <- Repo.update(changeset) do
       WerewolfApiWeb.UserChannel.broadcast_game_update(users_game.game)
@@ -117,5 +119,11 @@ defmodule WerewolfApiWeb.InvitationController do
     conn
     |> put_status(:unprocessable_entity)
     |> render("error.json", message: message)
+  end
+
+  defp state_change_params(users_game_params) do
+    %{
+      state: users_game_params["state"]
+    }
   end
 end

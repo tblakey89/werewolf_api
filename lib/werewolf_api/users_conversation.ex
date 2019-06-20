@@ -13,7 +13,7 @@ defmodule WerewolfApi.UsersConversation do
 
   def update_last_read_at(user_id, conversation_id) do
     Repo.get_by(__MODULE__, user_id: user_id, conversation_id: conversation_id)
-    |> change(last_read_at: DateTime.utc_now())
+    |> change(last_read_at: DateTime.truncate(DateTime.utc_now(), :second))
     |> Repo.update()
   end
 end

@@ -22,7 +22,8 @@ defmodule WerewolfApiWeb.FriendController do
     user = Guardian.Plug.current_resource(conn)
 
     with {:ok, friendship} <- find_friendship(id, user),
-         changeset <- Friend.update_state_changeset(friendship, friend_params),
+         changeset <-
+           Friend.update_state_changeset(friendship, state_change_params(friend_params)),
          {:ok, friendship} <- Repo.update(changeset) do
       WerewolfApiWeb.UserChannel.broadcast_friend_request_updated(friendship)
       render(conn, "success.json", %{friend: friendship})
@@ -52,5 +53,11 @@ defmodule WerewolfApiWeb.FriendController do
     conn
     |> put_status(:unprocessable_entity)
     |> render("error.json", changeset: changeset)
+  end
+
+  defp state_change_params(friend_params) do
+    %{
+      state: friend_params["state"]
+    }
   end
 end

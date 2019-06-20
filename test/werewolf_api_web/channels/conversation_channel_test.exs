@@ -8,7 +8,15 @@ defmodule WerewolfApiWeb.ConversationChannelTest do
   setup do
     user = insert(:user)
     conversation = insert(:conversation)
-    users_conversation = insert(:users_conversation, user: user, conversation: conversation)
+
+    users_conversation =
+      insert(
+        :users_conversation,
+        user: user,
+        conversation: conversation,
+        last_read_at: DateTime.from_naive!(~N[2018-11-15 10:00:00], "Etc/UTC")
+      )
+
     {:ok, jwt, _} = encode_and_sign(user)
     {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
     {:ok, _, socket} = subscribe_and_join(socket, "conversation:#{conversation.id}", %{})

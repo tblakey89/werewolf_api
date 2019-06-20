@@ -1,6 +1,7 @@
 defmodule WerewolfApi.User.Friend do
   use Ecto.Schema
   import Ecto.Changeset
+  require IEx
 
   schema "friends" do
     field(:state, :string, default: "pending")
@@ -19,8 +20,8 @@ defmodule WerewolfApi.User.Friend do
 
   def update_state_changeset(friendship, attrs) do
     friendship
-    |> cast(attrs, ["state"])
-    |> force_change(:state, attrs["state"])
-    |> validate_inclusion(:state, ~w(accepted rejected))
+    |> cast(attrs, [:state])
+    |> force_change(:state, attrs[:state])
+    |> validate_inclusion(:state, [:accepted, :rejected, "accepted", "rejected"])
   end
 end

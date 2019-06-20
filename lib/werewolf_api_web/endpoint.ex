@@ -1,7 +1,12 @@
 defmodule WerewolfApiWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :werewolf_api
 
-  socket("/socket", WerewolfApiWeb.UserSocket)
+  socket(
+    "/socket",
+    WerewolfApiWeb.UserSocket,
+    websocket: true,
+    longpoll: false
+  )
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -35,7 +40,7 @@ defmodule WerewolfApiWeb.Endpoint do
     Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
-    json_decoder: Poison
+    json_decoder: Jason
   )
 
   plug(Plug.MethodOverride)

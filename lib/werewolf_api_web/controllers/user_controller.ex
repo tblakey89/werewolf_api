@@ -59,7 +59,7 @@ defmodule WerewolfApiWeb.UserController do
     user = Guardian.Plug.current_resource(conn)
 
     with true <- user.id == String.to_integer(id),
-         changeset <- User.update_changeset(user, user_params),
+         changeset <- User.update_changeset(user, update_params_as_atoms(user_params)),
          {:ok, user} <- Repo.update(changeset) do
       render(conn, "show.json", user: user)
     else
@@ -92,5 +92,11 @@ defmodule WerewolfApiWeb.UserController do
     conn
     |> put_status(:forbidden)
     |> render("error.json", message: "Not allowed.")
+  end
+
+  defp update_params_as_atoms(user_params) do
+    %{
+      password: user_params["password"]
+    }
   end
 end

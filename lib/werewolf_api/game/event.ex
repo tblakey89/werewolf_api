@@ -20,7 +20,7 @@ defmodule WerewolfApi.Game.Event do
 
   def handle(game, state, {game_status, _, _}) when game_status !== :ok do
     if game_status in [:villager_win, :werewolf_win] do
-      Ecto.Changeset.change(game, finished: DateTime.utc_now())
+      Ecto.Changeset.change(game, finished: DateTime.truncate(DateTime.utc_now(), :second))
       |> Repo.update()
     else
       Game.update_state(game, state)

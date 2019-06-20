@@ -8,7 +8,15 @@ defmodule WerewolfApiWeb.GameChannelTest do
   setup do
     user = insert(:user)
     game = insert(:game)
-    users_game = insert(:users_game, user: user, game: game)
+
+    users_game =
+      insert(
+        :users_game,
+        user: user,
+        game: game,
+        last_read_at: DateTime.from_naive!(~N[2018-11-15 10:00:00], "Etc/UTC")
+      )
+
     {:ok, jwt, _} = encode_and_sign(user)
     {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
     {:ok, _, socket} = subscribe_and_join(socket, "game:#{game.id}", %{})

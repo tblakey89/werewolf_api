@@ -1,5 +1,5 @@
 defmodule WerewolfApi.Repo do
-  use Ecto.Repo, otp_app: :werewolf_api
+  use Ecto.Repo, otp_app: :werewolf_api, adapter: Ecto.Adapters.Postgres
 
   @doc """
   Dynamically loads the repository url from the

@@ -18,7 +18,8 @@ defmodule WerewolfApiWeb.FriendView do
     %{
       id: friendship.id,
       state: friendship.state,
-      created_at: DateTime.to_unix(DateTime.from_naive!(friendship.inserted_at, "Etc/UTC"), :millisecond),
+      created_at:
+        DateTime.to_unix(DateTime.from_naive!(friendship.inserted_at, "Etc/UTC"), :millisecond),
       user: render_one(friendship.user, WerewolfApiWeb.UserView, "simple_user.json"),
       friend: render_one(friendship.friend, WerewolfApiWeb.UserView, "simple_user.json")
     }

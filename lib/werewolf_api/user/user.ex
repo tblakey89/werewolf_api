@@ -51,7 +51,7 @@ defmodule WerewolfApi.User do
   def registration_changeset(%User{} = user, attrs \\ %{}) do
     user
     |> changeset(attrs)
-    |> cast(attrs, ~w(password), [])
+    |> cast(attrs, [:password], [])
     |> validate_length(:password, min: 8, max: 100)
     |> put_password_hash()
   end
@@ -66,14 +66,14 @@ defmodule WerewolfApi.User do
     user
     |> change(%{
       forgotten_password_token: forgotten_password_token(),
-      forgotten_token_generated_at: NaiveDateTime.utc_now()
+      forgotten_token_generated_at: DateTime.truncate(DateTime.utc_now(), :second)
     })
   end
 
   def update_password_changeset(%User{} = user, attrs) do
     user
     |> change(%{forgotten_password_token: nil, forgotten_token_generated_at: nil})
-    |> cast(attrs, ~w(password), [])
+    |> cast(attrs, [:password], [])
     |> validate_length(:password, min: 8, max: 100)
     |> put_password_hash()
   end
@@ -112,7 +112,7 @@ defmodule WerewolfApi.User do
   end
 
   defp optional_password_update(changeset, attrs) do
-    case attrs["password"] do
+    case attrs[:password] do
       nil ->
         changeset
 
@@ -120,7 +120,7 @@ defmodule WerewolfApi.User do
         changeset
 
       password ->
-        cast(changeset, attrs, ~w(password), [])
+        cast(changeset, attrs, [:password], [])
         |> validate_length(:password, min: 8, max: 100)
         |> put_password_hash()
     end

@@ -58,9 +58,12 @@ defmodule WerewolfApi.Game do
   @doc false
   def changeset(game, attrs, user) do
     participants =
-      Enum.map(WerewolfApi.User.find_by_user_ids(attrs["user_ids"]), fn participant ->
-        %{user_id: participant.id}
-      end)
+      Enum.map(
+        WerewolfApi.User.find_by_user_ids(attrs[:user_ids] || attrs["user_ids"]),
+        fn participant ->
+          %{user_id: participant.id}
+        end
+      )
 
     attrs =
       Map.put_new(attrs, "users_games", [

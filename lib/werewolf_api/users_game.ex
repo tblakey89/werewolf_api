@@ -6,7 +6,7 @@ defmodule WerewolfApi.UsersGame do
 
   schema "users_games" do
     field(:state, :string, default: "pending")
-    field(:last_read_at, :utc_datetime, default: DateTime.utc_now())
+    field(:last_read_at, :utc_datetime, default: DateTime.truncate(DateTime.utc_now(), :second))
     belongs_to(:game, WerewolfApi.Game)
     belongs_to(:user, WerewolfApi.User)
 
@@ -21,8 +21,8 @@ defmodule WerewolfApi.UsersGame do
 
   def update_state_changeset(users_game, attrs) do
     users_game
-    |> cast(attrs, ["state"])
-    |> force_change(:state, attrs["state"])
+    |> cast(attrs, [:state])
+    |> force_change(:state, attrs[:state])
     |> validate_inclusion(:state, ~w(accepted rejected))
   end
 
@@ -60,7 +60,7 @@ defmodule WerewolfApi.UsersGame do
 
   def update_last_read_at(user_id, game_id) do
     Repo.get_by(__MODULE__, user_id: user_id, game_id: game_id)
-    |> change(last_read_at: DateTime.utc_now())
+    |> change(last_read_at: DateTime.truncate(DateTime.utc_now(), :second))
     |> Repo.update()
   end
 end
