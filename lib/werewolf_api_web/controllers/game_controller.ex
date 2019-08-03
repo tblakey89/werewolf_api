@@ -2,6 +2,7 @@ defmodule WerewolfApiWeb.GameController do
   use WerewolfApiWeb, :controller
   alias WerewolfApi.Game
   alias WerewolfApi.Repo
+  alias WerewolfApi.Notification
 
   # only send games where users_game state is not rejected
 
@@ -25,6 +26,7 @@ defmodule WerewolfApiWeb.GameController do
 
         update_state(game)
         {:ok, state} = Game.Server.get_state(game.id)
+        Notification.received_game_invite(game, game_params[:user_ids] || game_params["user_ids"])
 
         conn
         |> put_status(:created)
@@ -49,6 +51,7 @@ defmodule WerewolfApiWeb.GameController do
          {:ok, game} <- Repo.update(changeset),
          game <- Repo.preload(game, users_games: :user, messages: :user) do
       WerewolfApiWeb.UserChannel.broadcast_game_update(game)
+      Notification.received_game_invite(game, game_params[:user_ids] || game_params["user_ids"])
       render(conn, "show.json", game: game)
     else
       false -> forbidden(conn)

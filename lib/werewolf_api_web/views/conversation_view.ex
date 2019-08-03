@@ -8,7 +8,7 @@ defmodule WerewolfApiWeb.ConversationView do
         render_one(
           conversation,
           WerewolfApiWeb.ConversationView,
-          "conversation.json"
+          "conversation_with_messages.json"
         )
     }
   end

@@ -1,11 +1,21 @@
 defmodule WerewolfApiWeb.UserChannel do
   use Phoenix.Channel
+  alias WerewolfApi.Notification
+  require IEx
 
   def join("user:" <> user_id, _message, socket) do
     case Guardian.Phoenix.Socket.current_resource(socket).id == String.to_integer(user_id) do
       true -> {:ok, socket}
       false -> {:error, %{reason: "unauthorized"}}
     end
+  end
+
+  def handle_in("update_fcm_token", params, socket) do
+    Guardian.Phoenix.Socket.current_resource(socket)
+    |> WerewolfApi.User.update_fcm_token_changeset(params["fcm_token"])
+    |> WerewolfApi.Repo.update
+
+    {:reply, :ok, socket}
   end
 
   def broadcast_avatar_update(user) do
@@ -88,6 +98,8 @@ defmodule WerewolfApiWeb.UserChannel do
           WerewolfApiWeb.FriendView.render("friendship.json", %{friend: friendship})
         )
       end)
+
+      Notification.received_friend_request(friendship)
     end)
   end
 
@@ -102,6 +114,8 @@ defmodule WerewolfApiWeb.UserChannel do
           WerewolfApiWeb.FriendView.render("friendship.json", %{friend: friendship})
         )
       end)
+
+      Notification.accepted_friend_request(friendship)
     end)
   end
 

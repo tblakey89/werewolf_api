@@ -23,6 +23,27 @@ defmodule WerewolfApiWeb.UserChannelTest do
     end
   end
 
+  describe "update_fcm_token event" do
+    test "update_fcm_token updates user's fcm token" do
+      user = insert(:user)
+      user_id = user.id
+
+      {:ok, jwt, _} = encode_and_sign(user)
+      {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
+      {:ok, _, user_socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
+
+      fcm_token = "test token"
+
+      ref = push(user_socket, "update_fcm_token", %{fcm_token: fcm_token})
+
+      assert_reply(ref, :ok)
+
+      updated_user = WerewolfApi.Repo.get(WerewolfApi.User, user_id)
+
+      assert updated_user.fcm_token == fcm_token
+    end
+  end
+
   describe "broadcast_conversation_creation_to_users" do
     test "when function called new_conversation is broadcast", %{user: user} do
       conversation =

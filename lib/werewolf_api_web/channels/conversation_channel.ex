@@ -1,6 +1,7 @@
 defmodule WerewolfApiWeb.ConversationChannel do
   use Phoenix.Channel
   alias WerewolfApi.Repo
+  alias WerewolfApi.Notification
   alias WerewolfApi.Conversation
   alias WerewolfApi.Conversation.Message
 
@@ -32,6 +33,8 @@ defmodule WerewolfApiWeb.ConversationChannel do
           "new_message",
           WerewolfApiWeb.MessageView.render("message.json", %{message: message})
         )
+
+        Notification.new_conversation_message(message)
 
         update_last_read_at(socket)
         {:reply, :ok, socket}

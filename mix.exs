@@ -56,6 +56,8 @@ defmodule WerewolfApi.Mixfile do
       {:sweet_xml, "~> 0.6"},
       {:edeliver, ">= 1.6.0"},
       {:distillery, "~> 2.0", warn_missing: false},
+      {:pigeon, "~> 1.3.1"},
+      {:kadabra, "~> 0.4.4"},
       {:werewolf, git: "https://github.com/tblakey89/werewolf.git"}
       # {:werewolf, path: "../werewolf"}
     ]

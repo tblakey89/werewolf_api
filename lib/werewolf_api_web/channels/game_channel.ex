@@ -1,6 +1,7 @@
 defmodule WerewolfApiWeb.GameChannel do
   use Phoenix.Channel
   alias WerewolfApi.Repo
+  alias WerewolfApi.Notification
   alias WerewolfApi.Game.Message
   alias WerewolfApi.Game.Server
   alias WerewolfApi.UsersGame
@@ -19,7 +20,6 @@ defmodule WerewolfApiWeb.GameChannel do
   end
 
   def handle_in("new_message", params, socket) do
-    # need to work out way to handle unread messages
     changeset =
       Guardian.Phoenix.Socket.current_resource(socket)
       |> Ecto.build_assoc(:game_messages, game_id: socket.assigns.game_id)
@@ -34,6 +34,8 @@ defmodule WerewolfApiWeb.GameChannel do
           "new_message",
           WerewolfApiWeb.GameMessageView.render("game_message.json", %{game_message: game_message})
         )
+
+        Notification.new_game_message(game_message)
 
         update_last_read_at(socket)
         {:reply, :ok, socket}

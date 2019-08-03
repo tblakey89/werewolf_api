@@ -2,6 +2,7 @@ defmodule WerewolfApiWeb.ConversationController do
   use WerewolfApiWeb, :controller
   alias WerewolfApi.Conversation
   alias WerewolfApi.Repo
+  import Ecto.Query, only: [from: 2]
 
   # need to load up last 100 messages for each conversation
   #  last message inserted at is last message at...
@@ -28,7 +29,18 @@ defmodule WerewolfApiWeb.ConversationController do
       Guardian.Plug.current_resource(conn)
       |> Ecto.assoc(:conversations)
       |> Repo.get!(id)
-      |> Repo.preload(:users)
+      |> Repo.preload([
+        :users,
+        :users_conversations,
+        [
+          messages:
+            from(
+              m in WerewolfApi.Conversation.Message,
+              order_by: [desc: m.id],
+              preload: :user
+            )
+        ]
+      ])
 
     conn
     |> render("show.json", conversation: conversation)
@@ -39,7 +51,19 @@ defmodule WerewolfApiWeb.ConversationController do
 
     case Conversation.find_or_create(conversation_params, user) do
       {:ok, conversation} ->
-        conversation = Repo.preload(conversation, [:users, :messages, :users_conversations])
+        conversation =
+          Repo.preload(conversation, [
+            :users,
+            :users_conversations,
+            [
+              messages:
+                from(
+                  m in WerewolfApi.Conversation.Message,
+                  order_by: [desc: m.id],
+                  preload: :user
+                )
+            ]
+          ])
 
         WerewolfApiWeb.UserChannel.broadcast_conversation_creation_to_users(conversation)
 

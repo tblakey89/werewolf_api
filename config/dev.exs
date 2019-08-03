@@ -48,3 +48,9 @@ config :werewolf_api, WerewolfApi.Repo,
 config :werewolf_api, WerewolfApi.Guardian,
   issuer: "werewolf_api",
   secret_key: "3LFz3icTUpreLyrxI4SNdHhTU5R5STMKSpzCHTnYCVf+uAHPRO+TodZHXJ3W0i/e"
+
+config :pigeon, :fcm,
+  fcm_default: %{
+    key:
+      "AAAAiRI7y9A:APA91bEul9-hpglDfso3LnR1BG7dJfzxS0t2KB2Srl0WQpQtdp0kqKuBlsXfVzjN1nX0Mfhkbli88M9Glq6vHYxt_mICmD8kilqXxs3HQQYew26e86fk0gFm0bj4mP-v--mBJfakjkY1"
+  }

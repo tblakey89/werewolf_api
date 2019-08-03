@@ -255,7 +255,7 @@ defmodule WerewolfApiWeb.GameChannelTest do
       original_last_read_at = users_game.last_read_at
       assert_reply(ref, :ok)
       new_last_read_at = Repo.get(WerewolfApi.UsersGame, users_game.id).last_read_at
-      assert(original_last_read_at < new_last_read_at)
+      assert(DateTime.to_unix(original_last_read_at) < DateTime.to_unix(new_last_read_at))
     end
   end
 

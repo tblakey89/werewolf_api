@@ -25,3 +25,9 @@ config :werewolf_api, WerewolfApi.Guardian,
 config :arc,
   storage: Arc.Storage.Local,
   storage_dir: "test/uploads"
+
+  config :pigeon, :fcm,
+    fcm_default: %{
+      key:
+        ""
+    }

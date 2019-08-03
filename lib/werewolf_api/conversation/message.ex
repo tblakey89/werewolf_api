@@ -17,4 +17,12 @@ defmodule WerewolfApi.Conversation.Message do
     |> cast(attrs, [:body])
     |> validate_required([:body])
   end
+
+  def username(%{bot: true} = message) do
+    "bot"
+  end
+
+  def username(message) do
+    message.user.username
+  end
 end

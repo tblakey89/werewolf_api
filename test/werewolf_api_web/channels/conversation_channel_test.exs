@@ -60,7 +60,7 @@ defmodule WerewolfApiWeb.ConversationChannelTest do
       new_last_read_at =
         Repo.get(WerewolfApi.UsersConversation, users_conversation.id).last_read_at
 
-      assert(original_last_read_at < new_last_read_at)
+      assert(DateTime.to_unix(original_last_read_at) < DateTime.to_unix(new_last_read_at))
     end
   end
 end

@@ -14,6 +14,7 @@ defmodule WerewolfApi.User do
     field(:forgotten_password_token, :string)
     field(:forgotten_token_generated_at, :utc_datetime)
     field(:avatar, WerewolfApi.Avatar.Type)
+    field(:fcm_token, :string)
     many_to_many(:conversations, WerewolfApi.Conversation, join_through: "users_conversations")
     many_to_many(:games, WerewolfApi.Game, join_through: "users_games")
     has_many(:users_games, WerewolfApi.UsersGame)
@@ -86,6 +87,13 @@ defmodule WerewolfApi.User do
     })
   end
 
+  def update_fcm_token_changeset(%User{} = user, fcm_token) do
+    user
+    |> change(%{
+      fcm_token: fcm_token
+    })
+  end
+
   def avatar_changeset(%User{} = user, attrs) do
     user
     |> cast_attachments(attrs, [:avatar])
@@ -99,6 +107,21 @@ defmodule WerewolfApi.User do
       true -> {:error, :expired_token, user}
       false -> :ok
     end
+  end
+
+  def valid_fcm_tokens(users, exclude_user_id) do
+    Enum.reduce(users, [], fn user, accumulator ->
+      cond do
+        user.id == exclude_user_id ->
+          accumulator
+
+        user.fcm_token == nil ->
+          accumulator
+
+        true ->
+          [user.fcm_token | accumulator]
+      end
+    end)
   end
 
   defp put_password_hash(changeset) do
