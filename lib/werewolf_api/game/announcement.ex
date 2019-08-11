@@ -1,4 +1,5 @@
 defmodule WerewolfApi.Game.Announcement do
+  alias WerewolfApi.Notification
   require Integer
 
   def announce(game, _state, {:ok, :add_player, user}) do
@@ -96,6 +97,7 @@ defmodule WerewolfApi.Game.Announcement do
   def announce(_game, _state, _), do: nil
 
   defp broadcast_message(game, message) do
+    # why is this not in game_channel.ex?
     changeset =
       Ecto.build_assoc(game, :messages, user_id: 0)
       |> WerewolfApi.Game.Message.changeset(%{bot: true, body: message})
@@ -109,6 +111,8 @@ defmodule WerewolfApi.Game.Announcement do
             game_message: game_message
           })
         )
+
+        Notification.new_game_message(game_message)
 
       {:error, changeset} ->
         nil

@@ -3,16 +3,21 @@ defmodule WerewolfApi.Notification do
   alias WerewolfApi.Game
 
   def new_conversation_message(message) do
-    Task.start_link(fn ->
+    # Task.start_link(fn ->
       message = WerewolfApi.Repo.preload(message, [:user, conversation: :users])
 
-      WerewolfApi.User.valid_fcm_tokens(message.conversation.users, message.user.id)
+      WerewolfApi.User.valid_fcm_tokens(message.conversation.users, message.user_id)
       |> Pigeon.FCM.Notification.new(%{
         title: Conversation.Message.username(message),
-        body: message.body
+        body: limit_message_length(message.body),
+        click_action: "FLUTTER_NOTIFICATION_CLICK",
+        sound: "default"
+      }, %{
+        type: "conversation",
+        id: message.conversation_id
       })
       |> Pigeon.FCM.push()
-    end)
+    # end)
   end
 
   def new_game_message(message) do
@@ -26,10 +31,15 @@ defmodule WerewolfApi.Notification do
 
       participating_users = Enum.map(users_games, fn users_game -> users_game.user end)
 
-      WerewolfApi.User.valid_fcm_tokens(participating_users, message.user.id)
+      WerewolfApi.User.valid_fcm_tokens(participating_users, message.user_id)
       |> Pigeon.FCM.Notification.new(%{
         title: "#{Game.Message.username(message)} @ #{message.game.name}",
-        body: message.body
+        body: limit_message_length(message.body),
+        click_action: "FLUTTER_NOTIFICATION_CLICK",
+        sound: "default"
+      }, %{
+        type: "game",
+        id: message.game_id
       })
       |> Pigeon.FCM.push()
     end)
@@ -43,7 +53,10 @@ defmodule WerewolfApi.Notification do
         friendship.friend.fcm_token
         |> Pigeon.FCM.Notification.new(%{
           title: "New Friend Request",
-          body: "#{friendship.user.username} has sent you a friend request."
+          body: "#{friendship.user.username} has sent you a friend request.",
+          sound: "default"
+        }, %{
+          type: "friend",
         })
         |> Pigeon.FCM.push()
       end
@@ -59,7 +72,10 @@ defmodule WerewolfApi.Notification do
         friendship.user.fcm_token
         |> Pigeon.FCM.Notification.new(%{
           title: "Accepted Friend Request",
-          body: "#{friendship.friend.username} has accepted your friend request."
+          body: "#{friendship.friend.username} has accepted your friend request.",
+          sound: "default"
+        }, %{
+          type: "friend",
         })
         |> Pigeon.FCM.push()
       end
@@ -79,9 +95,20 @@ defmodule WerewolfApi.Notification do
       |> WerewolfApi.User.valid_fcm_tokens(nil)
       |> Pigeon.FCM.Notification.new(%{
         title: "New Game Invite",
-        body: "#{host_users_game.user.username} has invited you to join their game of Werewolf."
+        body: "#{host_users_game.user.username} has invited you to join their game of Werewolf.",
+        sound: "default"
+      }, %{
+        type: "new_game",
       })
       |> Pigeon.FCM.push()
     end)
+  end
+
+  defp limit_message_length(message) do
+    if String.length(message) > 200 do
+      String.slice(message.body, 0, 200) <> "..."
+    else
+      message
+    end
   end
 end
