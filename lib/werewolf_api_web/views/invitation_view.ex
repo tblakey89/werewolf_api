@@ -12,7 +12,8 @@ defmodule WerewolfApiWeb.InvitationView do
 
   def render("ok.json", %{game: game}) do
     %{
-      name: game.name
+      name: game.name,
+      host_name: WerewolfApi.Game.find_host_username(game)
     }
   end
 

@@ -10,6 +10,7 @@ defmodule WerewolfApiWeb.InvitationController do
 
     with %Game{started: false} = game <- Repo.get_by(Game, invitation_token: token),
          nil <- Repo.get_by(UsersGame, game_id: game.id, user_id: user.id) do
+      game = Repo.preload(game, users_games: :user)
       game_joinable(conn, game)
     else
       nil -> invitation_not_found(conn)

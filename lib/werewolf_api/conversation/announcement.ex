@@ -1,4 +1,6 @@
 defmodule WerewolfApi.Conversation.Announcement do
+  alias WerewolfApi.Notification
+
   def announce(conversation, {:werewolf, game_name}) do
     broadcast_conversation(conversation, "This is the werewolf group chat for #{game_name}.")
   end
@@ -16,7 +18,7 @@ defmodule WerewolfApi.Conversation.Announcement do
         WerewolfApi.Repo.preload(conversation, [:users, :users_conversations, messages: :user])
         |> WerewolfApiWeb.UserChannel.broadcast_conversation_creation_to_users()
 
-        Notification.new_game_message(message)
+        Notification.new_conversation_message(message)
 
       {:error, changeset} ->
         nil

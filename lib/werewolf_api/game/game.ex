@@ -55,6 +55,18 @@ defmodule WerewolfApi.Game do
     host_users_game.user_id
   end
 
+  def find_host_username(game) do
+    host_users_game =
+      Enum.find(game.users_games, fn users_game ->
+        users_game.state == "host"
+      end)
+
+    case host_users_game do
+      nil -> nil
+      _ -> host_users_game.user.username
+    end
+  end
+
   @doc false
   def changeset(game, attrs, user) do
     participants =

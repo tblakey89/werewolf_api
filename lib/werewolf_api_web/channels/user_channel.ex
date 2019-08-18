@@ -13,7 +13,7 @@ defmodule WerewolfApiWeb.UserChannel do
   def handle_in("update_fcm_token", params, socket) do
     Guardian.Phoenix.Socket.current_resource(socket)
     |> WerewolfApi.User.update_fcm_token_changeset(params["fcm_token"])
-    |> WerewolfApi.Repo.update
+    |> WerewolfApi.Repo.update()
 
     {:reply, :ok, socket}
   end
