@@ -1,3 +1,9 @@
+defmodule WerewolfApi.Game.DynamicLink do
+  def new_link(token) do
+    token
+  end
+end
+
 defmodule WerewolfApiWeb.GameControllerTest do
   use WerewolfApiWeb.ConnCase
   use Phoenix.ChannelTest

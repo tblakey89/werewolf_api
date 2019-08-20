@@ -11,6 +11,7 @@ defmodule WerewolfApi.Game do
     field(:finished, :utc_datetime)
     field(:state, :map)
     field(:invitation_token, :string)
+    field(:invitation_url, :string)
     many_to_many(:users, WerewolfApi.User, join_through: "users_games")
     has_many(:users_games, WerewolfApi.UsersGame)
     has_many(:messages, WerewolfApi.Game.Message)
@@ -77,17 +78,23 @@ defmodule WerewolfApi.Game do
         end
       )
 
+    invitation_token = generate_game_token()
+
     attrs =
       Map.put_new(attrs, "users_games", [
         %{user_id: user.id, state: "host"} | participants
       ])
       |> Map.put_new(
         "invitation_token",
-        generate_game_token()
+        invitation_token
+      )
+      |> Map.put_new(
+        "invitation_url",
+        WerewolfApi.Game.DynamicLink.new_link(invitation_token)
       )
 
     game
-    |> cast(attrs, [:name, :invitation_token, :time_period])
+    |> cast(attrs, [:name, :invitation_token, :invitation_url, :time_period])
     |> cast_assoc(:users_games)
     |> validate_required([:name, :time_period])
   end
