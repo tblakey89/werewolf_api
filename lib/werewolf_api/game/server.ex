@@ -88,13 +88,13 @@ defmodule WerewolfApi.Game.Server do
       WerewolfApi.Game.find_from_id(game_id)
       |> WerewolfApi.Repo.preload(users_games: :user)
 
-    host = Enum.find(game.users_games, fn user_game -> user_game.state == :host end)
+    host = Enum.find(game.users_games, fn user_game -> String.to_atom(user_game.state) == :host end)
 
     {:ok, pid} =
       Werewolf.GameSupervisor.start_game(
         host,
         game_id,
-        game.time_period,
+        String.to_atom(game.time_period),
         game.state,
         &handle_game_callback/2
       )
