@@ -54,3 +54,7 @@ config :pigeon, :fcm,
     key:
       "AAAAiRI7y9A:APA91bEul9-hpglDfso3LnR1BG7dJfzxS0t2KB2Srl0WQpQtdp0kqKuBlsXfVzjN1nX0Mfhkbli88M9Glq6vHYxt_mICmD8kilqXxs3HQQYew26e86fk0gFm0bj4mP-v--mBJfakjkY1"
   }
+
+config :werewolf_api, :dynamic_links,
+  firebase_api: System.get_env("FIREBASE_API"),
+  bundle_id: System.get_env("BUNDLE_ID")

@@ -11,7 +11,7 @@ defmodule WerewolfApi.Game.DynamicLink do
   def new_link(invitation_token) do
     {:ok, response} = ShortLinks.firebasedynamiclinks_short_links_create(
       connection(),
-      key: System.get_env("FIREBASE_API"),
+      key: Application.get_env(:werewolf_api, :dynamic_links)[:firebase_api],
       body: %CreateManagedShortLinkRequest{
         dynamicLinkInfo: %DynamicLinkInfo{
           link: "https://www.wolfchat.app/invitation/#{invitation_token}",
@@ -20,7 +20,7 @@ defmodule WerewolfApi.Game.DynamicLink do
             androidPackageName: "com.wolfchat.wolfchat_app"
           },
           iosInfo: %IosInfo{
-            iosBundleId: System.get_env("BUNDLE_ID")
+            iosBundleId: Application.get_env(:werewolf_api, :dynamic_links)[:bundle_id]
           }
         },
       }
