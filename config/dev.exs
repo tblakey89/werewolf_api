@@ -57,4 +57,5 @@ config :pigeon, :fcm,
 
 config :werewolf_api, :dynamic_links,
   firebase_api: System.get_env("FIREBASE_API"),
-  bundle_id: System.get_env("BUNDLE_ID")
+  bundle_id: System.get_env("BUNDLE_ID"),
+  app_store_id: System.get_env("APP_STORE_ID")
