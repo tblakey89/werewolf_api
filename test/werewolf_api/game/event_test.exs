@@ -39,7 +39,7 @@ defmodule WerewolfApi.GameTest do
   describe "handle/3 end_phase" do
     test "when villager win" do
       game = insert(:game)
-      Event.handle(game, %{}, {:villager_win, :ok, :ok})
+      Event.handle(game, %{}, {:village_win, :ok, :ok})
       updated_game = WerewolfApi.Repo.get(WerewolfApi.Game, game.id)
       assert updated_game.finished
     end

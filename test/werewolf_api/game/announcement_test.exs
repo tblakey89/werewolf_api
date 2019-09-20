@@ -37,7 +37,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
     end
   end
 
-  describe "announce/3 villager_win" do
+  describe "announce/3 village_win" do
     test "announces villager win of game", %{user: user, game: game} do
       target = insert(:user)
       phase_number = 1
@@ -45,7 +45,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:villager_win, target.id, phase_number}
+        {:village_win, target.id, phase_number}
       )
 
       assert_broadcast("new_message", %{body: sent_message})

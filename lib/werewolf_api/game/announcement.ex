@@ -13,7 +13,7 @@ defmodule WerewolfApi.Game.Announcement do
     )
   end
 
-  def announce(game, _state, {:villager_win, target, phase_number}) do
+  def announce(game, _state, {:village_win, target, phase_number}) do
     target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
 
     broadcast_message(
