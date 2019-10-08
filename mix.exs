@@ -59,6 +59,8 @@ defmodule WerewolfApi.Mixfile do
       {:pigeon, "~> 1.3.1"},
       {:kadabra, "~> 0.4.4"},
       {:google_api_firebase_dynamic_links, "~> 0.10.0"},
+      {:joken_jwks, "~> 1.1.0"},
+      {:download, "~> 0.0.4"},
       {:werewolf, git: "https://github.com/tblakey89/werewolf.git"}
       # {:werewolf, path: "../werewolf"}
     ]

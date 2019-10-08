@@ -11,7 +11,9 @@ defmodule WerewolfApi.Application do
       # Start the Ecto repository
       supervisor(WerewolfApi.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(WerewolfApiWeb.Endpoint, [])
+      supervisor(WerewolfApiWeb.Endpoint, []),
+      # start fetching google jwk verification
+      GoogleAuthStrategy,
       # Start your own worker by calling: WerewolfApi.Worker.start_link(arg1, arg2, arg3)
       # worker(WerewolfApi.Worker, [arg1, arg2, arg3]),
     ]

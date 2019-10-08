@@ -11,6 +11,10 @@ defmodule WerewolfApi.User do
     field(:password, :string, virtual: true)
     field(:password_hash, :string)
     field(:username, :string)
+    field(:google_id, :string)
+    field(:google_display_name, :string)
+    field(:first_name, :string)
+    field(:last_name, :string)
     field(:forgotten_password_token, :string)
     field(:forgotten_token_generated_at, :utc_datetime)
     field(:avatar, WerewolfApi.Avatar.Type)
@@ -33,6 +37,10 @@ defmodule WerewolfApi.User do
     timestamps()
   end
 
+  def display_name(user) do
+    user.username || "#{user.first_name} #{user.last_name}"
+  end
+
   def find_by_user_ids(nil), do: []
 
   def find_by_user_ids(user_ids) do
@@ -47,6 +55,21 @@ defmodule WerewolfApi.User do
     |> validate_format(:email, ~r/@/)
     |> unique_constraint(:email)
     |> unique_constraint(:username)
+  end
+
+  def google_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:first_name, :last_name, :email, :google_id, :google_display_name])
+    |> cast_attachments(attrs, [:avatar])
+    |> validate_required([:first_name, :last_name, :email, :google_id, :google_display_name])
+    |> validate_format(:email, ~r/@/)
+    |> unique_constraint(:email)
+  end
+
+  def update_google_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:first_name, :last_name, :google_id, :google_display_name])
+    |> validate_required([:first_name, :last_name, :google_id, :google_display_name])
   end
 
   def registration_changeset(%User{} = user, attrs \\ %{}) do

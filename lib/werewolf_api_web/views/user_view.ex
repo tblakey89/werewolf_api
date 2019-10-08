@@ -1,5 +1,6 @@
 defmodule WerewolfApiWeb.UserView do
   use WerewolfApiWeb, :view
+  alias WerewolfApi.User
 
   def render("show.json", %{user: user}) do
     %{
@@ -23,7 +24,7 @@ defmodule WerewolfApiWeb.UserView do
     %{
       id: user.id,
       email: user.email,
-      username: user.username,
+      username: User.display_name(user),
       avatar: WerewolfApi.Avatar.url({user.avatar, user}, :thumb, signed: true)
     }
   end
@@ -32,7 +33,7 @@ defmodule WerewolfApiWeb.UserView do
     %{
       id: user.id,
       email: user.email,
-      username: user.username,
+      username: User.display_name(user),
       avatar: WerewolfApi.Avatar.url({user.avatar, user}, :thumb),
       friendships:
         render_many(
@@ -61,7 +62,7 @@ defmodule WerewolfApiWeb.UserView do
   def render("simple_user.json", %{user: user}) do
     %{
       id: user.id,
-      username: user.username,
+      username: User.display_name(user),
       avatar: WerewolfApi.Avatar.url({user.avatar, user}, :thumb)
     }
   end
