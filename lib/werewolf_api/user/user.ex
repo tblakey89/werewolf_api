@@ -13,6 +13,8 @@ defmodule WerewolfApi.User do
     field(:username, :string)
     field(:google_id, :string)
     field(:google_display_name, :string)
+    field(:facebook_id, :string)
+    field(:facebook_display_name, :string)
     field(:first_name, :string)
     field(:last_name, :string)
     field(:forgotten_password_token, :string)
@@ -70,6 +72,21 @@ defmodule WerewolfApi.User do
     user
     |> cast(attrs, [:first_name, :last_name, :google_id, :google_display_name])
     |> validate_required([:first_name, :last_name, :google_id, :google_display_name])
+  end
+
+  def facebook_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:first_name, :last_name, :email, :facebook_id, :facebook_display_name])
+    |> cast_attachments(attrs, [:avatar])
+    |> validate_required([:first_name, :last_name, :email, :facebook_id, :facebook_display_name])
+    |> validate_format(:email, ~r/@/)
+    |> unique_constraint(:email)
+  end
+
+  def update_facebook_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:first_name, :last_name, :facebook_id, :facebook_display_name])
+    |> validate_required([:first_name, :last_name, :facebook_id, :facebook_display_name])
   end
 
   def registration_changeset(%User{} = user, attrs \\ %{}) do

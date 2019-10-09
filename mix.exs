@@ -60,7 +60,7 @@ defmodule WerewolfApi.Mixfile do
       {:kadabra, "~> 0.4.4"},
       {:google_api_firebase_dynamic_links, "~> 0.10.0"},
       {:joken_jwks, "~> 1.1.0"},
-      {:download, "~> 0.0.4"},
+      {:facebook, "~> 0.24.0"},
       {:werewolf, git: "https://github.com/tblakey89/werewolf.git"}
       # {:werewolf, path: "../werewolf"}
     ]
