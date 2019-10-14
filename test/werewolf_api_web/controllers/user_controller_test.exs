@@ -24,8 +24,7 @@ defmodule WerewolfApiWeb.UserControllerTest do
         |> post(user_path(conn, :create, user: user))
         |> json_response(201)
 
-      assert response["user"]["email"] == "test@test.com"
-      assert response["user"]["username"] == "test"
+      assert response["token"]
     end
 
     test "when invalid" do

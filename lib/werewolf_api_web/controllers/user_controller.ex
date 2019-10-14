@@ -9,9 +9,11 @@ defmodule WerewolfApiWeb.UserController do
 
     case Repo.insert(changeset) do
       {:ok, user} ->
+        {:ok, jwt, _full_claims} = WerewolfApi.Guardian.encode_and_sign(user)
+
         conn
         |> put_status(:created)
-        |> render("show.json", user: user)
+        |> render(WerewolfApiWeb.SessionView, "create.json", jwt: jwt)
 
       {:error, changeset} ->
         unprocessable_entity(conn, changeset)
