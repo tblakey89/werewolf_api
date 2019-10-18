@@ -1,6 +1,8 @@
 defmodule WerewolfApiWeb.GameView do
   use WerewolfApiWeb, :view
+  import WerewolfApiWeb.GameStateHelpers
   alias WerewolfApi.Game
+  require IEx
 
   def render("show.json", %{game: game}) do
     %{
@@ -56,7 +58,7 @@ defmodule WerewolfApiWeb.GameView do
       phases: state.game.phases,
       players:
         render_one(
-          %{players: state.game.players, user: user},
+          %{players: state.game.players, user: user, state: state.rules.state, phase_number: state.game.phases},
           WerewolfApiWeb.GameView,
           "players.json",
           as: :data
@@ -65,7 +67,7 @@ defmodule WerewolfApiWeb.GameView do
     }
   end
 
-  def render("players.json", %{data: %{players: players, user: user}}) do
+  def render("players.json", %{data: %{players: players, user: user, state: state, phase_number: phase_number}}) do
     current_player = players[user.id]
 
     Enum.reduce(players, %{}, fn {key, player}, accumulator ->
@@ -77,7 +79,7 @@ defmodule WerewolfApiWeb.GameView do
 
           false ->
             render_one(
-              %{player: player, current_player: current_player},
+              %{player: player, current_player: current_player, state: state, phase_number: phase_number},
               WerewolfApiWeb.GameView,
               "other_player.json",
               as: :data
@@ -98,18 +100,13 @@ defmodule WerewolfApiWeb.GameView do
     }
   end
 
-  def render("other_player.json", %{data: %{player: player, current_player: current_player}}) do
+  def render("other_player.json", %{data: %{player: player, current_player: current_player, state: state, phase_number: phase_number}}) do
     %{
       id: player.id,
       alive: player.alive,
       host: player.host,
-      role:
-        if(
-          player.alive &&
-            !(current_player && current_player.role == :werewolf && player.role == :werewolf),
-          do: "Unknown",
-          else: player.role
-        )
+      role: display_role(state, current_player, player),
+      actions: filter_actions(state, phase_number, current_player, player)
     }
   end
 
