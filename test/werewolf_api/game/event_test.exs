@@ -39,23 +39,26 @@ defmodule WerewolfApi.GameTest do
   describe "handle/3 end_phase" do
     test "when villager win" do
       game = insert(:game)
-      Event.handle(game, %{}, {:village_win, :ok, :ok})
+      Event.handle(game, %{updated: true}, {:village_win, :ok, :ok})
       updated_game = WerewolfApi.Repo.get(WerewolfApi.Game, game.id)
       assert updated_game.finished
+      assert updated_game.state == %{"updated" => true}
     end
 
     test "when werewolf win" do
       game = insert(:game)
-      Event.handle(game, %{}, {:werewolf_win, :ok, :ok})
+      Event.handle(game, %{updated: true}, {:werewolf_win, :ok, :ok})
       updated_game = WerewolfApi.Repo.get(WerewolfApi.Game, game.id)
       assert updated_game.finished
+      assert updated_game.state == %{"updated" => true}
     end
 
     test "when no win" do
       game = insert(:game)
-      Event.handle(game, %{}, {:no_win, :ok, :ok})
+      Event.handle(game, %{updated: true}, {:no_win, :ok, :ok})
       updated_game = WerewolfApi.Repo.get(WerewolfApi.Game, game.id)
       refute game.finished
+      assert updated_game.state == %{"updated" => true}
     end
   end
 
