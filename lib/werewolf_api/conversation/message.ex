@@ -14,15 +14,15 @@ defmodule WerewolfApi.Conversation.Message do
   @doc false
   def changeset(message, attrs) do
     message
-    |> cast(attrs, [:body])
+    |> cast(attrs, [:body, :bot])
     |> validate_required([:body])
   end
 
   def username(%{bot: true} = message) do
-    "bot"
+    "Narrator"
   end
 
   def username(message) do
-    message.user.username
+    WerewolfApi.User.display_name(message.user)
   end
 end

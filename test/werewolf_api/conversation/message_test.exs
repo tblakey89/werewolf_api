@@ -10,7 +10,7 @@ defmodule WerewolfApi.Conversation.MessageTest do
 
       username = Message.username(message)
 
-      assert username == "bot"
+      assert username == "Narrator"
     end
 
     test "when message from user" do

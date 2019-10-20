@@ -41,7 +41,7 @@ defmodule WerewolfApi.Game.Server do
       |> Werewolf.GameServer.action(user, target, action_type)
 
     case response do
-      {:ok, state} ->
+      {:ok, :action, _, _, _, _, _, state} ->
         handle_success(game_id, user, state)
 
       {:error, reason} ->

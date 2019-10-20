@@ -1,9 +1,10 @@
 defmodule WerewolfApi.Game.Announcement do
   alias WerewolfApi.Notification
+  alias WerewolfApi.User
   require Integer
 
   def announce(game, _state, {:ok, :add_player, user}) do
-    broadcast_message(game, "#{user.username} has joined the game.")
+    broadcast_message(game, "#{User.display_name(user)} has joined the game.")
   end
 
   def announce(game, _state, {:ok, :launch_game}) do
@@ -13,13 +14,28 @@ defmodule WerewolfApi.Game.Announcement do
     )
   end
 
+  def announce(game, _state, {:ok, :action, :day_phase, :vote, user, target, vote_result}) do
+    target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+
+    broadcast_message(
+      game,
+      "A vote has been cast: #{User.display_name(user)} has voted for #{User.display_name(target_user)}. #{show_vote_result(vote_result)}"
+    )
+  end
+
+  def announce(game, _state, {:ok, :action, :night_phase, :vote, user, target, vote_result}) do
+    conversation = WerewolfApi.Repo.get(WerewolfApi.Conversation, game.conversation_id)
+
+    WerewolfApi.Conversation.Announcement.announce(conversation, {:action, user, target, vote_result})
+  end
+
   def announce(game, _state, {:village_win, target, phase_number}) do
     target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
 
     broadcast_message(
       game,
-      "The people voted, and #{target_user.username} was lynched. It turns out #{
-        target_user.username
+      "The people voted, and #{User.display_name(target_user)} was lynched. It turns out #{
+        User.display_name(target_user)
       } was a werewolf. With this, all the werewolves were gone and peace was restored to the village. Villagers win."
     )
   end
@@ -31,15 +47,15 @@ defmodule WerewolfApi.Game.Announcement do
       true ->
         broadcast_message(
           game,
-          "The people voted, and #{target_user.username} was lynched. It turns out #{
-            target_user.username
+          "The people voted, and #{User.display_name(target_user)} was lynched. It turns out #{
+            User.display_name(target_user)
           } was a villager. With this, the werewolves outnumber the villagers, the remaining werewolves devoured the last survivors. Werewolves win."
         )
 
       false ->
         broadcast_message(
           game,
-          "The sun came up on a new day. #{target_user.username} was found dead. With this the werewolves outnumber the villagers. The remaining werewolves devoured the last survivors. Werewolves win."
+          "The sun came up on a new day. #{User.display_name(target_user)} was found dead. With this the werewolves outnumber the villagers. The remaining werewolves devoured the last survivors. Werewolves win."
         )
     end
   end
@@ -52,7 +68,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "The sun came up on a new day, everyone left their homes, and everyone seemed to be ok. Day phase #{
         day_phase_number
-      } begins now."
+      } begins now. Go to the 'Role' page to vote for who you want to lynch when you're ready."
     )
   end
 
@@ -64,9 +80,9 @@ defmodule WerewolfApi.Game.Announcement do
 
     broadcast_message(
       game,
-      "The sun came up on a new day, and #{target_user.username} was found dead. It turns out #{
-        target_user.username
-      } was a #{role}. Day phase #{day_phase_number} begins now."
+      "The sun came up on a new day, and #{User.display_name(target_user)} was found dead. It turns out #{
+        User.display_name(target_user)
+      } was a #{role}. Day phase #{day_phase_number} begins now. Go to the 'Role' page to vote for who you want to lynch when you're ready."
     )
   end
 
@@ -88,13 +104,23 @@ defmodule WerewolfApi.Game.Announcement do
 
     broadcast_message(
       game,
-      "The people voted, and #{target_user.username} was lynched. It turns out #{
-        target_user.username
+      "The people voted, and #{User.display_name(target_user)} was lynched. It turns out #{
+        User.display_name(target_user)
       } was a #{role}. Night phase #{night_phase_number} begins now."
     )
   end
 
   def announce(_game, _state, _), do: nil
+
+  defp show_vote_result({0, :none}), do: nil
+  defp show_vote_result({vote_count, :none}) do
+    "There is currently a tie with #{Integer.to_string(vote_count)} #{Inflex.inflect("vote", vote_count)} each. If there is a tie at the end of the phase, no player will be lynched."
+  end
+  defp show_vote_result({vote_count, target}) do
+    target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+
+    "The player with the most votes is #{User.display_name(target_user)} with #{Integer.to_string(vote_count)} #{Inflex.inflect("vote", vote_count)}. Unless the votes change, #{User.display_name(target_user)} will be lynched at the end of the phase."
+  end
 
   defp broadcast_message(game, message) do
     # why is this not in game_channel.ex?
