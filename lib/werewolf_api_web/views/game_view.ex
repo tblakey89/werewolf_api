@@ -56,6 +56,8 @@ defmodule WerewolfApiWeb.GameView do
       end_phase_unix_time: state.game.end_phase_unix_time,
       phase_length: state.game.phase_length,
       phases: state.game.phases,
+      win_status: state.game.win_status,
+      targets: state.game.targets,
       players:
         render_one(
           %{players: state.game.players, user: user, state: state.rules.state, phase_number: state.game.phases},

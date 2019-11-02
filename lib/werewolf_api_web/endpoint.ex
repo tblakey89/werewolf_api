@@ -1,5 +1,6 @@
 defmodule WerewolfApiWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :werewolf_api
+  use Sentry.Phoenix.Endpoint
 
   socket(
     "/socket",

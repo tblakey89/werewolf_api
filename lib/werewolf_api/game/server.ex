@@ -44,6 +44,9 @@ defmodule WerewolfApi.Game.Server do
       {:ok, :action, _, _, _, _, _, state} ->
         handle_success(game_id, user, state)
 
+      {:ok, :action, state} ->
+        handle_success(game_id, user, state)
+
       {:error, reason} ->
         {:error, reason}
     end

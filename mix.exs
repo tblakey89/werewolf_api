@@ -62,6 +62,7 @@ defmodule WerewolfApi.Mixfile do
       {:joken_jwks, "~> 1.1.0"},
       {:facebook, "~> 0.24.0"},
       {:inflex, "~> 2.0.0"},
+      {:sentry, "~> 7.0"},
       {:werewolf, git: "https://github.com/tblakey89/werewolf.git"}
       # {:werewolf, path: "../werewolf"}
     ]
