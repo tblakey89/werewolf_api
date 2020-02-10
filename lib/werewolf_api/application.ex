@@ -14,6 +14,7 @@ defmodule WerewolfApi.Application do
       supervisor(WerewolfApiWeb.Endpoint, []),
       # start fetching google jwk verification
       GoogleAuthStrategy,
+      supervisor(Exq, []),
       # Start your own worker by calling: WerewolfApi.Worker.start_link(arg1, arg2, arg3)
       # worker(WerewolfApi.Worker, [arg1, arg2, arg3]),
     ]

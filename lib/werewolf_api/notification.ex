@@ -10,7 +10,7 @@ defmodule WerewolfApi.Notification do
       |> Pigeon.FCM.Notification.new(
         %{
           title: Conversation.Message.username(message),
-          body: limit_message_length(message.body),
+          body: limit_message_length(message),
           click_action: "FLUTTER_NOTIFICATION_CLICK",
           sound: "default"
         },
@@ -38,7 +38,7 @@ defmodule WerewolfApi.Notification do
       |> Pigeon.FCM.Notification.new(
         %{
           title: "#{Game.Message.username(message)} @ #{message.game.name}",
-          body: limit_message_length(message.body),
+          body: limit_message_length(message),
           click_action: "FLUTTER_NOTIFICATION_CLICK",
           sound: "default"
         },
@@ -120,7 +120,7 @@ defmodule WerewolfApi.Notification do
   end
 
   defp limit_message_length(message) do
-    if String.length(message) > 200 do
+    if String.length(message.body) > 200 do
       String.slice(message.body, 0, 200) <> "..."
     else
       message

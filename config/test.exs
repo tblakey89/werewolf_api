@@ -30,3 +30,6 @@ config :pigeon, :fcm,
   fcm_default: %{
     key: ""
   }
+
+config :exq,
+  queue_adapter: Exq.Adapters.Queue.Mock

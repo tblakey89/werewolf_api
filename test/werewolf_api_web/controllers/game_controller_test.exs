@@ -12,6 +12,7 @@ defmodule WerewolfApiWeb.GameControllerTest do
 
   describe "create/2" do
     test "when valid", %{conn: conn} do
+      insert(:user, id: 1)
       user = insert(:user)
       second_user = insert(:user)
 
