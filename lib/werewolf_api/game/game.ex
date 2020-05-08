@@ -12,6 +12,7 @@ defmodule WerewolfApi.Game do
     field(:state, :map)
     field(:invitation_token, :string)
     field(:invitation_url, :string)
+    field(:public, :boolean)
     many_to_many(:users, WerewolfApi.User, join_through: "users_games")
     has_many(:users_games, WerewolfApi.UsersGame)
     has_many(:messages, WerewolfApi.Game.Message)

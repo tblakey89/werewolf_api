@@ -2,7 +2,17 @@ defmodule WerewolfApiWeb.GameView do
   use WerewolfApiWeb, :view
   import WerewolfApiWeb.GameStateHelpers
   alias WerewolfApi.Game
-  require IEx
+
+  def render("index.json", %{games: games}) do
+    %{
+      games:
+        render_many(
+          games,
+          WerewolfApiWeb.GameView,
+          "game.json"
+        )
+    }
+  end
 
   def render("show.json", %{game: game}) do
     %{

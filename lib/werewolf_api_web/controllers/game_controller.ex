@@ -1,10 +1,19 @@
 defmodule WerewolfApiWeb.GameController do
   use WerewolfApiWeb, :controller
+  import Ecto.Query, only: [from: 2]
   alias WerewolfApi.Game
   alias WerewolfApi.Repo
   alias WerewolfApi.Notification
 
-  # only send games where users_game state is not rejected
+  def index(conn, _param) do
+    games =
+      from(g in Game, where: g.public == true and g.started == false)
+      |> Repo.all()
+      |> Repo.preload(users_games: :user, messages: :user)
+
+    conn
+    |> render("index.json", games: games)
+  end
 
   def create(conn, %{"game" => game_params}) do
     user = Guardian.Plug.current_resource(conn)

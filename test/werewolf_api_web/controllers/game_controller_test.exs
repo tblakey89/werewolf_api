@@ -10,6 +10,28 @@ defmodule WerewolfApiWeb.GameControllerTest do
   import WerewolfApi.Factory
   import WerewolfApi.Guardian
 
+  describe "index/1" do
+    test "returns only public games", %{conn: conn} do
+      user = insert(:user)
+      game_public = insert(:game, public: true)
+      game_private = insert(:game, public: false)
+
+      response = index_response(conn, user, 200)
+      assert length(response["games"]) == 1
+      assert Enum.at(response["games"], 0)["id"] == game_public.id
+    end
+
+    test "returns only games not started" do
+      user = insert(:user)
+      game_started = insert(:game, public: true, started: true)
+      game_unstarted = insert(:game, public: true, started: false)
+
+      response = index_response(conn, user, 200)
+      assert length(response["games"]) == 1
+      assert Enum.at(response["games"], 0)["id"] == game_unstarted.id
+    end
+  end
+
   describe "create/2" do
     test "when valid", %{conn: conn} do
       insert(:user, id: 1)
@@ -92,6 +114,15 @@ defmodule WerewolfApiWeb.GameControllerTest do
       |> put(game_path(conn, :update, 10, game: %{user_ids: [1]}))
       |> response(401)
     end
+  end
+
+  defp index_response(conn, user, expected_response) do
+    {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+    conn
+    |> put_req_header("authorization", "bearer: " <> token)
+    |> get(game_path(conn, :index))
+    |> json_response(expected_response)
   end
 
   defp create_response(conn, user, game, expected_response) do
