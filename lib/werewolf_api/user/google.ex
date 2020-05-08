@@ -12,7 +12,7 @@ defmodule WerewolfApi.User.Google do
   defp create_from_map(google_user_map) do
     {:ok, user} =
       User.google_changeset(%User{}, map_for_insertion(google_user_map))
-      |> Repo.insert
+      |> Repo.insert()
 
     user
   end
@@ -20,7 +20,7 @@ defmodule WerewolfApi.User.Google do
   defp update_from_map(user, google_user_map) do
     {:ok, user} =
       User.update_google_changeset(user, map_for_update(user, google_user_map))
-      |> Repo.update
+      |> Repo.update()
 
     user
   end
@@ -46,14 +46,16 @@ defmodule WerewolfApi.User.Google do
   end
 
   defp build_upload_struct(nil), do: nil
+
   defp build_upload_struct(avatar_url) do
     %HTTPoison.Response{body: body, headers: headers} = HTTPoison.get!(avatar_url)
     content_type = Enum.into(headers, %{})["Content-Type"]
-    file_name = Enum.random(0..10000000)
+    file_name = Enum.random(0..10_000_000)
 
     case content_type do
       "image/jpeg" ->
         %{__struct__: Plug.Upload, binary: body, filename: "#{file_name}.jpg"}
+
       "image/png" ->
         %{__struct__: Plug.Upload, binary: body, filename: "#{file_name}.png"}
     end

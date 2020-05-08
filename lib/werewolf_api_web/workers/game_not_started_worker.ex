@@ -17,7 +17,11 @@ defmodule WerewolfApiWeb.GameNotStartedWorker do
 
       if length(user.games) == 1 && length(game.users_games) < 8 do
         {:ok, conversation} = Conversation.find_or_create(%{"user_ids" => [1, user.id]})
-        broadcast_conversation(conversation, "Hello #{User.display_name(user)}, my name is Thomas, the creator of WolfChat. Thanks for downloading my application, I hope you like it. I have noticed you have created a game, but not got enough people to join. Do you need any help with how the app works, and how to invite other players? What are your thoughts on the app?")
+
+        broadcast_conversation(
+          conversation,
+          "Hello #{User.display_name(user)}, my name is Thomas, the creator of WolfChat. Thanks for downloading my application, I hope you like it. I have noticed you have created a game, but not got enough people to join. Do you need any help with how the app works, and how to invite other players? What are your thoughts on the app?"
+        )
       end
     end
   end

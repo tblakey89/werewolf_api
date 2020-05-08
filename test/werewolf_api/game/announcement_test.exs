@@ -43,29 +43,63 @@ defmodule WerewolfApi.Game.AnnouncementTest do
   describe "announce/3 player vote" do
     test "when user votes for a target, not a tie, 1 vote", %{user: user, game: game} do
       target = insert(:user)
-      WerewolfApi.Game.Announcement.announce(game, state(user.id, game.id), {:ok, :action, :day_phase, :vote, user, target.id, {1, target.id}})
+
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:ok, :action, :day_phase, :vote, user, target.id, {1, target.id}}
+      )
 
       assert_broadcast("new_message", %{body: sent_message})
-      assert sent_message =~ "#{User.display_name(user)} has voted for #{User.display_name(target)}"
-      assert sent_message =~ "votes is #{User.display_name(target)} with 1 vote. Unless the votes change, #{User.display_name(target)} will be lynched at the end of the phase."
+
+      assert sent_message =~
+               "#{User.display_name(user)} has voted for #{User.display_name(target)}"
+
+      assert sent_message =~
+               "votes is #{User.display_name(target)} with 1 vote. Unless the votes change, #{
+                 User.display_name(target)
+               } will be lynched at the end of the phase."
     end
 
     test "when user votes for a target, a tie, 3 vote", %{user: user, game: game} do
       target = insert(:user)
-      WerewolfApi.Game.Announcement.announce(game, state(user.id, game.id), {:ok, :action, :day_phase, :vote, user, target.id, {3, :none}})
+
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:ok, :action, :day_phase, :vote, user, target.id, {3, :none}}
+      )
 
       assert_broadcast("new_message", %{body: sent_message})
-      assert sent_message =~ "#{User.display_name(user)} has voted for #{User.display_name(target)}"
-      assert sent_message =~ "a tie with 3 votes each. If there is a tie at the end of the phase, no player will be lynched."
+
+      assert sent_message =~
+               "#{User.display_name(user)} has voted for #{User.display_name(target)}"
+
+      assert sent_message =~
+               "a tie with 3 votes each. If there is a tie at the end of the phase, no player will be lynched."
     end
 
-    test "when user votes for a target on night phase, not a tie, 1 vote", %{user: user, game: game} do
+    test "when user votes for a target on night phase, not a tie, 1 vote", %{
+      user: user,
+      game: game
+    } do
       target = insert(:user)
-      WerewolfApi.Game.Announcement.announce(game, state(user.id, game.id), {:ok, :action, :night_phase, :vote, user, target.id, {1, target.id}})
+
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:ok, :action, :night_phase, :vote, user, target.id, {1, target.id}}
+      )
 
       assert_broadcast("new_message", %{body: sent_message})
-      refute sent_message =~ "#{User.display_name(user)} has voted for #{User.display_name(target)}"
-      refute sent_message =~ "votes is #{User.display_name(target)} with 1 vote. Unless the votes change, #{User.display_name(target)} will be lynched at the end of the phase."
+
+      refute sent_message =~
+               "#{User.display_name(user)} has voted for #{User.display_name(target)}"
+
+      refute sent_message =~
+               "votes is #{User.display_name(target)} with 1 vote. Unless the votes change, #{
+                 User.display_name(target)
+               } will be lynched at the end of the phase."
     end
   end
 

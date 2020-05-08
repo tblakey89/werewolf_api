@@ -12,6 +12,7 @@ defmodule WerewolfApi.User.FacebookTest do
     test "when user in facebook map's email exists" do
       email = "test@email.com"
       user = insert(:user, email: email)
+
       facebook_user_map = %{
         "email" => email,
         "first_name" => "facebook_test",

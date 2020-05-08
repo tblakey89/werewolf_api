@@ -70,7 +70,12 @@ defmodule WerewolfApiWeb.GameView do
       targets: state.game.targets,
       players:
         render_one(
-          %{players: state.game.players, user: user, state: state.rules.state, phase_number: state.game.phases},
+          %{
+            players: state.game.players,
+            user: user,
+            state: state.rules.state,
+            phase_number: state.game.phases
+          },
           WerewolfApiWeb.GameView,
           "players.json",
           as: :data
@@ -79,7 +84,9 @@ defmodule WerewolfApiWeb.GameView do
     }
   end
 
-  def render("players.json", %{data: %{players: players, user: user, state: state, phase_number: phase_number}}) do
+  def render("players.json", %{
+        data: %{players: players, user: user, state: state, phase_number: phase_number}
+      }) do
     current_player = players[user.id]
 
     Enum.reduce(players, %{}, fn {key, player}, accumulator ->
@@ -91,7 +98,12 @@ defmodule WerewolfApiWeb.GameView do
 
           false ->
             render_one(
-              %{player: player, current_player: current_player, state: state, phase_number: phase_number},
+              %{
+                player: player,
+                current_player: current_player,
+                state: state,
+                phase_number: phase_number
+              },
               WerewolfApiWeb.GameView,
               "other_player.json",
               as: :data
@@ -112,7 +124,14 @@ defmodule WerewolfApiWeb.GameView do
     }
   end
 
-  def render("other_player.json", %{data: %{player: player, current_player: current_player, state: state, phase_number: phase_number}}) do
+  def render("other_player.json", %{
+        data: %{
+          player: player,
+          current_player: current_player,
+          state: state,
+          phase_number: phase_number
+        }
+      }) do
     %{
       id: player.id,
       alive: player.alive,

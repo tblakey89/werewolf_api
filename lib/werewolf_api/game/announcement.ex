@@ -19,14 +19,19 @@ defmodule WerewolfApi.Game.Announcement do
 
     broadcast_message(
       game,
-      "A vote has been cast: #{User.display_name(user)} has voted for #{User.display_name(target_user)}. #{show_vote_result(vote_result)}"
+      "A vote has been cast: #{User.display_name(user)} has voted for #{
+        User.display_name(target_user)
+      }. #{show_vote_result(vote_result)}"
     )
   end
 
   def announce(game, _state, {:ok, :action, :night_phase, :vote, user, target, vote_result}) do
     conversation = WerewolfApi.Repo.get(WerewolfApi.Conversation, game.conversation_id)
 
-    WerewolfApi.Conversation.Announcement.announce(conversation, {:action, user, target, vote_result})
+    WerewolfApi.Conversation.Announcement.announce(
+      conversation,
+      {:action, user, target, vote_result}
+    )
   end
 
   def announce(game, _state, {:village_win, target, phase_number}) do
@@ -113,13 +118,21 @@ defmodule WerewolfApi.Game.Announcement do
   def announce(_game, _state, _), do: nil
 
   defp show_vote_result({0, :none}), do: nil
+
   defp show_vote_result({vote_count, :none}) do
-    "There is currently a tie with #{Integer.to_string(vote_count)} #{Inflex.inflect("vote", vote_count)} each. If there is a tie at the end of the phase, no player will be lynched."
+    "There is currently a tie with #{Integer.to_string(vote_count)} #{
+      Inflex.inflect("vote", vote_count)
+    } each. If there is a tie at the end of the phase, no player will be lynched."
   end
+
   defp show_vote_result({vote_count, target}) do
     target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
 
-    "The player with the most votes is #{User.display_name(target_user)} with #{Integer.to_string(vote_count)} #{Inflex.inflect("vote", vote_count)}. Unless the votes change, #{User.display_name(target_user)} will be lynched at the end of the phase."
+    "The player with the most votes is #{User.display_name(target_user)} with #{
+      Integer.to_string(vote_count)
+    } #{Inflex.inflect("vote", vote_count)}. Unless the votes change, #{
+      User.display_name(target_user)
+    } will be lynched at the end of the phase."
   end
 
   defp broadcast_message(game, message) do

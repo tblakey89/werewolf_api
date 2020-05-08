@@ -72,6 +72,7 @@ defmodule WerewolfApiWeb.UserController do
 
   def avatar(conn, %{"user_id" => id, "user" => user_params}) do
     user = Guardian.Plug.current_resource(conn)
+
     with true <- user.id == String.to_integer(id),
          changeset <- User.avatar_changeset(user, user_params),
          {:ok, user} <- Repo.update(changeset) do

@@ -3,7 +3,10 @@ defmodule WerewolfApi.Conversation.Announcement do
   alias WerewolfApi.User
 
   def announce(conversation, {:werewolf, game_name}) do
-    broadcast_conversation(conversation, "This is the werewolf group chat for #{game_name}. Please place your votes on the game chat for who you want to kill.")
+    broadcast_conversation(
+      conversation,
+      "This is the werewolf group chat for #{game_name}. Please place your votes on the game chat for who you want to kill."
+    )
   end
 
   def announce(conversation, {:action, user, target, vote_result}) do
@@ -11,20 +14,30 @@ defmodule WerewolfApi.Conversation.Announcement do
 
     broadcast_message(
       conversation,
-      "#{User.display_name(user)} wants to kill #{User.display_name(target_user)}. #{show_vote_result(vote_result)}"
+      "#{User.display_name(user)} wants to kill #{User.display_name(target_user)}. #{
+        show_vote_result(vote_result)
+      }"
     )
   end
 
   def announce(_conversation, _), do: nil
 
   defp show_vote_result({0, :none}), do: nil
+
   defp show_vote_result({vote_count, :none}) do
-    "There is currently a tie with #{Integer.to_string(vote_count)} #{Inflex.inflect("vote", vote_count)} each. If there is a tie at the end of the night phase, no player will be killed."
+    "There is currently a tie with #{Integer.to_string(vote_count)} #{
+      Inflex.inflect("vote", vote_count)
+    } each. If there is a tie at the end of the night phase, no player will be killed."
   end
+
   defp show_vote_result({vote_count, target}) do
     target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
 
-    "The player with the most votes is #{User.display_name(target_user)} with #{Integer.to_string(vote_count)} #{Inflex.inflect("vote", vote_count)}. Unless the votes change, #{User.display_name(target_user)} will be killed at the end of the night phase."
+    "The player with the most votes is #{User.display_name(target_user)} with #{
+      Integer.to_string(vote_count)
+    } #{Inflex.inflect("vote", vote_count)}. Unless the votes change, #{
+      User.display_name(target_user)
+    } will be killed at the end of the night phase."
   end
 
   defp broadcast_conversation(conversation, message) do

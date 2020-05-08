@@ -108,7 +108,8 @@ defmodule WerewolfApi.Notification do
       |> Pigeon.FCM.Notification.new(
         %{
           title: "New Game Invite",
-          body: "#{host_users_game.user.username} has invited you to join their game of Werewolf.",
+          body:
+            "#{host_users_game.user.username} has invited you to join their game of Werewolf.",
           sound: "default"
         },
         %{

@@ -4,6 +4,5 @@ defmodule GoogleToken do
   add_hook(JokenJwks, strategy: GoogleAuthStrategy)
 
   def token_config do
-    
   end
 end

@@ -12,6 +12,7 @@ defmodule WerewolfApi.User.GoogleTest do
     test "when user in google map's email exists" do
       email = "test@email.com"
       user = insert(:user, email: email)
+
       google_user_map = %{
         "email" => email,
         "given_name" => "google_test",

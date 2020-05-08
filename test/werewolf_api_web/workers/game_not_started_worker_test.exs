@@ -23,7 +23,10 @@ defmodule WerewolfApiWeb.GameNotStartedWorkerTest do
       assert_broadcast("new_conversation", %{})
     end
 
-    test "does not broadcast message to user if user has more than one game", %{game: game, user: user} do
+    test "does not broadcast message to user if user has more than one game", %{
+      game: game,
+      user: user
+    } do
       game_two = insert(:game)
       insert(:users_game, game: game_two, user: user)
 

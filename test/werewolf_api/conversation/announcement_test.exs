@@ -33,13 +33,22 @@ defmodule WerewolfApi.Conversation.AnnouncementTest do
   end
 
   describe "announce/2 player vote" do
-    test "when user votes for a target, not a tie, 1 vote", %{user: user, conversation: conversation} do
+    test "when user votes for a target, not a tie, 1 vote", %{
+      user: user,
+      conversation: conversation
+    } do
       target = insert(:user)
       Conversation.Announcement.announce(conversation, {:action, user, target.id, {1, target.id}})
 
       assert_broadcast("new_message", %{body: sent_message})
-      assert sent_message =~ "#{User.display_name(user)} wants to kill #{User.display_name(target)}"
-      assert sent_message =~ "votes is #{User.display_name(target)} with 1 vote. Unless the votes change, #{User.display_name(target)} will be killed at the end of the night phase."
+
+      assert sent_message =~
+               "#{User.display_name(user)} wants to kill #{User.display_name(target)}"
+
+      assert sent_message =~
+               "votes is #{User.display_name(target)} with 1 vote. Unless the votes change, #{
+                 User.display_name(target)
+               } will be killed at the end of the night phase."
     end
 
     test "when user votes for a target, a tie, 3 vote", %{user: user, conversation: conversation} do
@@ -47,8 +56,12 @@ defmodule WerewolfApi.Conversation.AnnouncementTest do
       Conversation.Announcement.announce(conversation, {:action, user, target.id, {3, :none}})
 
       assert_broadcast("new_message", %{body: sent_message})
-      assert sent_message =~ "#{User.display_name(user)} wants to kill #{User.display_name(target)}"
-      assert sent_message =~ "a tie with 3 votes each. If there is a tie at the end of the night phase, no player will be killed."
+
+      assert sent_message =~
+               "#{User.display_name(user)} wants to kill #{User.display_name(target)}"
+
+      assert sent_message =~
+               "a tie with 3 votes each. If there is a tie at the end of the night phase, no player will be killed."
     end
   end
 end

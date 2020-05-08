@@ -21,7 +21,7 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
       player = player(1, :werewolf)
 
       actions = GameStateHelpers.filter_actions(:day_phase, 1, nil, player)
-      assert %{1 => player.actions[1]}  == actions
+      assert %{1 => player.actions[1]} == actions
     end
 
     test 'when day returns player actions for different day on different phase' do
