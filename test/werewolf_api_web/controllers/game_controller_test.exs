@@ -11,20 +11,10 @@ defmodule WerewolfApiWeb.GameControllerTest do
   import WerewolfApi.Guardian
 
   describe "index/1" do
-    test "returns only public games", %{conn: conn} do
-      user = insert(:user)
-      game_public = insert(:game, public: true)
-      game_private = insert(:game, public: false)
-
-      response = index_response(conn, user, 200)
-      assert length(response["games"]) == 1
-      assert Enum.at(response["games"], 0)["id"] == game_public.id
-    end
-
     test "returns only games not started" do
       user = insert(:user)
-      game_started = insert(:game, public: true, started: true)
-      game_unstarted = insert(:game, public: true, started: false)
+      game_started = insert(:game, started: true)
+      game_unstarted = insert(:game, started: false)
 
       response = index_response(conn, user, 200)
       assert length(response["games"]) == 1

@@ -35,7 +35,8 @@ defmodule WerewolfApiWeb.GameView do
       created_at:
         DateTime.to_unix(DateTime.from_naive!(game.inserted_at, "Etc/UTC"), :millisecond),
       users_games: render_many(game.users_games, WerewolfApiWeb.UsersGameView, "users_game.json"),
-      messages: render_many(game.messages, WerewolfApiWeb.GameMessageView, "game_message.json")
+      messages: render_many(game.messages, WerewolfApiWeb.GameMessageView, "game_message.json"),
+      has_join_code: game.join_code != nil
     }
   end
 

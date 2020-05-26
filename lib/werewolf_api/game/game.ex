@@ -12,7 +12,7 @@ defmodule WerewolfApi.Game do
     field(:state, :map)
     field(:invitation_token, :string)
     field(:invitation_url, :string)
-    field(:public, :boolean)
+    field(:join_code, :string)
     many_to_many(:users, WerewolfApi.User, join_through: "users_games")
     has_many(:users_games, WerewolfApi.UsersGame)
     has_many(:messages, WerewolfApi.Game.Message)
@@ -95,7 +95,7 @@ defmodule WerewolfApi.Game do
       )
 
     game
-    |> cast(attrs, [:name, :invitation_token, :invitation_url, :time_period])
+    |> cast(attrs, [:name, :invitation_token, :invitation_url, :time_period, :join_code])
     |> cast_assoc(:users_games)
     |> validate_required([:name, :time_period])
   end
