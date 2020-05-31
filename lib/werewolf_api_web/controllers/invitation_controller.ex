@@ -19,10 +19,11 @@ defmodule WerewolfApiWeb.InvitationController do
     end
   end
 
-  def create(conn, %{"token" => token}) do
+  def create(conn, game_attributes) do
     user = Guardian.Plug.current_resource(conn)
 
-    with %Game{started: false} = game <- Repo.get_by(Game, invitation_token: token),
+    with %Game{started: false} <- game = find_game(game_attributes),
+         true <- matches_join_code(game.join_code, game_attributes),
          nil <- Repo.get_by(UsersGame, game_id: game.id, user_id: user.id),
          changeset <-
            UsersGame.changeset(%UsersGame{}, %{
@@ -36,6 +37,7 @@ defmodule WerewolfApiWeb.InvitationController do
       render(conn, "success.json", %{users_game: users_game})
     else
       nil -> invitation_not_found(conn)
+      false -> incorrect_join_code(conn)
       %UsersGame{} -> already_joined(conn)
       {:error, %Ecto.Changeset{} = changeset} -> unprocessable_entity(conn, changeset)
       %Game{started: true} -> already_started(conn)
@@ -77,6 +79,26 @@ defmodule WerewolfApiWeb.InvitationController do
     end
   end
 
+  defp find_game(%{"game_id" => game_id}) do
+    Repo.get(Game, game_id)
+  end
+
+  defp find_game(%{"token" => token}) do
+    Repo.get_by(Game, invitation_token: token)
+  end
+
+  defp matches_join_code(nil, _game_attributes), do: true
+
+  defp matches_join_code(_join_code, %{"token" => token}) do
+    true
+  end
+
+  defp matches_join_code(game_join_code, %{"join_code" => join_code}) do
+    game_join_code == join_code
+  end
+
+  defp matches_join_code(_join_code, _game_attributes), do: false
+
   defp find_users_game(id, user) do
     case Repo.get_by(UsersGame, id: id, user_id: user.id) do
       nil ->
@@ -90,6 +112,12 @@ defmodule WerewolfApiWeb.InvitationController do
 
   defp game_joinable(conn, game) do
     render(conn, "ok.json", game: game)
+  end
+
+  defp incorrect_join_code(conn) do
+    conn
+    |> put_status(403)
+    |> render("error.json", message: "Incorrect game password")
   end
 
   defp already_started(conn) do

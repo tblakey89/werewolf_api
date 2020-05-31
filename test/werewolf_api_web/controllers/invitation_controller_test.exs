@@ -116,6 +116,43 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
       refute_broadcast("game_update", %{})
       assert response["error"] == "Invitation not found"
     end
+
+    test "when game is public, and nil join_code is passed", %{conn: conn, user: user, game: game} do
+      new_user = insert(:user)
+      game_id = game.id
+      WerewolfApiWeb.Endpoint.subscribe("user:#{new_user.id}")
+
+      response = create_response(conn, new_user, game.id, nil, 200)
+
+      assert_broadcast("game_update", %{id: ^game_id})
+      assert response["success"] == "Joined the game"
+    end
+
+    test "when game is private, and wrong join_code is passed", %{conn: conn, user: user} do
+      new_user = insert(:user)
+      game = insert(:game, join_code: "correct")
+      game_id = game.id
+      WerewolfApiWeb.Endpoint.subscribe("user:#{new_user.id}")
+
+      response = create_response(conn, new_user, game.id, "wrong", 403)
+
+      refute_broadcast("game_update", %{})
+      assert response["error"] == "Incorrect game password"
+    end
+
+    test "when game is private, and correct join_code is passed", %{conn: conn, user: user} do
+      new_user = insert(:user)
+      game = insert(:game, join_code: "correct")
+      WerewolfApi.Game.Server.start_game(user, game.id, :day)
+      game_id = game.id
+      WerewolfApiWeb.Endpoint.subscribe("user:#{new_user.id}")
+
+      response = create_response(conn, new_user, game.id, game.join_code, 200)
+
+      assert_broadcast("game_update", %{id: ^game_id})
+      assert response["success"] == "Joined the game"
+      Werewolf.GameSupervisor.stop_game(game.id)
+    end
   end
 
   describe "show/2" do
@@ -168,6 +205,15 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
     conn
     |> put_req_header("authorization", "bearer: " <> token)
     |> post(invitation_path(conn, :create, token: game_token))
+    |> json_response(expected_response)
+  end
+
+  defp create_response(conn, user, game_id, join_code, expected_response) do
+    {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+    conn
+    |> put_req_header("authorization", "bearer: " <> token)
+    |> post(invitation_path(conn, :create, game_id: game_id, join_code: join_code))
     |> json_response(expected_response)
   end
 
