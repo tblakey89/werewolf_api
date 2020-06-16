@@ -31,6 +31,19 @@ defmodule WerewolfApi.Game.AnnouncementTest do
     end
   end
 
+  describe "announce/3 remove_player" do
+    test "announces a new player leaving", %{user: user, game: game} do
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:ok, :remove_player, user}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message})
+      assert sent_message =~ user.username
+    end
+  end
+
   describe "announce/3 launch_game" do
     test "announces launch of game", %{user: user, game: game} do
       WerewolfApi.Game.Announcement.announce(game, state(user.id, game.id), {:ok, :launch_game})

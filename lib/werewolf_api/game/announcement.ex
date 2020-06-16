@@ -7,6 +7,10 @@ defmodule WerewolfApi.Game.Announcement do
     broadcast_message(game, "#{User.display_name(user)} has joined the game.")
   end
 
+  def announce(game, _state, {:ok, :remove_player, user}) do
+    broadcast_message(game, "#{User.display_name(user)} has left the game.")
+  end
+
   def announce(game, _state, {:ok, :launch_game}) do
     broadcast_message(
       game,

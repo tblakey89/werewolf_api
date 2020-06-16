@@ -7,6 +7,7 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
   setup do
     user = insert(:user)
     game = insert(:game)
+    insert(:users_game, state: "host", game: game, user: user)
     WerewolfApi.Game.Server.start_game(user, game.id, :day)
 
     on_exit(fn ->
@@ -96,7 +97,6 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
     end
 
     test "when game already joined", %{conn: conn, user: user, game: game} do
-      users_game = insert(:users_game, state: "pending", game: game, user: user)
       game_id = game.id
       WerewolfApiWeb.Endpoint.subscribe("user:#{user.id}")
 
@@ -190,6 +190,61 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
     end
   end
 
+  describe "delete/2" do
+    test "when valid, removing self", %{conn: conn, game: game} do
+      user = insert(:user)
+      users_game = insert(:users_game, state: "accepted", game: game, user: user)
+      users_game_id = users_game.id
+      game_id = game.id
+
+      WerewolfApi.Game.Server.add_player(game.id, user)
+      WerewolfApiWeb.Endpoint.subscribe("user:#{users_game.user_id}")
+
+      response = delete_response(conn, user, users_game, %{user_id: user.id}, 200)
+
+      refute_broadcast("game_update", %{id: ^game_id})
+      assert_broadcast("invitation_rejected", %{id: ^users_game_id})
+      assert response["success"] == "Removed the user"
+    end
+
+    test "when valid, and host, removing other user", %{conn: conn, game: game, user: user} do
+      other_user = insert(:user)
+      users_game = insert(:users_game, state: "accepted", game: game, user: other_user)
+      users_game_id = users_game.id
+      game_id = game.id
+
+      WerewolfApi.Game.Server.add_player(game.id, other_user)
+      WerewolfApiWeb.Endpoint.subscribe("user:#{other_user.id}")
+
+      response = delete_response(conn, user, users_game, %{user_id: other_user.id}, 200)
+
+      refute_broadcast("game_update", %{id: ^game_id})
+      assert_broadcast("invitation_rejected", %{id: ^users_game_id})
+      assert response["success"] == "Removed the user"
+    end
+
+    test "when valid, and not host, removing other user", %{conn: conn, game: game} do
+      not_host = insert(:user)
+      other_user = insert(:user)
+      users_game = insert(:users_game, state: "accepted", game: game, user: other_user)
+      users_game_id = users_game.id
+      game_id = game.id
+
+      WerewolfApi.Game.Server.add_player(game.id, other_user)
+      WerewolfApiWeb.Endpoint.subscribe("user:#{other_user.id}")
+
+      response = delete_response(conn, not_host, users_game, %{user_id: other_user.id}, 401)
+
+      assert response["error"] == "Not authorized"
+    end
+
+    test "when user not authenticated", %{conn: conn} do
+      conn
+      |> delete(invitation_path(conn, :update, 10, users_game: %{}))
+      |> response(401)
+    end
+  end
+
   defp update_response(conn, users_game, users_game_attrs, expected_response) do
     {:ok, token, _} = encode_and_sign(users_game.user, %{}, token_type: :access)
 
@@ -223,6 +278,15 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
     conn
     |> put_req_header("authorization", "bearer: " <> token)
     |> get(invitation_path(conn, :show, game_token))
+    |> json_response(expected_response)
+  end
+
+  defp delete_response(conn, user, users_game, users_game_attrs, expected_response) do
+    {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+    conn
+    |> put_req_header("authorization", "bearer: " <> token)
+    |> delete(invitation_path(conn, :delete, users_game.id, users_game: users_game_attrs))
     |> json_response(expected_response)
   end
 end

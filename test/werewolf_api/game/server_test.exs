@@ -55,6 +55,28 @@ defmodule WerewolfApi.Game.ServerTest do
     end
   end
 
+  describe "remove_player/2" do
+    test "returns state with two players" do
+      game = insert(:game)
+      start_game(game)
+      user = insert(:user)
+      insert(:users_game, user: user, game: game)
+
+      WerewolfApiWeb.Endpoint.subscribe("user:#{user.id}")
+
+      :ok = WerewolfApi.Game.Server.add_player(game.id, user)
+
+      assert_broadcast("game_state_update", state)
+
+      :ok = WerewolfApi.Game.Server.remove_player(game.id, user)
+
+      assert_broadcast("game_state_update", state)
+
+      assert state.players[user.id] == nil
+      assert length(Map.keys(state.players)) == 1
+    end
+  end
+
   describe "able to restart game from state stored in database" do
     test "can add player after restart" do
       game = insert(:game)

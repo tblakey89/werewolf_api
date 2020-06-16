@@ -10,6 +10,10 @@ defmodule WerewolfApiWeb.InvitationView do
     %{success: "Rejected the invitation", game_id: users_game.game_id}
   end
 
+  def render("removed.json", %{users_game: users_game}) do
+    %{success: "Removed the user", game_id: users_game.game_id}
+  end
+
   def render("ok.json", %{game: game}) do
     %{
       name: game.name,

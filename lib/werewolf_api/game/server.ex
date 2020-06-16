@@ -21,6 +21,17 @@ defmodule WerewolfApi.Game.Server do
     end
   end
 
+  def remove_player(game_id, user) do
+    response =
+      get_pid(game_id)
+      |> Werewolf.GameServer.remove_player(user)
+
+    case response do
+      {:ok, :remove_player, _user, state} -> handle_success(game_id, user, state)
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
   def launch_game(game_id, user) do
     response =
       get_pid(game_id)
