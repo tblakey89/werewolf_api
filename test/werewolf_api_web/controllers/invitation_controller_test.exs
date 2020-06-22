@@ -200,7 +200,7 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
       WerewolfApi.Game.Server.add_player(game.id, user)
       WerewolfApiWeb.Endpoint.subscribe("user:#{users_game.user_id}")
 
-      response = delete_response(conn, user, users_game, %{user_id: user.id}, 200)
+      response = delete_response(conn, user, users_game, 200)
 
       refute_broadcast("game_update", %{id: ^game_id})
       assert_broadcast("invitation_rejected", %{id: ^users_game_id})
@@ -216,7 +216,7 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
       WerewolfApi.Game.Server.add_player(game.id, other_user)
       WerewolfApiWeb.Endpoint.subscribe("user:#{other_user.id}")
 
-      response = delete_response(conn, user, users_game, %{user_id: other_user.id}, 200)
+      response = delete_response(conn, user, users_game, 200)
 
       refute_broadcast("game_update", %{id: ^game_id})
       assert_broadcast("invitation_rejected", %{id: ^users_game_id})
@@ -233,14 +233,14 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
       WerewolfApi.Game.Server.add_player(game.id, other_user)
       WerewolfApiWeb.Endpoint.subscribe("user:#{other_user.id}")
 
-      response = delete_response(conn, not_host, users_game, %{user_id: other_user.id}, 401)
+      response = delete_response(conn, not_host, users_game, 401)
 
       assert response["error"] == "Not authorized"
     end
 
     test "when user not authenticated", %{conn: conn} do
       conn
-      |> delete(invitation_path(conn, :update, 10, users_game: %{}))
+      |> delete(invitation_path(conn, :delete, 10, users_game: %{}))
       |> response(401)
     end
   end
@@ -281,12 +281,12 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
     |> json_response(expected_response)
   end
 
-  defp delete_response(conn, user, users_game, users_game_attrs, expected_response) do
+  defp delete_response(conn, user, users_game, expected_response) do
     {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
 
     conn
     |> put_req_header("authorization", "bearer: " <> token)
-    |> delete(invitation_path(conn, :delete, users_game.id, users_game: users_game_attrs))
+    |> delete(invitation_path(conn, :delete, users_game.id))
     |> json_response(expected_response)
   end
 end

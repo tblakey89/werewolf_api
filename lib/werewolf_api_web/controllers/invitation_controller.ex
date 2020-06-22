@@ -80,19 +80,18 @@ defmodule WerewolfApiWeb.InvitationController do
     end
   end
 
-  def delete(conn, %{"id" => id, "users_game" => %{"user_id" => user_id}}) do
+  def delete(conn, %{"id" => id}) do
     user = Guardian.Plug.current_resource(conn)
-    user_to_be_removed = Repo.get(User, user_id)
 
     removed_state = %{
       state: "rejected"
     }
 
-    with {:ok, users_game} <- find_users_game(id, user_to_be_removed),
+    with {:ok, users_game} <- find_users_game_with_user(id),
          true <-
-           Game.find_host_id(users_game.game) == user.id || user_to_be_removed.id == user.id,
+           Game.find_host_id(users_game.game) == user.id || users_game.user_id == user.id,
          changeset <- UsersGame.update_state_changeset(users_game, removed_state),
-         :ok <- Game.Server.remove_player(users_game.game_id, user_to_be_removed),
+         :ok <- Game.Server.remove_player(users_game.game_id, users_game.user),
          {:ok, users_game} <- Repo.update(changeset) do
       WerewolfApiWeb.UserChannel.broadcast_game_update(Repo.get(Game, users_game.game_id))
       WerewolfApiWeb.UserChannel.broadcast_invitation_rejected(users_game)
@@ -124,6 +123,17 @@ defmodule WerewolfApiWeb.InvitationController do
   end
 
   defp matches_join_code(_join_code, _game_attributes), do: false
+
+  defp find_users_game_with_user(id) do
+    case Repo.get(UsersGame, id) do
+      nil ->
+        {:error, :invitation_not_found}
+
+      users_game ->
+        users_game = Repo.preload(users_game, [:user, game: :users_games])
+        {:ok, users_game}
+    end
+  end
 
   defp find_users_game(id, user) do
     case Repo.get_by(UsersGame, id: id, user_id: user.id) do
