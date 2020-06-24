@@ -37,5 +37,6 @@ defmodule WerewolfApiWeb.Router do
     resources("/invitations", InvitationController, only: [:show, :create, :update, :delete])
 
     resources("/friends", FriendController, only: [:create, :update])
+    resources("/blocks", BlockController, only: [:create])
   end
 end

@@ -1,7 +1,6 @@
 defmodule WerewolfApi.User.Friend do
   use Ecto.Schema
   import Ecto.Changeset
-  require IEx
 
   schema "friends" do
     field(:state, :string, default: "pending")
