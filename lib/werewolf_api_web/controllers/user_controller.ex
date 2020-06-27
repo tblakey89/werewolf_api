@@ -33,17 +33,20 @@ defmodule WerewolfApiWeb.UserController do
     user =
       Repo.preload(
         user,
-        friendships: [:friend, :user],
-        reverse_friendships: [:friend, :user],
-        conversations: [
-          :users,
-          :users_conversations,
-          [
-            messages:
-              from(m in WerewolfApi.Conversation.Message, order_by: [desc: m.id], preload: :user)
-          ]
-        ],
-        games: WerewolfApi.Game.participating_games(user.id)
+        [
+          :blocks,
+          friendships: [:friend, :user],
+          reverse_friendships: [:friend, :user],
+          conversations: [
+            :users,
+            :users_conversations,
+            [
+              messages:
+                from(m in WerewolfApi.Conversation.Message, order_by: [desc: m.id], preload: :user)
+            ]
+          ],
+          games: WerewolfApi.Game.participating_games(user.id)
+        ]
       )
 
     conn

@@ -49,7 +49,7 @@ defmodule WerewolfApi.UsersGame do
     from(
       ug in __MODULE__,
       where: ug.game_id == ^game_id and ug.state != "rejected",
-      preload: :user
+      preload: [user: :blocks]
     )
   end
 

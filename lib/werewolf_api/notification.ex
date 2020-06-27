@@ -1,12 +1,17 @@
 defmodule WerewolfApi.Notification do
   alias WerewolfApi.Conversation
   alias WerewolfApi.Game
+  alias WerewolfApi.User.Block
 
   def new_conversation_message(message) do
     Task.start_link(fn ->
-      message = WerewolfApi.Repo.preload(message, [:user, conversation: :users])
+      message = WerewolfApi.Repo.preload(message, [:user, conversation: [users: :blocks]])
 
-      WerewolfApi.User.valid_fcm_tokens(message.conversation.users, message.user_id)
+      WerewolfApi.User.valid_fcm_tokens(
+        message.conversation.users,
+        message.user_id,
+        message.user_id
+      )
       |> Pigeon.FCM.Notification.new(
         %{
           title: Conversation.Message.username(message),
@@ -34,7 +39,7 @@ defmodule WerewolfApi.Notification do
 
       participating_users = Enum.map(users_games, fn users_game -> users_game.user end)
 
-      WerewolfApi.User.valid_fcm_tokens(participating_users, message.user_id)
+      WerewolfApi.User.valid_fcm_tokens(participating_users, message.user_id, message.user_id)
       |> Pigeon.FCM.Notification.new(
         %{
           title: "#{Game.Message.username(message)} @ #{message.game.name}",
@@ -55,7 +60,8 @@ defmodule WerewolfApi.Notification do
 
   def received_friend_request(friendship) do
     Task.start_link(fn ->
-      if friendship.friend.fcm_token do
+      if friendship.friend.fcm_token &&
+           Block.blocked_user?(friendship.friend.blocks, friendship.user_id) do
         friendship.friend.fcm_token
         |> Pigeon.FCM.Notification.new(
           %{
@@ -104,7 +110,8 @@ defmodule WerewolfApi.Notification do
         end)
 
       WerewolfApi.User.find_by_user_ids(user_ids)
-      |> WerewolfApi.User.valid_fcm_tokens(nil)
+      |> WerewolfApi.Repo.preload(:blocks)
+      |> WerewolfApi.User.valid_fcm_tokens(host_users_game.user_id, nil)
       |> Pigeon.FCM.Notification.new(
         %{
           title: "New Game Invite",

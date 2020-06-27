@@ -150,10 +150,13 @@ defmodule WerewolfApi.User do
     end
   end
 
-  def valid_fcm_tokens(users, exclude_user_id) do
+  def valid_fcm_tokens(users, sender_id, exclude_user_id) do
     Enum.reduce(users, [], fn user, accumulator ->
       cond do
         user.id == exclude_user_id ->
+          accumulator
+
+        User.Block.blocked_user?(user.blocks, sender_id) ->
           accumulator
 
         user.fcm_token == nil ->

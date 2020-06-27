@@ -3,12 +3,12 @@ defmodule WerewolfApi.User.UserTest do
   import WerewolfApi.Factory
   alias WerewolfApi.User
 
-  describe "valid_fcm_tokens/2" do
+  describe "valid_fcm_tokens/3" do
     test "when two users, one has token, one not" do
       user = build(:user, id: 1, fcm_token: "test")
       user2 = build(:user, id: 2)
 
-      tokens = User.valid_fcm_tokens([user, user2], nil)
+      tokens = User.valid_fcm_tokens([user, user2], user.id, nil)
       assert tokens == [user.fcm_token]
     end
 
@@ -16,7 +16,7 @@ defmodule WerewolfApi.User.UserTest do
       user = build(:user, id: 1, fcm_token: "test")
       user2 = build(:user, id: 2)
 
-      tokens = User.valid_fcm_tokens([user, user2], user.id)
+      tokens = User.valid_fcm_tokens([user, user2], user.id, user.id)
       assert tokens == []
     end
 
@@ -24,7 +24,7 @@ defmodule WerewolfApi.User.UserTest do
       user = build(:user, id: 1)
       user2 = build(:user, id: 2)
 
-      tokens = User.valid_fcm_tokens([user, user2], nil)
+      tokens = User.valid_fcm_tokens([user, user2], user.id, nil)
       assert tokens == []
     end
   end

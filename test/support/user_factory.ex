@@ -6,7 +6,8 @@ defmodule WerewolfApi.UserFactory do
           email: sequence(:email, &"test#{&1}@test.com"),
           username: sequence(:username, &"test#{&1}"),
           password: "testtest",
-          password_hash: Comeonin.Bcrypt.hashpwsalt("testtest")
+          password_hash: Comeonin.Bcrypt.hashpwsalt("testtest"),
+          blocks: []
         }
       end
     end

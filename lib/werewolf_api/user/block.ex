@@ -15,4 +15,8 @@ defmodule WerewolfApi.User.Block do
     |> cast(attrs, [:user_id, :blocked_user_id])
     |> validate_required([:user_id, :blocked_user_id])
   end
+
+  def blocked_user?(blocks, user_id) do
+    Enum.any?(blocks, &(&1.blocked_user_id == user_id))
+  end
 end

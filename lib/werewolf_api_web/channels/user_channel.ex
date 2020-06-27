@@ -89,7 +89,7 @@ defmodule WerewolfApiWeb.UserChannel do
 
   def broadcast_friend_request(friendship) do
     Task.start_link(fn ->
-      friendship = WerewolfApi.Repo.preload(friendship, [:friend, :user])
+      friendship = WerewolfApi.Repo.preload(friendship, [:user, friend: :blocks])
 
       Enum.each([friendship.user, friendship.friend], fn user ->
         WerewolfApiWeb.Endpoint.broadcast(
