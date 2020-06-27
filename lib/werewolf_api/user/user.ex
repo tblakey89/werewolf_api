@@ -28,6 +28,7 @@ defmodule WerewolfApi.User do
     has_many(:game_messages, WerewolfApi.Game.Message)
     has_many(:friendships, User.Friend)
     has_many(:reverse_friendships, User.Friend, foreign_key: :friend_id)
+    has_many(:blocks, User.Block)
 
     many_to_many(
       :friends,
