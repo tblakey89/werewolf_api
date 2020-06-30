@@ -38,5 +38,6 @@ defmodule WerewolfApiWeb.Router do
 
     resources("/friends", FriendController, only: [:create, :update])
     resources("/blocks", BlockController, only: [:create])
+    resources("/reports", ReportController, only: [:create])
   end
 end
