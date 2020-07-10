@@ -30,9 +30,15 @@ defmodule WerewolfApiWeb.ReportControllerTest do
       assert response["errors"] == %{"body" => ["can't be blank"]}
     end
 
-    test "responds 401 when not authenticated", %{conn: conn, user: user, reported_user: reported_user} do
+    test "responds 401 when not authenticated", %{
+      conn: conn,
+      user: user,
+      reported_user: reported_user
+    } do
       conn
-      |> post(report_path(conn, :create, reported_user_id: reported_user.id, body: "I don't like them"))
+      |> post(
+        report_path(conn, :create, reported_user_id: reported_user.id, body: "I don't like them")
+      )
       |> response(401)
     end
   end

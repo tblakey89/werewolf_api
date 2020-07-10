@@ -15,6 +15,7 @@ defmodule WerewolfApi.User do
     field(:google_display_name, :string)
     field(:facebook_id, :string)
     field(:facebook_display_name, :string)
+    field(:apple_id, :string)
     field(:first_name, :string)
     field(:last_name, :string)
     field(:forgotten_password_token, :string)
@@ -74,6 +75,20 @@ defmodule WerewolfApi.User do
     user
     |> cast(attrs, [:first_name, :last_name, :google_id, :google_display_name])
     |> validate_required([:first_name, :last_name, :google_id, :google_display_name])
+  end
+
+  def apple_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:first_name, :last_name, :email, :apple_id])
+    |> validate_required([:first_name, :last_name, :email, :apple_id])
+    |> validate_format(:email, ~r/@/)
+    |> unique_constraint(:email)
+  end
+
+  def update_apple_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:first_name, :last_name, :apple_id])
+    |> validate_required([:first_name, :last_name, :apple_id])
   end
 
   def facebook_changeset(user, attrs) do

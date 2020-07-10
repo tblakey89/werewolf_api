@@ -59,3 +59,9 @@ config :werewolf_api, :dynamic_links,
   firebase_api: System.get_env("FIREBASE_API"),
   bundle_id: System.get_env("BUNDLE_ID"),
   app_store_id: System.get_env("APP_STORE_ID")
+
+config :werewolf_api, :apple_auth,
+  client_id: System.get_env("BUNDLE_ID"),
+  team_id: System.get_env("APPLE_TEAM_ID"),
+  private_key_id: System.get_env("APPLE_PRIVATE_KEY_ID"),
+  private_key: System.get_env("APPLE_PRIVATE_KEY")

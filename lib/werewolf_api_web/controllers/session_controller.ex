@@ -3,6 +3,7 @@ defmodule WerewolfApiWeb.SessionController do
   alias WerewolfApi.Auth
   alias WerewolfApi.Repo
   alias WerewolfApi.User
+  alias WerewolfApi.AppleCredential
 
   def create(conn, %{"session" => %{"type" => "google", "id_token" => id_token}}) do
     case GoogleToken.verify_and_validate(id_token) do
@@ -29,6 +30,23 @@ defmodule WerewolfApiWeb.SessionController do
         case Repo.get_by(User, facebook_id: facebook_user_map["id"]) do
           nil ->
             user = User.Facebook.create_or_update_from_map(facebook_user_map)
+            render_jwt_response(conn, user)
+
+          user ->
+            render_jwt_response(conn, user)
+        end
+
+      {:error, _reason} ->
+        render_error(conn)
+    end
+  end
+
+  def create(conn, %{"session" => %{"type" => "apple", "code" => code} = apple_user_map}) do
+    case AppleCredential.verify(code) do
+      {:ok, sub} ->
+        case Repo.get_by(User, apple_id: sub) do
+          nil ->
+            user = User.Apple.create_or_update_from_map(sub, apple_user_map)
             render_jwt_response(conn, user)
 
           user ->
