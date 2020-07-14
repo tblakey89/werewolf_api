@@ -14,7 +14,7 @@ defmodule WerewolfApi.Notification do
       )
       |> Pigeon.FCM.Notification.new(
         %{
-          title: Conversation.Message.username(message),
+          title: WerewolfApi.Conversation.Message.username(message),
           body: limit_message_length(message),
           click_action: "FLUTTER_NOTIFICATION_CLICK",
           sound: "default"
@@ -131,7 +131,7 @@ defmodule WerewolfApi.Notification do
     if String.length(message.body) > 200 do
       String.slice(message.body, 0, 200) <> "..."
     else
-      message
+      message.body
     end
   end
 end
