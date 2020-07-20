@@ -3,6 +3,7 @@ defmodule WerewolfApiWeb.UserControllerTest do
   use Phoenix.ChannelTest
   import WerewolfApi.Factory
   import WerewolfApi.Guardian
+  import Ecto.Query
   alias WerewolfApi.User
   alias WerewolfApi.Repo
 
@@ -24,7 +25,10 @@ defmodule WerewolfApiWeb.UserControllerTest do
         |> post(user_path(conn, :create, user: user))
         |> json_response(201)
 
+      new_user = Repo.one(from u in User, order_by: [desc: u.id], limit: 1)
+
       assert response["token"]
+      assert new_user.notify_on_game_creation == true
     end
 
     test "when invalid" do
@@ -146,6 +150,14 @@ defmodule WerewolfApiWeb.UserControllerTest do
 
       assert response["user"]["email"] == user.email
       assert Repo.get(User, user.id).password_hash == user.password_hash
+    end
+
+    test "updates notify_on_game_creation", %{conn: conn} do
+      user = insert(:user, notify_on_game_creation: true)
+
+      response = update_response(conn, user.id, user, %{notify_on_game_creation: false}, 200)
+
+      assert response["user"]["notify_on_game_creation"] == false
     end
 
     test "can't update when short password", %{conn: conn} do

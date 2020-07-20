@@ -25,6 +25,7 @@ defmodule WerewolfApiWeb.UserView do
       id: user.id,
       email: user.email,
       username: User.display_name(user),
+      notify_on_game_creation: user.notify_on_game_creation,
       avatar: WerewolfApi.Avatar.url({user.avatar, user}, :thumb, signed: true)
     }
   end
@@ -35,6 +36,7 @@ defmodule WerewolfApiWeb.UserView do
       email: user.email,
       username: User.display_name(user),
       avatar: WerewolfApi.Avatar.url({user.avatar, user}, :thumb),
+      notify_on_game_creation: user.notify_on_game_creation,
       blocks:
         render_many(
           user.blocks,

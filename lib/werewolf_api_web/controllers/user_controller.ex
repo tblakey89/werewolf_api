@@ -101,6 +101,7 @@ defmodule WerewolfApiWeb.UserController do
 
   defp update_params_as_atoms(user_params) do
     %{
+      notify_on_game_creation: user_params["notify_on_game_creation"],
       password: user_params["password"]
     }
   end

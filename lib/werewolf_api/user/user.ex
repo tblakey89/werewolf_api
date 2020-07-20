@@ -22,6 +22,7 @@ defmodule WerewolfApi.User do
     field(:forgotten_token_generated_at, :utc_datetime)
     field(:avatar, WerewolfApi.Avatar.Type)
     field(:fcm_token, :string)
+    field(:notify_on_game_creation, :boolean, default: false)
     many_to_many(:conversations, WerewolfApi.Conversation, join_through: "users_conversations")
     many_to_many(:games, WerewolfApi.Game, join_through: "users_games")
     has_many(:users_games, WerewolfApi.UsersGame)
@@ -60,6 +61,7 @@ defmodule WerewolfApi.User do
     |> validate_format(:email, ~r/@/)
     |> unique_constraint(:email)
     |> unique_constraint(:username)
+    |> put_change(:notify_on_game_creation, true)
   end
 
   def google_changeset(user, attrs) do
@@ -116,7 +118,7 @@ defmodule WerewolfApi.User do
 
   def update_changeset(%User{} = user, attrs) do
     user
-    |> cast(attrs, [], [])
+    |> cast(attrs, [:notify_on_game_creation])
     |> optional_password_update(attrs)
   end
 
