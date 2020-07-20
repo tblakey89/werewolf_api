@@ -7,7 +7,11 @@ defmodule WerewolfApiWeb.GameController do
 
   def index(conn, _param) do
     games =
-      from(g in Game, where: g.started == false, order_by: [desc: g.inserted_at], limit: 20)
+      from(g in Game,
+        where: g.started == false and g.inserted_at > ^~N[2020-07-18 11:20:00],
+        order_by: [desc: g.inserted_at],
+        limit: 20
+      )
       |> Repo.all()
       |> Repo.preload(users_games: :user, messages: :user)
 

@@ -40,7 +40,11 @@ defmodule WerewolfApi.AppleCredential do
     }
 
     {_, jwt} =
-      JOSE.JWT.sign(JOSE.JWK.from_pem(Application.get_env(:werewolf_api, :apple_auth)[:private_key]), headers, claims)
+      JOSE.JWT.sign(
+        JOSE.JWK.from_pem(Application.get_env(:werewolf_api, :apple_auth)[:private_key]),
+        headers,
+        claims
+      )
       |> JOSE.JWS.compact()
 
     jwt

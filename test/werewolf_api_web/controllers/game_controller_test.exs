@@ -20,6 +20,14 @@ defmodule WerewolfApiWeb.GameControllerTest do
       assert length(response["games"]) == 1
       assert Enum.at(response["games"], 0)["id"] == game_unstarted.id
     end
+
+    test "returns no games started before 18 July 2020" do
+      user = insert(:user)
+      game = insert(:game, started: true, inserted_at: ~N[2020-07-16 00:00:00])
+
+      response = index_response(conn, user, 200)
+      assert length(response["games"]) == 0
+    end
   end
 
   describe "create/2" do
