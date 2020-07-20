@@ -40,6 +40,7 @@ defmodule WerewolfApiWeb.GameController do
         update_state(game)
         {:ok, state} = Game.Server.get_state(game.id)
         Notification.received_game_invite(game, game_params[:user_ids] || game_params["user_ids"])
+        Notification.new_game_creation_message(game, user)
 
         Exq.enqueue_in(Exq, "default", 86400, WerewolfApiWeb.GameNotStartedWorker, [game.id])
 

@@ -1,7 +1,10 @@
 defmodule WerewolfApi.Notification do
   alias WerewolfApi.Conversation
   alias WerewolfApi.Game
+  alias WerewolfApi.User
+  alias WerewolfApi.Repo
   alias WerewolfApi.User.Block
+  import Ecto.Query
 
   def new_conversation_message(message) do
     Task.start_link(fn ->
@@ -126,6 +129,26 @@ defmodule WerewolfApi.Notification do
       |> Pigeon.FCM.push()
     end)
   end
+
+  def new_game_creation_message(%{join_code: nil} = game, user) do
+    Task.start_link(fn ->
+      Repo.all(from u in User, select: u.fcm_token, where: u.notify_on_game_creation == true and u.id != ^user.id)
+      |> Pigeon.FCM.Notification.new(
+        %{
+          title: "New Game Created",
+          body:
+            "A new game of Werewolf has been created, ready for a game?",
+          sound: "default"
+        },
+        %{
+          type: "new_game_created"
+        }
+      )
+      |> Pigeon.FCM.push()
+    end)
+  end
+
+  def new_game_creation_message(_game, _user), do: nil
 
   defp limit_message_length(message) do
     if String.length(message.body) > 200 do
