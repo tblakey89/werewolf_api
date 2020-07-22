@@ -137,7 +137,7 @@ defmodule WerewolfApi.Notification do
         %{
           title: "New Game Created",
           body:
-            "A new game of Werewolf has been created, ready for a game?",
+            "A new game of Werewolf has been created, ready for a game? WIll you be a villager 👩‍🌾, or a werewolf 🐺?",
           sound: "default"
         },
         %{
