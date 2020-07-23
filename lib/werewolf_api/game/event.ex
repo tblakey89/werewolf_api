@@ -10,7 +10,7 @@ defmodule WerewolfApi.Game.Event do
     {:ok, game} =
       game
       |> Game.state_changeset(state)
-      |> Ecto.Changeset.change(conversation_id: conversation.id)
+      |> Ecto.Changeset.change(conversation_id: conversation.id, started: true)
       |> Repo.update()
 
     WerewolfApi.UsersGame.reject_pending_invitations(game.id)
