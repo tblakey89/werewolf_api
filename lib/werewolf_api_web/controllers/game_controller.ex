@@ -42,8 +42,6 @@ defmodule WerewolfApiWeb.GameController do
         Notification.received_game_invite(game, game_params[:user_ids] || game_params["user_ids"])
         Notification.new_game_creation_message(game, user)
 
-        Exq.enqueue_in(Exq, "default", 86400, WerewolfApiWeb.GameNotStartedWorker, [game.id])
-
         conn
         |> put_status(:created)
         |> render("game_with_state.json", data: %{game: game, user: user, state: state})
