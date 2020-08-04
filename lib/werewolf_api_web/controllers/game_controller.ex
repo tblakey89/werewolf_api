@@ -6,13 +6,13 @@ defmodule WerewolfApiWeb.GameController do
   alias WerewolfApi.Notification
 
   def index(conn, _param) do
-    one_day_ago =
+    two_days_ago =
       NaiveDateTime.utc_now()
-      |> NaiveDateTime.add(-60 * 60 * 24)
+      |> NaiveDateTime.add(-60 * 60 * 24 * 2)
 
     games =
       from(g in Game,
-        where: g.started == false and g.inserted_at >= ^one_day_ago,
+        where: g.started == false and g.inserted_at >= ^two_days_ago,
         order_by: [desc: g.inserted_at],
         limit: 20
       )
