@@ -25,6 +25,7 @@ defmodule WerewolfApiWeb.GameControllerTest do
       three_days_ago =
         NaiveDateTime.utc_now()
         |> NaiveDateTime.add(-60 * 60 * 24 * 3)
+
       user = insert(:user)
       game = insert(:game, started: true, inserted_at: three_days_ago)
 

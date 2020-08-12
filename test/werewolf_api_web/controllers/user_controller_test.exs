@@ -25,7 +25,7 @@ defmodule WerewolfApiWeb.UserControllerTest do
         |> post(user_path(conn, :create, user: user))
         |> json_response(201)
 
-      new_user = Repo.one(from u in User, order_by: [desc: u.id], limit: 1)
+      new_user = Repo.one(from(u in User, order_by: [desc: u.id], limit: 1))
 
       assert response["token"]
       assert new_user.notify_on_game_creation == true

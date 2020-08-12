@@ -132,7 +132,12 @@ defmodule WerewolfApi.Notification do
 
   def new_game_creation_message(%{join_code: nil} = game, user) do
     Task.start_link(fn ->
-      Repo.all(from u in User, select: u.fcm_token, where: u.notify_on_game_creation == true and u.id != ^user.id)
+      Repo.all(
+        from(u in User,
+          select: u.fcm_token,
+          where: u.notify_on_game_creation == true and u.id != ^user.id
+        )
+      )
       |> Pigeon.FCM.Notification.new(
         %{
           title: "New Game Created",

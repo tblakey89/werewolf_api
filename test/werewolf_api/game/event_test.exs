@@ -34,7 +34,7 @@ defmodule WerewolfApi.GameTest do
                user_two.id
              ]
 
-     assert updated_game.started == true
+      assert updated_game.started == true
     end
   end
 
