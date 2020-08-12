@@ -25,10 +25,14 @@ defmodule WerewolfApi.Conversation.AnnouncementTest do
 
       assert_broadcast("new_conversation", %{id: ^conversation_id})
 
-      assert WerewolfApi.Repo.get_by(
-               WerewolfApi.Conversation.Message,
-               conversation_id: conversation.id
-             ).body =~ announcement
+      message =
+        WerewolfApi.Repo.get_by(
+          WerewolfApi.Conversation.Message,
+          conversation_id: conversation.id
+        )
+
+      assert message.body =~ announcement
+      assert message.type == "werewolf_chat"
     end
   end
 
@@ -49,6 +53,11 @@ defmodule WerewolfApi.Conversation.AnnouncementTest do
                "votes is #{User.display_name(target)} with 1 vote. Unless the votes change, #{
                  User.display_name(target)
                } will be killed at the end of the night phase."
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Conversation.Message,
+               conversation_id: conversation.id
+             ).type == "werewolf_vote"
     end
 
     test "when user votes for a target, a tie, 3 vote", %{user: user, conversation: conversation} do
@@ -62,6 +71,11 @@ defmodule WerewolfApi.Conversation.AnnouncementTest do
 
       assert sent_message =~
                "a tie with 3 votes each. If there is a tie at the end of the night phase, no player will be killed."
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Conversation.Message,
+               conversation_id: conversation.id
+             ).type == "werewolf_vote"
     end
   end
 end

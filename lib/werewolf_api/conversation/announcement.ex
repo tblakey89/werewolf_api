@@ -5,6 +5,7 @@ defmodule WerewolfApi.Conversation.Announcement do
   def announce(conversation, {:werewolf, game_name}) do
     broadcast_conversation(
       conversation,
+      "werewolf_chat",
       "This is the werewolf group chat for #{game_name}. Please place your votes on the game chat for who you want to kill."
     )
   end
@@ -14,6 +15,7 @@ defmodule WerewolfApi.Conversation.Announcement do
 
     broadcast_message(
       conversation,
+      "werewolf_vote",
       "#{User.display_name(user)} wants to kill #{User.display_name(target_user)}. #{
         show_vote_result(vote_result)
       }"
@@ -40,11 +42,12 @@ defmodule WerewolfApi.Conversation.Announcement do
     } will be killed at the end of the night phase."
   end
 
-  defp broadcast_conversation(conversation, message) do
+  defp broadcast_conversation(conversation, type, message) do
     changeset =
       Ecto.build_assoc(conversation, :messages, user_id: 0)
       |> WerewolfApi.Conversation.Message.changeset(%{body: message})
       |> Ecto.Changeset.change(bot: true)
+      |> Ecto.Changeset.change(type: type)
 
     case WerewolfApi.Repo.insert(changeset) do
       {:ok, message} ->
@@ -58,10 +61,10 @@ defmodule WerewolfApi.Conversation.Announcement do
     end
   end
 
-  defp broadcast_message(conversation, message) do
+  defp broadcast_message(conversation, type, message) do
     changeset =
       Ecto.build_assoc(conversation, :messages, user_id: 0)
-      |> WerewolfApi.Conversation.Message.changeset(%{bot: true, body: message})
+      |> WerewolfApi.Conversation.Message.changeset(%{bot: true, body: message, type: type})
 
     case WerewolfApi.Repo.insert(changeset) do
       {:ok, message} ->

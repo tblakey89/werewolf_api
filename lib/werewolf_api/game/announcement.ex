@@ -4,16 +4,17 @@ defmodule WerewolfApi.Game.Announcement do
   require Integer
 
   def announce(game, _state, {:ok, :add_player, user}) do
-    broadcast_message(game, "#{User.display_name(user)} has joined the game.")
+    broadcast_message(game, "add_player", "#{User.display_name(user)} has joined the game.")
   end
 
   def announce(game, _state, {:ok, :remove_player, user}) do
-    broadcast_message(game, "#{User.display_name(user)} has left the game.")
+    broadcast_message(game, "remove_player", "#{User.display_name(user)} has left the game.")
   end
 
   def announce(game, _state, {:ok, :launch_game}) do
     broadcast_message(
       game,
+      "launch_game",
       "The game has launched. The first night phase has begun. Please check the role button for your roles and actions."
     )
   end
@@ -23,6 +24,7 @@ defmodule WerewolfApi.Game.Announcement do
 
     broadcast_message(
       game,
+      "day_vote",
       "A vote has been cast: #{User.display_name(user)} has voted for #{
         User.display_name(target_user)
       }. #{show_vote_result(vote_result)}"
@@ -43,6 +45,7 @@ defmodule WerewolfApi.Game.Announcement do
 
     broadcast_message(
       game,
+      "village_win",
       "The people voted, and #{User.display_name(target_user)} was lynched. It turns out #{
         User.display_name(target_user)
       } was a werewolf. With this, all the werewolves were gone and peace was restored to the village. Villagers win."
@@ -56,6 +59,7 @@ defmodule WerewolfApi.Game.Announcement do
       true ->
         broadcast_message(
           game,
+          "werewolf_win_day",
           "The people voted, and #{User.display_name(target_user)} was lynched. It turns out #{
             User.display_name(target_user)
           } was a villager. With this, the werewolves outnumber the villagers, the remaining werewolves devoured the last survivors. Werewolves win."
@@ -64,6 +68,7 @@ defmodule WerewolfApi.Game.Announcement do
       false ->
         broadcast_message(
           game,
+          "werewolf_win_night",
           "The sun came up on a new day. #{User.display_name(target_user)} was found dead. With this the werewolves outnumber the villagers. The remaining werewolves devoured the last survivors. Werewolves win."
         )
     end
@@ -75,6 +80,7 @@ defmodule WerewolfApi.Game.Announcement do
 
     broadcast_message(
       game,
+      "day_begin_no_death",
       "The sun came up on a new day, everyone left their homes, and everyone seemed to be ok. Day phase #{
         day_phase_number
       } begins now. Go to the 'Role' page to vote for who you want to lynch when you're ready."
@@ -89,6 +95,7 @@ defmodule WerewolfApi.Game.Announcement do
 
     broadcast_message(
       game,
+      "day_begin_death",
       "The sun came up on a new day, and #{User.display_name(target_user)} was found dead. It turns out #{
         User.display_name(target_user)
       } was a #{role}. Day phase #{day_phase_number} begins now. Go to the 'Role' page to vote for who you want to lynch when you're ready."
@@ -100,6 +107,7 @@ defmodule WerewolfApi.Game.Announcement do
 
     broadcast_message(
       game,
+      "night_begin_no_death",
       "The people voted, but no decision could be made. Everyone went to bed hoping they would make it through the night. Night phase #{
         night_phase_number
       } begins now."
@@ -113,6 +121,7 @@ defmodule WerewolfApi.Game.Announcement do
 
     broadcast_message(
       game,
+      "night_begin_death",
       "The people voted, and #{User.display_name(target_user)} was lynched. It turns out #{
         User.display_name(target_user)
       } was a #{role}. Night phase #{night_phase_number} begins now."
@@ -139,11 +148,11 @@ defmodule WerewolfApi.Game.Announcement do
     } will be lynched at the end of the phase."
   end
 
-  defp broadcast_message(game, message) do
+  defp broadcast_message(game, type, message) do
     # why is this not in game_channel.ex?
     changeset =
       Ecto.build_assoc(game, :messages, user_id: 0)
-      |> WerewolfApi.Game.Message.changeset(%{bot: true, body: message})
+      |> WerewolfApi.Game.Message.changeset(%{bot: true, body: message, type: type})
 
     case WerewolfApi.Repo.insert(changeset) do
       {:ok, game_message} ->

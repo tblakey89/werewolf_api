@@ -28,6 +28,11 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
       assert_broadcast("new_message", %{body: sent_message})
       assert sent_message =~ user.username
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Game.Message,
+               game_id: game.id
+             ).type == "add_player"
     end
   end
 
@@ -41,6 +46,11 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
       assert_broadcast("new_message", %{body: sent_message})
       assert sent_message =~ user.username
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Game.Message,
+               game_id: game.id
+             ).type == "remove_player"
     end
   end
 
@@ -50,6 +60,11 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
       assert_broadcast("new_message", %{body: sent_message})
       assert sent_message =~ "game has launched"
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Game.Message,
+               game_id: game.id
+             ).type == "launch_game"
     end
   end
 
@@ -72,6 +87,11 @@ defmodule WerewolfApi.Game.AnnouncementTest do
                "votes is #{User.display_name(target)} with 1 vote. Unless the votes change, #{
                  User.display_name(target)
                } will be lynched at the end of the phase."
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Game.Message,
+               game_id: game.id
+             ).type == "day_vote"
     end
 
     test "when user votes for a target, a tie, 3 vote", %{user: user, game: game} do
@@ -130,6 +150,11 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       assert_broadcast("new_message", %{body: sent_message})
       assert sent_message =~ target.username
       assert sent_message =~ "Villagers win"
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Game.Message,
+               game_id: game.id
+             ).type == "village_win"
     end
   end
 
@@ -148,6 +173,11 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       assert sent_message =~ target.username
       assert sent_message =~ "people voted"
       assert sent_message =~ "Werewolves win"
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Game.Message,
+               game_id: game.id
+             ).type == "werewolf_win_day"
     end
 
     test "announces werewolf win of game in night phase", %{user: user, game: game} do
@@ -164,6 +194,11 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       assert sent_message =~ target.username
       assert sent_message =~ "sun came up"
       assert sent_message =~ "Werewolves win"
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Game.Message,
+               game_id: game.id
+             ).type == "werewolf_win_night"
     end
   end
 
@@ -180,6 +215,11 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       assert_broadcast("new_message", %{body: sent_message})
       assert sent_message =~ user.username
       assert sent_message =~ "sun came up"
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Game.Message,
+               game_id: game.id
+             ).type == "day_begin_death"
     end
 
     test "announces no target", %{user: user, game: game} do
@@ -193,6 +233,11 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
       assert_broadcast("new_message", %{body: sent_message})
       assert sent_message =~ "everyone seemed to be ok"
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Game.Message,
+               game_id: game.id
+             ).type == "day_begin_no_death"
     end
   end
 
@@ -210,6 +255,11 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       assert sent_message =~ user.username
       assert sent_message =~ "villager"
       assert sent_message =~ "The people voted"
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Game.Message,
+               game_id: game.id
+             ).type == "night_begin_death"
     end
 
     test "announces no target", %{user: user, game: game} do
@@ -223,6 +273,11 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
       assert_broadcast("new_message", %{body: sent_message})
       assert sent_message =~ "but no decision could be made"
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Game.Message,
+               game_id: game.id
+             ).type == "night_begin_no_death"
     end
   end
 
