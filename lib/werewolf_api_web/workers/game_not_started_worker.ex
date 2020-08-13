@@ -1,6 +1,5 @@
 defmodule WerewolfApiWeb.GameNotStartedWorker do
   alias WerewolfApi.Game
-  alias WerewolfApi.Conversation
   alias WerewolfApi.User
   alias WerewolfApi.Repo
   alias WerewolfApi.Notification
@@ -15,28 +14,32 @@ defmodule WerewolfApiWeb.GameNotStartedWorker do
         Repo.get(User, Game.find_host_id(game))
         |> Repo.preload(:games)
 
-      if length(user.games) == 1 && length(game.users_games) < 8 do
-        {:ok, conversation} = Conversation.find_or_create(%{"user_ids" => [1, user.id]})
-
-        broadcast_conversation(
-          conversation,
-          "Hello #{User.display_name(user)}, my name is Thomas, the creator of WolfChat. Thanks for downloading my application, I hope you like it. I have noticed you have created a game, but not got enough people to join. Do you need any help with how the app works, and how to invite other players? What are your thoughts on the app?"
+      if length(game.users_games) < 8 do
+        broadcast_game(
+          game,
+          "new_game_discord",
+          "Struggling to find other players? Why not join our discord server: https://discord.gg/FtB8Gnj"
         )
       end
     end
   end
 
-  defp broadcast_conversation(conversation, message) do
+  defp broadcast_game(game, type, message) do
     changeset =
-      Ecto.build_assoc(conversation, :messages, user_id: 1)
-      |> WerewolfApi.Conversation.Message.changeset(%{body: message})
+      Ecto.build_assoc(game, :messages, user_id: 0)
+      |> WerewolfApi.Game.Message.changeset(%{bot: true, body: message, type: type})
 
     case WerewolfApi.Repo.insert(changeset) do
-      {:ok, message} ->
-        WerewolfApi.Repo.preload(conversation, [:users, :users_conversations, messages: :user])
-        |> WerewolfApiWeb.UserChannel.broadcast_conversation_creation_to_users()
+      {:ok, game_message} ->
+        WerewolfApiWeb.Endpoint.broadcast(
+          "game:#{game.id}",
+          "new_message",
+          WerewolfApiWeb.GameMessageView.render("game_message.json", %{
+            game_message: game_message
+          })
+        )
 
-        Notification.new_conversation_message(message)
+        Notification.new_game_message(game_message)
 
       {:error, changeset} ->
         nil
