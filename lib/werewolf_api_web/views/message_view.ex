@@ -20,7 +20,8 @@ defmodule WerewolfApiWeb.MessageView do
       body: message.body,
       bot: message.bot,
       sender: render_optional_user(message),
-      conversation_id: message.conversation_id
+      conversation_id: message.conversation_id,
+      type: message.type
     }
   end
 

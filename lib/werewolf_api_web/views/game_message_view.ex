@@ -9,7 +9,8 @@ defmodule WerewolfApiWeb.GameMessageView do
       body: game_message.body,
       bot: game_message.bot,
       sender: render_optional_user(game_message),
-      game_id: game_message.game_id
+      game_id: game_message.game_id,
+      type: game_message.type
     }
   end
 
