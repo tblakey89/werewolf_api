@@ -56,6 +56,7 @@ defmodule WerewolfApi.AppleCredential do
   end
 
   defp handle_response(%{"error" => message}) do
+    Sentry.capture_message(message)
     {:error, message}
   end
 end
