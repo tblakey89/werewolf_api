@@ -15,7 +15,7 @@ defmodule WerewolfApi.Game do
     field(:join_code, :string)
     field(:start_at, :utc_datetime)
     field(:type, :string)
-    field(:closed, :boolean)
+    field(:closed, :boolean, default: false)
     many_to_many(:users, WerewolfApi.User, join_through: "users_games")
     has_many(:users_games, WerewolfApi.UsersGame)
     has_many(:messages, WerewolfApi.Game.Message)
@@ -124,6 +124,10 @@ defmodule WerewolfApi.Game do
 
   def state_changeset(game, state) do
     change(game, state: clean_state(state))
+  end
+
+  def closed_changeset(game) do
+    change(game, closed: true)
   end
 
   def generate_game_token() do

@@ -57,6 +57,14 @@ config :exq,
   shutdown_timeout: 5000,
   start_on_application: false
 
+config :werewolf_api, WerewolfApi.Scheduler,
+  jobs: [
+    # Every 2 hours
+    {"0 */2 * * *", fn -> WerewolfApi.Game.Scheduled.setup(2, "five_minute") end},
+    # Every 6 hours
+    {"0 */6 * * *", fn -> WerewolfApi.Game.Scheduled.setup(6, "thirty_minute") end}
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

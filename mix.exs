@@ -64,6 +64,7 @@ defmodule WerewolfApi.Mixfile do
       {:inflex, "~> 2.0.0"},
       {:sentry, "~> 7.0"},
       {:exq, "~> 0.13.5"},
+      {:quantum, "~> 3.0"},
       {:werewolf, git: "https://github.com/tblakey89/werewolf.git"}
       # {:werewolf, path: "../werewolf"}
     ]

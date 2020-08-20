@@ -128,6 +128,14 @@ defmodule WerewolfApi.Game.Announcement do
     )
   end
 
+  def announce(game, _state, :closed) do
+    broadcast_message(
+      game,
+      "closed_game",
+      "We are really sorry, not enough players were found for this game. Why don't you join our discord server and meet other players eager for a game of Werewolf: https://discord.gg/FtB8Gnj"
+    )
+  end
+
   def announce(_game, _state, _), do: nil
 
   defp show_vote_result({0, :none}), do: nil

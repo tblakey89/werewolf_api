@@ -36,7 +36,10 @@ defmodule WerewolfApiWeb.GameView do
         DateTime.to_unix(DateTime.from_naive!(game.inserted_at, "Etc/UTC"), :millisecond),
       users_games: render_many(game.users_games, WerewolfApiWeb.UsersGameView, "users_game.json"),
       messages: render_many(game.messages, WerewolfApiWeb.GameMessageView, "game_message.json"),
-      has_join_code: game.join_code != nil
+      has_join_code: game.join_code != nil,
+      type: game.type,
+      start_at: start_at(game),
+      closed: game.closed
     }
   end
 
@@ -57,7 +60,10 @@ defmodule WerewolfApiWeb.GameView do
           WerewolfApiWeb.GameView,
           "state.json",
           as: :data
-        )
+        ),
+      type: game.type,
+      start_at: start_at(game),
+      closed: game.closed
     }
   end
 
@@ -148,5 +154,11 @@ defmodule WerewolfApiWeb.GameView do
 
   def render("error.json", %{message: message}) do
     %{error: message}
+  end
+
+  defp start_at(%{start_at: nil}), do: nil
+
+  defp start_at(game) do
+    DateTime.to_unix(DateTime.from_naive!(game.start_at, "Etc/UTC"), :millisecond)
   end
 end

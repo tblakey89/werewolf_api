@@ -12,7 +12,7 @@ defmodule WerewolfApiWeb.GameController do
 
     games =
       from(g in Game,
-        where: g.started == false and g.inserted_at >= ^two_days_ago,
+        where: g.started == false and g.inserted_at >= ^two_days_ago and g.closed != true,
         order_by: [desc: g.inserted_at],
         limit: 20
       )

@@ -46,6 +46,20 @@ defmodule WerewolfApi.Game.Server do
     end
   end
 
+  def launch_game(game_id) do
+    response =
+      get_pid(game_id)
+      |> Werewolf.GameServer.launch_game()
+
+    case response do
+      {:ok, :launch_game, state} ->
+        handle_success(game_id, nil, state)
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
   def action(game_id, user, target, action_type) do
     response =
       get_pid(game_id)

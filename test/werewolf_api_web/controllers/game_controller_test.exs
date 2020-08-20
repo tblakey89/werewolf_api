@@ -14,7 +14,7 @@ defmodule WerewolfApiWeb.GameControllerTest do
     test "returns only games not started" do
       user = insert(:user)
       game_started = insert(:game, started: true)
-      game_unstarted = insert(:game, started: false)
+      game_unstarted = insert(:game, started: false, closed: false)
 
       response = index_response(conn, user, 200)
       assert length(response["games"]) == 1
@@ -28,6 +28,14 @@ defmodule WerewolfApiWeb.GameControllerTest do
 
       user = insert(:user)
       game = insert(:game, started: true, inserted_at: three_days_ago)
+
+      response = index_response(conn, user, 200)
+      assert length(response["games"]) == 0
+    end
+
+    test "returns no closed game" do
+      user = insert(:user)
+      game = insert(:game, closed: true)
 
       response = index_response(conn, user, 200)
       assert length(response["games"]) == 0

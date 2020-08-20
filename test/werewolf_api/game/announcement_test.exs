@@ -281,6 +281,20 @@ defmodule WerewolfApi.Game.AnnouncementTest do
     end
   end
 
+  describe "announce/3 closed" do
+    test "announces closed", %{user: user, game: game} do
+      WerewolfApi.Game.Announcement.announce(game, nil, :closed)
+
+      assert_broadcast("new_message", %{body: sent_message})
+      assert sent_message =~ "We are really sorry, not enough players"
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Game.Message,
+               game_id: game.id
+             ).type == "closed_game"
+    end
+  end
+
   def state(user_id, game_id) do
     %{
       game: %Werewolf.Game{
