@@ -1,4 +1,5 @@
 defmodule WerewolfApi.Game.DynamicLink do
+  @behaviour WerewolfApi.Game.DynamicLinkBehaviour
   alias GoogleApi.FirebaseDynamicLinks.V1.Api.ShortLinks
   alias GoogleApi.FirebaseDynamicLinks.V1.Model.CreateManagedShortLinkRequest
   alias GoogleApi.FirebaseDynamicLinks.V1.Model.DynamicLinkInfo

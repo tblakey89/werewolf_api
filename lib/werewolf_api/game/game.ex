@@ -103,6 +103,20 @@ defmodule WerewolfApi.Game do
     |> validate_required([:name, :time_period])
   end
 
+  def scheduled_changeset(hours, phase_length) do
+    invitation_token = generate_game_token()
+
+    %__MODULE__{}
+    |> change(%{
+      name: "Werewolf",
+      time_period: phase_length,
+      start_at: start_at(hours),
+      type: "scheduled",
+      invitation_token: invitation_token,
+      invitation_url: dynamic_url().new_link(invitation_token)
+    })
+  end
+
   def update_changeset(game, attrs) do
     participants =
       Enum.map(WerewolfApi.User.find_by_user_ids(attrs["user_ids"]), fn participant ->
@@ -147,4 +161,11 @@ defmodule WerewolfApi.Game do
       ]
     )
   end
+
+  defp start_at(hours) do
+    {:ok, start_time} = DateTime.from_unix(DateTime.to_unix(DateTime.utc_now()) + 60 * 60 * hours)
+    start_time
+  end
+
+  def dynamic_url, do: Application.get_env(:werewolf_api, :dynamic_url)
 end

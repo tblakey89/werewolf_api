@@ -65,6 +65,8 @@ config :werewolf_api, WerewolfApi.Scheduler,
     {"0 */6 * * *", fn -> WerewolfApi.Game.Scheduled.setup(6, "thirty_minute") end}
   ]
 
+config :werewolf_api, dynamic_url: WerewolfApi.Game.DynamicLink
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

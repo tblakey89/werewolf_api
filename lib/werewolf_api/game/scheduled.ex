@@ -4,7 +4,7 @@ defmodule WerewolfApi.Game.Scheduled do
   alias WerewolfApi.Repo
 
   def setup(hours, phase_length) do
-    case Repo.insert(changeset(hours, phase_length)) do
+    case Repo.insert(Game.scheduled_changeset(hours, phase_length)) do
       {:ok, game} ->
         game = Repo.preload(game, users_games: :user, messages: :user)
 
@@ -27,20 +27,5 @@ defmodule WerewolfApi.Game.Scheduled do
       {:error, changeset} ->
         Sentry.capture_message('Failed to create scheduled game')
     end
-  end
-
-  defp changeset(hours, phase_length) do
-    %Game{}
-    |> change(%{
-      name: "Werewolf",
-      time_period: phase_length,
-      start_at: start_at(hours),
-      type: "scheduled"
-    })
-  end
-
-  defp start_at(hours) do
-    {:ok, start_time} = DateTime.from_unix(DateTime.to_unix(DateTime.utc_now()) + 60 * 60 * hours)
-    start_time
   end
 end

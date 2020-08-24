@@ -39,7 +39,8 @@ defmodule WerewolfApiWeb.GameView do
       has_join_code: game.join_code != nil,
       type: game.type,
       start_at: start_at(game),
-      closed: game.closed
+      closed: game.closed,
+      time_period: game.time_period
     }
   end
 
@@ -63,7 +64,8 @@ defmodule WerewolfApiWeb.GameView do
         ),
       type: game.type,
       start_at: start_at(game),
-      closed: game.closed
+      closed: game.closed,
+      time_period: game.time_period
     }
   end
 

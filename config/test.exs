@@ -33,3 +33,5 @@ config :pigeon, :fcm,
 
 config :exq,
   queue_adapter: Exq.Adapters.Queue.Mock
+
+config :werewolf_api, dynamic_url: DynamicLinkBehaviourMock
