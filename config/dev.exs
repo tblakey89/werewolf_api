@@ -65,3 +65,6 @@ config :werewolf_api, :apple_auth,
   team_id: System.get_env("APPLE_TEAM_ID"),
   private_key_id: System.get_env("APPLE_PRIVATE_KEY_ID"),
   private_key: System.get_env("APPLE_PRIVATE_KEY")
+
+config :werewolf_api, :discord,
+  game_url: System.get_env("DISCORD_GAME_URL")
