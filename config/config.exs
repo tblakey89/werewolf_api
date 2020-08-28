@@ -59,10 +59,10 @@ config :exq,
 
 config :werewolf_api, WerewolfApi.Scheduler,
   jobs: [
-    # Every 2 hours
-    {"0 */2 * * *", fn -> WerewolfApi.Game.Scheduled.setup(2, "five_minute") end},
+    # Every 2 hours{
+    {"0 */2 * * *", {WerewolfApi.Game.Scheduled, :setup, [2, "five_minute"]}},
     # Every 6 hours
-    {"0 */6 * * *", fn -> WerewolfApi.Game.Scheduled.setup(6, "thirty_minute") end}
+    {"0 */6 * * *", {WerewolfApi.Game.Scheduled, :setup, [6, "thirty_minute"]}}
   ]
 
 config :werewolf_api, dynamic_url: WerewolfApi.Game.DynamicLink
