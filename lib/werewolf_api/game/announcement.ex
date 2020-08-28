@@ -50,6 +50,8 @@ defmodule WerewolfApi.Game.Announcement do
         User.display_name(target_user)
       } was a werewolf. With this, all the werewolves were gone and peace was restored to the village. Villagers win."
     )
+
+    complete_message(game)
   end
 
   def announce(game, _state, {:werewolf_win, target, phase_number}) do
@@ -72,6 +74,8 @@ defmodule WerewolfApi.Game.Announcement do
           "The sun came up on a new day. #{User.display_name(target_user)} was found dead. With this the werewolves outnumber the villagers. The remaining werewolves devoured the last survivors. Werewolves win."
         )
     end
+
+    complete_message(game)
   end
 
   def announce(game, state, {:no_win, :none, phase_number})
@@ -154,6 +158,14 @@ defmodule WerewolfApi.Game.Announcement do
     } #{Inflex.inflect("vote", vote_count)}. Unless the votes change, #{
       User.display_name(target_user)
     } will be lynched at the end of the phase."
+  end
+
+  defp complete_message(game) do
+    broadcast_message(
+      game,
+      "complete",
+      "Thank you for playing Werewolf on WolfChat. We hope you enjoyed it!"
+    )
   end
 
   defp broadcast_message(game, type, message) do
