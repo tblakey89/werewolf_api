@@ -1,6 +1,7 @@
 defmodule WerewolfApi.Avatar do
   use Arc.Definition
   use Arc.Ecto.Definition
+  alias WerewolfApi.User
 
   # ExAws.S3.list_buckets |> ExAws.request
 

@@ -67,7 +67,6 @@ defmodule WerewolfApi.User do
   def google_changeset(user, attrs) do
     user
     |> cast(attrs, [:first_name, :last_name, :email, :google_id, :google_display_name])
-    |> cast_attachments(attrs, [:avatar])
     |> validate_required([:first_name, :last_name, :email, :google_id, :google_display_name])
     |> validate_format(:email, ~r/@/)
     |> unique_constraint(:email)
@@ -156,7 +155,6 @@ defmodule WerewolfApi.User do
   def avatar_changeset(%User{} = user, attrs) do
     user
     |> cast_attachments(attrs, [:avatar])
-    |> validate_required([:avatar])
   end
 
   def check_token_valid(user) do

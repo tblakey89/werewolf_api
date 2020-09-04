@@ -14,6 +14,10 @@ defmodule WerewolfApi.User.Facebook do
       User.facebook_changeset(%User{}, map_for_insertion(facebook_user_map))
       |> Repo.insert()
 
+    {:ok, user} =
+      User.avatar_changeset(user, %{avatar: build_upload_struct(facebook_user_map["picture"]["data"]["url"])})
+      |> Repo.update()
+
     user
   end
 
@@ -31,8 +35,7 @@ defmodule WerewolfApi.User.Facebook do
       last_name: facebook_user_map["last_name"],
       email: facebook_user_map["email"],
       facebook_id: facebook_user_map["id"],
-      facebook_display_name: facebook_user_map["name"],
-      avatar: build_upload_struct(facebook_user_map["picture"]["data"]["url"])
+      facebook_display_name: facebook_user_map["name"]
     }
   end
 

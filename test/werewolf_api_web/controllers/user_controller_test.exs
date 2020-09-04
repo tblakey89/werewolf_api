@@ -199,14 +199,6 @@ defmodule WerewolfApiWeb.UserControllerTest do
       assert_broadcast("new_avatar", %{})
     end
 
-    test "updates avatar without avatar", %{conn: conn} do
-      user = insert(:user)
-
-      response = avatar_response(conn, user.id, user, %{avatar: ""}, 422)
-
-      assert response["errors"]["avatar"] == ["can't be blank"]
-    end
-
     test "can't update when trying to update other user", %{conn: conn} do
       user = insert(:user)
       other_user = insert(:user)

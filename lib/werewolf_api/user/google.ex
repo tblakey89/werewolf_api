@@ -14,6 +14,11 @@ defmodule WerewolfApi.User.Google do
       User.google_changeset(%User{}, map_for_insertion(google_user_map))
       |> Repo.insert()
 
+
+    {:ok, user} =
+      User.avatar_changeset(user, %{avatar: build_upload_struct(google_user_map["picture"])})
+      |> Repo.update()
+
     user
   end
 
@@ -31,8 +36,7 @@ defmodule WerewolfApi.User.Google do
       last_name: google_user_map["family_name"],
       email: google_user_map["email"],
       google_id: google_user_map["sub"],
-      google_display_name: google_user_map["name"],
-      avatar: build_upload_struct(google_user_map["picture"])
+      google_display_name: google_user_map["name"]
     }
   end
 
