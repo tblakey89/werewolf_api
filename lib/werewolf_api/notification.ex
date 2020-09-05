@@ -69,7 +69,7 @@ defmodule WerewolfApi.Notification do
         |> Pigeon.FCM.Notification.new(
           %{
             title: "New Friend Request",
-            body: "#{friendship.user.username} has sent you a friend request.",
+            body: "#{User.display_name(friendship.user)} has sent you a friend request.",
             sound: "default"
           },
           %{
@@ -91,7 +91,7 @@ defmodule WerewolfApi.Notification do
         |> Pigeon.FCM.Notification.new(
           %{
             title: "Accepted Friend Request",
-            body: "#{friendship.friend.username} has accepted your friend request.",
+            body: "#{User.display_name(friendship.friend)} has accepted your friend request.",
             sound: "default"
           },
           %{
@@ -119,7 +119,7 @@ defmodule WerewolfApi.Notification do
         %{
           title: "New Game Invite",
           body:
-            "#{host_users_game.user.username} has invited you to join their game of Werewolf.",
+            "#{User.display_name(host_users_game.user)} has invited you to join their game of Werewolf.",
           sound: "default"
         },
         %{
