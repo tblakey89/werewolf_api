@@ -35,7 +35,9 @@ defmodule WerewolfApiWeb.InvitationController do
          :ok <- Game.Server.add_player(game.id, user),
          {:ok, users_game} <- Repo.insert(changeset) do
       WerewolfApiWeb.UserChannel.broadcast_game_update(game)
-      render(conn, "success.json", %{users_game: users_game})
+      {:ok, state} = Game.Server.get_state(game.id)
+      game = Repo.preload(game, users_games: :user, messages: :user)
+      render(conn, "create.json", %{users_game: users_game, user: user, game: game, state: state})
     else
       nil -> invitation_not_found(conn)
       false -> incorrect_join_code(conn)

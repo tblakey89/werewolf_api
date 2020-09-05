@@ -82,6 +82,7 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
 
       assert_broadcast("game_update", %{id: ^game_id})
       assert response["success"] == "Joined the game"
+      assert response["game"]["id"] == game_id
     end
 
     test "when game is not joinable", %{conn: conn} do

@@ -2,6 +2,19 @@ defmodule WerewolfApiWeb.InvitationView do
   use WerewolfApiWeb, :view
   alias WerewolfApi.UsersGame
 
+  def render("create.json", %{users_game: users_game, game: game, user: user, state: state}) do
+    %{success: "Joined the game", game: render_one(
+      %{
+        user: user,
+        state: state,
+        game: game
+      },
+      WerewolfApiWeb.GameView,
+      "game_with_state.json",
+      as: :data
+    ),}
+  end
+
   def render("success.json", %{users_game: %UsersGame{state: "accepted"} = users_game}) do
     %{success: "Joined the game", game_id: users_game.game_id}
   end
