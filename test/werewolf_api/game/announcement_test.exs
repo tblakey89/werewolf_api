@@ -151,7 +151,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       assert sent_message =~ target.username
       assert sent_message =~ "Villagers win"
 
-       assert_broadcast("new_message", %{type: "complete"})
+      assert_broadcast("new_message", %{type: "complete"})
     end
   end
 
@@ -269,6 +269,89 @@ defmodule WerewolfApi.Game.AnnouncementTest do
                WerewolfApi.Game.Message,
                game_id: game.id
              ).type == "night_begin_no_death"
+    end
+  end
+
+  describe "announce/3 fool_win" do
+    test "announces that the fool wins the game", %{user: user, game: game} do
+      target = insert(:user)
+      phase_number = 1
+
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:fool_win, target.id, phase_number}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message, type: "fool_win"})
+      assert sent_message =~ target.username
+      assert sent_message =~ "the fool, wins the game."
+
+      assert_broadcast("new_message", %{type: "complete"})
+    end
+  end
+
+  describe "announce/3 too_many_phases" do
+    test "announces tie and player death", %{user: user, game: game} do
+      target = insert(:user)
+      phase_number = 1
+
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:too_many_phases, target.id, phase_number}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message, type: "too_many_phases"})
+      assert sent_message =~ target.username
+      assert sent_message =~ "The game ends in a tie."
+
+      assert_broadcast("new_message", %{type: "complete"})
+    end
+
+    test "announces tie", %{user: user, game: game} do
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:too_many_phases, :none, 1}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message, type: "too_many_phases"})
+      assert sent_message =~ "The game ends in a tie."
+
+      assert_broadcast("new_message", %{type: "complete"})
+    end
+  end
+
+  describe "announce/3 host_end" do
+    test "announces tie and player death", %{user: user, game: game} do
+      target = insert(:user)
+      phase_number = 1
+
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:host_end, target.id, phase_number}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message, type: "host_end"})
+      assert sent_message =~ target.username
+      assert sent_message =~ "The game ends in a tie."
+
+      assert_broadcast("new_message", %{type: "complete"})
+    end
+
+    test "announces tie", %{user: user, game: game} do
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:host_end, :none, 1}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message, type: "host_end"})
+      assert sent_message =~ "The game ends in a tie."
+
+      assert_broadcast("new_message", %{type: "complete"})
     end
   end
 

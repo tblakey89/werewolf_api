@@ -132,6 +132,66 @@ defmodule WerewolfApi.Game.Announcement do
     )
   end
 
+  def announce(game, _state, {:fool_win, target, phase_number}) do
+    target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+
+    broadcast_message(
+      game,
+      "fool_win",
+      "The people voted, and #{User.display_name(target_user)} was lynched. Suddenly #{
+        User.display_name(target_user)
+      } started laughing crazily. It turns out they wanted to be lynched. Suddenly, all the villagers and werewolves dropped down dead. #{
+        User.display_name(target_user)
+      }, the fool, wins the game."
+    )
+
+    complete_message(game)
+  end
+
+  def announce(game, state, {:too_many_phases, target, phase_number}) do
+    case target do
+      :none ->
+        broadcast_message(
+          game,
+          "too_many_phases",
+          "The villagers and werewolves grew tired of fighting each other. They had been fighting for so long. They decided to make peace and move on with their lives. The game ends in a tie."
+        )
+
+      _ ->
+        target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+
+        broadcast_message(
+          game,
+          "too_many_phases",
+          "#{User.display_name(target_user)} was killed. The villagers and werewolves grew tired of fighting each other. They had been fighting for so long. They decided to make peace and move on with their lives. The game ends in a tie."
+        )
+    end
+
+    complete_message(game)
+  end
+
+  def announce(game, state, {:host_end, target, phase_number}) do
+    case target do
+      :none ->
+        broadcast_message(
+          game,
+          "host_end",
+          "The host has decided to end the game. The game ends in a tie."
+        )
+
+      _ ->
+        target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+
+        broadcast_message(
+          game,
+          "host_end",
+          "#{User.display_name(target_user)} was killed. The host has decided to end the game. The game ends in a tie."
+        )
+    end
+
+    complete_message(game)
+  end
+
   def announce(game, _state, :closed) do
     broadcast_message(
       game,
