@@ -40,156 +40,119 @@ defmodule WerewolfApi.Game.Announcement do
     )
   end
 
-  def announce(game, _state, {:village_win, target, phase_number}) do
-    target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
-
-    broadcast_message(
-      game,
-      "village_win",
-      "The people voted, and #{User.display_name(target_user)} was lynched. It turns out #{
-        User.display_name(target_user)
-      } was a werewolf. With this, all the werewolves were gone and peace was restored to the village. Villagers win."
-    )
-
-    complete_message(game)
-  end
-
-  def announce(game, _state, {:werewolf_win, target, phase_number}) do
-    target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+  def announce(game, state, {:village_win, targets, phase_number}) do
+    village_win_message =
+      "With this, all the werewolves were gone and peace was restored to the village. Villagers win."
 
     case Integer.is_even(phase_number) do
       true ->
         broadcast_message(
           game,
-          "werewolf_win_day",
-          "The people voted, and #{User.display_name(target_user)} was lynched. It turns out #{
-            User.display_name(target_user)
-          } was a villager. With this, the werewolves outnumber the villagers, the remaining werewolves devoured the last survivors. Werewolves win."
+          "village_win",
+          night_begin_death_message(state, targets) <> " " <> village_win_message
         )
 
       false ->
         broadcast_message(
           game,
-          "werewolf_win_night",
-          "The sun came up on a new day. #{User.display_name(target_user)} was found dead. With this the werewolves outnumber the villagers. The remaining werewolves devoured the last survivors. Werewolves win."
+          "village_win",
+          day_begin_death_message(state, targets) <> " " <> village_win_message
         )
     end
 
-    complete_message(game)
+    broadcast_complete_message(game)
   end
 
-  def announce(game, state, {:no_win, :none, phase_number})
+  def announce(game, state, {:werewolf_win, targets, phase_number}) do
+    werewolf_win_message =
+      "With this, the werewolves outnumber the villagers, the remaining werewolves devoured the last survivors. Werewolves win."
+
+    case Integer.is_even(phase_number) do
+      true ->
+        broadcast_message(
+          game,
+          "werewolf_win",
+          night_begin_death_message(state, targets) <> " " <> werewolf_win_message
+        )
+
+      false ->
+        broadcast_message(
+          game,
+          "werewolf_win",
+          day_begin_death_message(state, targets) <> " " <> werewolf_win_message
+        )
+    end
+
+    broadcast_complete_message(game)
+  end
+
+  def announce(game, state, {:no_win, targets, phase_number})
       when Integer.is_even(phase_number) do
     day_phase_number = round(phase_number / 2)
 
-    broadcast_message(
-      game,
-      "day_begin_no_death",
-      "The sun came up on a new day, everyone left their homes, and everyone seemed to be ok. Day phase #{
-        day_phase_number
-      } begins now. Go to the 'Role' page to vote for who you want to lynch when you're ready."
-    )
+    message =
+      day_begin_death_message(state, targets) <>
+        " Day phase #{day_phase_number} begins now. Go to the 'Role' page to vote for who you want to lynch when you're ready."
+
+    broadcast_message(game, "day_begin", message)
   end
 
-  def announce(game, state, {:no_win, target, phase_number})
-      when Integer.is_even(phase_number) do
-    target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
-    role = state.game.players[target].role
-    day_phase_number = round(phase_number / 2)
-
-    broadcast_message(
-      game,
-      "day_begin_death",
-      "The sun came up on a new day, and #{User.display_name(target_user)} was found dead. It turns out #{
-        User.display_name(target_user)
-      } was a #{role}. Day phase #{day_phase_number} begins now. Go to the 'Role' page to vote for who you want to lynch when you're ready."
-    )
-  end
-
-  def announce(game, state, {:no_win, :none, phase_number}) when Integer.is_odd(phase_number) do
+  def announce(game, state, {:no_win, targets, phase_number}) when Integer.is_odd(phase_number) do
     night_phase_number = round(phase_number / 2)
 
-    broadcast_message(
-      game,
-      "night_begin_no_death",
-      "The people voted, but no decision could be made. Everyone went to bed hoping they would make it through the night. Night phase #{
-        night_phase_number
-      } begins now."
-    )
+    message =
+      night_begin_death_message(state, targets) <>
+        " Night phase #{night_phase_number} begins now."
+
+    broadcast_message(game, "night_begin", message)
   end
 
-  def announce(game, state, {:no_win, target, phase_number}) when Integer.is_odd(phase_number) do
-    target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
-    role = state.game.players[target].role
-    night_phase_number = round(phase_number / 2)
-
-    broadcast_message(
-      game,
-      "night_begin_death",
-      "The people voted, and #{User.display_name(target_user)} was lynched. It turns out #{
-        User.display_name(target_user)
-      } was a #{role}. Night phase #{night_phase_number} begins now."
-    )
-  end
-
-  def announce(game, _state, {:fool_win, target, phase_number}) do
-    target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+  def announce(game, state, {:fool_win, targets, phase_number}) do
+    target_user = WerewolfApi.Repo.get(WerewolfApi.User, targets[:vote])
 
     broadcast_message(
       game,
       "fool_win",
-      "The people voted, and #{User.display_name(target_user)} was lynched. Suddenly #{
-        User.display_name(target_user)
-      } started laughing crazily. It turns out they wanted to be lynched. Suddenly, all the villagers and werewolves dropped down dead. #{
-        User.display_name(target_user)
-      }, the fool, wins the game."
+      night_begin_death_message(state, targets) <>
+        " Suddenly #{User.display_name(target_user)} started laughing crazily. It turns out they wanted to be lynched. Suddenly, all the villagers and werewolves dropped down dead. #{
+          User.display_name(target_user)
+        }, the fool, wins the game."
     )
 
-    complete_message(game)
+    broadcast_complete_message(game)
   end
 
-  def announce(game, state, {:too_many_phases, target, phase_number}) do
-    case target do
-      :none ->
+  def announce(game, state, {:too_many_phases, targets, phase_number}) do
+    too_many_phases_message =
+      "The villagers and werewolves grew tired of fighting each other. They had been fighting for so long. They decided to make peace and move on with their lives. The game ends in a tie."
+
+    case Integer.is_even(phase_number) do
+      true ->
         broadcast_message(
           game,
           "too_many_phases",
-          "The villagers and werewolves grew tired of fighting each other. They had been fighting for so long. They decided to make peace and move on with their lives. The game ends in a tie."
+          night_begin_death_message(state, targets) <> " " <> too_many_phases_message
         )
 
-      _ ->
-        target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
-
+      false ->
         broadcast_message(
           game,
           "too_many_phases",
-          "#{User.display_name(target_user)} was killed. The villagers and werewolves grew tired of fighting each other. They had been fighting for so long. They decided to make peace and move on with their lives. The game ends in a tie."
+          day_begin_death_message(state, targets) <> " " <> too_many_phases_message
         )
     end
 
-    complete_message(game)
+    broadcast_complete_message(game)
   end
 
-  def announce(game, state, {:host_end, target, phase_number}) do
-    case target do
-      :none ->
-        broadcast_message(
-          game,
-          "host_end",
-          "The host has decided to end the game. The game ends in a tie."
-        )
+  def announce(game, state, {:host_end, targets, phase_number}) do
+    broadcast_message(
+      game,
+      "host_end",
+      "The host has decided to end the game. The game ends in a tie."
+    )
 
-      _ ->
-        target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
-
-        broadcast_message(
-          game,
-          "host_end",
-          "#{User.display_name(target_user)} was killed. The host has decided to end the game. The game ends in a tie."
-        )
-    end
-
-    complete_message(game)
+    broadcast_complete_message(game)
   end
 
   def announce(game, _state, :closed) do
@@ -220,7 +183,50 @@ defmodule WerewolfApi.Game.Announcement do
     } will be lynched at the end of the phase."
   end
 
-  defp complete_message(game) do
+  defp day_begin_death_message(_, targets) when map_size(targets) == 0 do
+    "The sun came up on a new day, everyone left their homes, and everyone seemed to be ok."
+  end
+
+  defp day_begin_death_message(state, targets) do
+    Enum.map(targets, fn {type, target} ->
+      target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+      role = state.game.players[target].role
+
+      case type do
+        :werewolf ->
+          "The sun came up on a new day, and #{User.display_name(target_user)} was found dead. It turns out #{
+            User.display_name(target_user)
+          } was a #{role}."
+
+        :hunter ->
+          "The hunter had left a dead man switch. Suddenly, there was an explosion. The villagers rushed over, only to find #{
+            User.display_name(target_user)
+          }. It turns out they were a #{role}."
+      end
+    end)
+    |> Enum.join(" ")
+  end
+
+  defp night_begin_death_message(_, targets) when map_size(targets) == 0 do
+    "The people voted, but no decision could be made. Everyone went to bed hoping they would make it through the night."
+  end
+
+  defp night_begin_death_message(state, targets) do
+    Enum.map(targets, fn {type, target} ->
+      target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+      role = state.game.players[target].role
+
+      case type do
+        :vote ->
+          "The people voted, and #{User.display_name(target_user)} was lynched. It turns out #{
+            User.display_name(target_user)
+          } was a #{role}."
+      end
+    end)
+    |> Enum.join(" ")
+  end
+
+  defp broadcast_complete_message(game) do
     broadcast_message(
       game,
       "complete",
