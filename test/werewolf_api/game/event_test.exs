@@ -27,12 +27,44 @@ defmodule WerewolfApi.GameTest do
 
       updated_game =
         WerewolfApi.Repo.get(WerewolfApi.Game, game.id)
-        |> WerewolfApi.Repo.preload(conversation: :users)
+        |> WerewolfApi.Repo.preload(conversation: :users, mason_conversation: :users)
 
       assert Enum.map(updated_game.conversation.users, fn user -> user.id end) == [
                user_one.id,
                user_two.id
              ]
+
+      assert updated_game.mason_conversation == nil
+
+      assert updated_game.started == true
+    end
+
+    test "updates game with mason_conversation_id" do
+      user_one = insert(:user)
+      user_two = insert(:user)
+
+      game_state = %{
+        game: %{
+          players: %{
+            user_one.id => %{id: user_one.id, role: :mason},
+            user_two.id => %{id: user_two.id, role: :mason}
+          }
+        }
+      }
+
+      game = insert(:game)
+      Event.handle(game, game_state, {:ok, :launch_game})
+
+      updated_game =
+        WerewolfApi.Repo.get(WerewolfApi.Game, game.id)
+        |> WerewolfApi.Repo.preload(conversation: :users, mason_conversation: :users)
+
+      assert Enum.map(updated_game.mason_conversation.users, fn user -> user.id end) == [
+               user_one.id,
+               user_two.id
+             ]
+
+      assert updated_game.conversation == nil
 
       assert updated_game.started == true
     end

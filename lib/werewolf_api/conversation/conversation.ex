@@ -35,6 +35,10 @@ defmodule WerewolfApi.Conversation do
     end
   end
 
+  def find_or_create(%{"user_ids" => user_ids}) when length(user_ids) == 0 do
+    :error
+  end
+
   def find_or_create(params) do
     sorted_user_ids =
       Enum.sort(params["user_ids"])

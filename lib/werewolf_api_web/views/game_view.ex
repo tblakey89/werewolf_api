@@ -32,6 +32,7 @@ defmodule WerewolfApiWeb.GameView do
       token: game.invitation_token,
       url: game.invitation_url,
       conversation_id: game.conversation_id,
+      mason_conversation_id: game.mason_conversation_id,
       created_at:
         DateTime.to_unix(DateTime.from_naive!(game.inserted_at, "Etc/UTC"), :millisecond),
       users_games: render_many(game.users_games, WerewolfApiWeb.UsersGameView, "users_game.json"),
@@ -53,6 +54,7 @@ defmodule WerewolfApiWeb.GameView do
       token: game.invitation_token,
       url: game.invitation_url,
       conversation_id: game.conversation_id,
+      mason_conversation_id: game.mason_conversation_id,
       users_games: render_many(game.users_games, WerewolfApiWeb.UsersGameView, "users_game.json"),
       messages: render_many(game.messages, WerewolfApiWeb.GameMessageView, "game_message.json"),
       state:

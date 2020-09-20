@@ -4,13 +4,17 @@ defmodule WerewolfApi.Game.Event do
   alias WerewolfApi.Repo
 
   def handle(game, state, {:ok, :launch_game}) do
-    {:ok, conversation} = Conversation.find_or_create(%{"user_ids" => werewolf_player_ids(state)})
-    Conversation.Announcement.announce(conversation, {:werewolf, game.name})
+    conversation_id = setup_conversation(:werewolf, game, state)
+    mason_conversation_id = setup_conversation(:mason, game, state)
 
     {:ok, game} =
       game
       |> Game.state_changeset(state)
-      |> Ecto.Changeset.change(conversation_id: conversation.id, started: true)
+      |> Ecto.Changeset.change(
+        conversation_id: conversation_id,
+        mason_conversation_id: mason_conversation_id,
+        started: true
+      )
       |> Repo.update()
 
     WerewolfApi.UsersGame.reject_pending_invitations(game.id)
@@ -36,10 +40,21 @@ defmodule WerewolfApi.Game.Event do
     WerewolfApiWeb.UserChannel.broadcast_state_update(game.id, state)
   end
 
-  defp werewolf_player_ids(state) do
+  defp setup_conversation(role, game, state) do
+    case Conversation.find_or_create(%{"user_ids" => player_ids_by_role(state, role)}) do
+      {:ok, conversation} ->
+        Conversation.Announcement.announce(conversation, {role, game.name})
+        conversation.id
+
+      :error ->
+        nil
+    end
+  end
+
+  defp player_ids_by_role(state, role) do
     Enum.reduce(state.game.players, [], fn {id, player}, acc ->
       case player.role do
-        :werewolf -> [id | acc]
+        ^role -> [id | acc]
         _ -> acc
       end
     end)

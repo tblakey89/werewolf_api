@@ -20,6 +20,7 @@ defmodule WerewolfApi.Game do
     has_many(:users_games, WerewolfApi.UsersGame)
     has_many(:messages, WerewolfApi.Game.Message)
     belongs_to(:conversation, WerewolfApi.Conversation)
+    belongs_to(:mason_conversation, WerewolfApi.Conversation)
 
     timestamps()
   end

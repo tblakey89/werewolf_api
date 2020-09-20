@@ -41,5 +41,10 @@ defmodule WerewolfApi.ConversationTest do
       {:ok, found_conversation} = Conversation.find_or_create(attrs)
       assert conversation.id == found_conversation.id
     end
+
+    test "when given empty list", %{} do
+      attrs = %{"user_ids" => []}
+      assert :error = Conversation.find_or_create(attrs)
+    end
   end
 end
