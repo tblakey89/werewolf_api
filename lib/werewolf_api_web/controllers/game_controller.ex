@@ -38,7 +38,8 @@ defmodule WerewolfApiWeb.GameController do
           Game.Server.start_game(
             user,
             game.id,
-            String.to_atom(game.time_period)
+            String.to_atom(game.time_period),
+            Enum.map(game.allowed_roles, &String.to_atom(&1))
           )
 
         update_state(game)

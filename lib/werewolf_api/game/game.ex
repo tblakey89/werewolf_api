@@ -16,6 +16,7 @@ defmodule WerewolfApi.Game do
     field(:start_at, :utc_datetime)
     field(:type, :string)
     field(:closed, :boolean, default: false)
+    field(:allowed_roles, {:array, :string}, default: [])
     many_to_many(:users, WerewolfApi.User, join_through: "users_games")
     has_many(:users_games, WerewolfApi.UsersGame)
     has_many(:messages, WerewolfApi.Game.Message)
@@ -99,7 +100,14 @@ defmodule WerewolfApi.Game do
       )
 
     game
-    |> cast(attrs, [:name, :invitation_token, :invitation_url, :time_period, :join_code])
+    |> cast(attrs, [
+      :name,
+      :invitation_token,
+      :invitation_url,
+      :time_period,
+      :join_code,
+      :allowed_roles
+    ])
     |> cast_assoc(:users_games)
     |> validate_required([:name, :time_period])
   end
@@ -114,7 +122,9 @@ defmodule WerewolfApi.Game do
       start_at: start_at(hours),
       type: "scheduled",
       invitation_token: invitation_token,
-      invitation_url: dynamic_url().new_link(invitation_token)
+      invitation_url: dynamic_url().new_link(invitation_token),
+      allowed_roles:
+        Enum.take_random(["detective", "doctor", "mason", "little_girl", "hunter", "devil"], 3)
     })
   end
 

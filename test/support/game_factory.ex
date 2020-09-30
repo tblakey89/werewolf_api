@@ -5,7 +5,8 @@ defmodule WerewolfApi.GameFactory do
         %WerewolfApi.Game{
           name: "Test game",
           invitation_token: WerewolfApi.Game.generate_game_token(),
-          time_period: "five_minute"
+          time_period: "five_minute",
+          allowed_roles: []
         }
       end
     end

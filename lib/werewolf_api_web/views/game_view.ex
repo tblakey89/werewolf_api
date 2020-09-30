@@ -41,7 +41,8 @@ defmodule WerewolfApiWeb.GameView do
       type: game.type,
       start_at: start_at(game),
       closed: game.closed,
-      time_period: game.time_period
+      time_period: game.time_period,
+      allowed_roles: game.allowed_roles || []
     }
   end
 
@@ -67,7 +68,8 @@ defmodule WerewolfApiWeb.GameView do
       type: game.type,
       start_at: start_at(game),
       closed: game.closed,
-      time_period: game.time_period
+      time_period: game.time_period,
+      allowed_roles: game.allowed_roles || []
     }
   end
 
