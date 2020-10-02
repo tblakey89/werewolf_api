@@ -45,14 +45,14 @@ defmodule WerewolfApi.Game.Announcement do
       "With this, all the werewolves were gone and peace was restored to the village. Villagers win."
 
     case Integer.is_even(phase_number) do
-      true ->
+      false ->
         broadcast_message(
           game,
           "village_win",
           night_begin_death_message(state, targets) <> " " <> village_win_message
         )
 
-      false ->
+      true ->
         broadcast_message(
           game,
           "village_win",
@@ -68,14 +68,14 @@ defmodule WerewolfApi.Game.Announcement do
       "With this, the werewolves outnumber the villagers, the remaining werewolves devoured the last survivors. Werewolves win."
 
     case Integer.is_even(phase_number) do
-      true ->
+      false ->
         broadcast_message(
           game,
           "werewolf_win",
           night_begin_death_message(state, targets) <> " " <> werewolf_win_message
         )
 
-      false ->
+      true ->
         broadcast_message(
           game,
           "werewolf_win",

@@ -138,7 +138,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
   describe "announce/3 village_win" do
     test "announces villager win of game", %{user: user, game: game} do
-      phase_number = 1
+      phase_number = 2
 
       WerewolfApi.Game.Announcement.announce(
         game,
@@ -156,7 +156,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
   describe "announce/3 werewolf_win" do
     test "announces werewolf win of game in day phase", %{user: user, game: game} do
-      phase_number = 2
+      phase_number = 3
 
       WerewolfApi.Game.Announcement.announce(
         game,
@@ -173,7 +173,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
     end
 
     test "announces werewolf win of game in night phase", %{user: user, game: game} do
-      phase_number = 1
+      phase_number = 2
 
       WerewolfApi.Game.Announcement.announce(
         game,
