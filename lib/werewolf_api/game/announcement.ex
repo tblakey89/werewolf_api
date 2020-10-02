@@ -188,7 +188,8 @@ defmodule WerewolfApi.Game.Announcement do
   end
 
   defp day_begin_death_message(state, targets) do
-    Enum.map(targets, fn {type, target} ->
+    Enum.reverse(targets)
+    |> Enum.map(fn {type, target} ->
       target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
       role = state.game.players[target].role
 
