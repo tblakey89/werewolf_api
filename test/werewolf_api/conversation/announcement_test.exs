@@ -36,6 +36,23 @@ defmodule WerewolfApi.Conversation.AnnouncementTest do
     end
   end
 
+  test "announces to mason conversation", %{user: user, conversation: conversation} do
+    conversation_id = conversation.id
+    announcement = "This is conversation"
+    Conversation.Announcement.announce(conversation, {:mason, announcement})
+
+    assert_broadcast("new_conversation", %{id: ^conversation_id})
+
+    message =
+      WerewolfApi.Repo.get_by(
+        WerewolfApi.Conversation.Message,
+        conversation_id: conversation.id
+      )
+
+    assert message.body =~ announcement
+    assert message.type == "mason_chat"
+  end
+
   describe "announce/2 player vote" do
     test "when user votes for a target, not a tie, 1 vote", %{
       user: user,

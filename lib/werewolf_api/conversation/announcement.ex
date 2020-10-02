@@ -10,6 +10,14 @@ defmodule WerewolfApi.Conversation.Announcement do
     )
   end
 
+  def announce(conversation, {:mason, game_name}) do
+    broadcast_conversation(
+      conversation,
+      "mason_chat",
+      "This is the mason group chat for #{game_name}. Please work together to try and find the werewolves."
+    )
+  end
+
   def announce(conversation, {:action, user, target, vote_result}) do
     target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
 
