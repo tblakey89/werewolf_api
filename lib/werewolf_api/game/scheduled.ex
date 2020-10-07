@@ -3,8 +3,8 @@ defmodule WerewolfApi.Game.Scheduled do
   alias WerewolfApi.Game
   alias WerewolfApi.Repo
 
-  def setup(hours, phase_length) do
-    case Repo.insert(Game.scheduled_changeset(hours, phase_length)) do
+  def setup(hours, phase_length, name \\ "Daily game") do
+    case Repo.insert(Game.scheduled_changeset(hours, phase_length, name)) do
       {:ok, game} ->
         game = Repo.preload(game, users_games: :user, messages: :user)
 

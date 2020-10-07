@@ -112,19 +112,20 @@ defmodule WerewolfApi.Game do
     |> validate_required([:name, :time_period])
   end
 
-  def scheduled_changeset(hours, phase_length) do
+  def scheduled_changeset(hours, phase_length, name) do
     invitation_token = generate_game_token()
 
     %__MODULE__{}
     |> change(%{
-      name: "Werewolf",
+      name: "Werewolf - #{name}",
       time_period: phase_length,
       start_at: start_at(hours),
       type: "scheduled",
       invitation_token: invitation_token,
       invitation_url: dynamic_url().new_link(invitation_token),
       allowed_roles:
-        Enum.take_random(["detective", "doctor", "mason", "little_girl", "hunter", "devil"], 3)
+        # don't forget to re-add mason
+        Enum.take_random(["detective", "doctor", "little_girl", "hunter", "devil"], 3)
     })
   end
 

@@ -59,8 +59,12 @@ config :exq,
 
 config :werewolf_api, WerewolfApi.Scheduler,
   jobs: [
-    # Every 2 hours{
-    # {"0 */2 * * *", {WerewolfApi.Game.Scheduled, :setup, [2, "five_minute"]}},
+    # Every day at 5:00 with 10 hour timer
+    {"0 4 * * *", {WerewolfApi.Game.Scheduled, :setup, [10, "five_minute", "Daily Asia Game"]}},
+    # Every day at 15:00 with 5 hour timer
+    {"0 14 * * *", {WerewolfApi.Game.Scheduled, :setup, [5, "five_minute", "Daily Europe Game"]}},
+    # Every day at 20:00 with 6 hour timer
+    {"0 19 * * *", {WerewolfApi.Game.Scheduled, :setup, [6, "five_minute", "Daily Americas Game"]}},
     # Every 6 hours
     # {"0 */6 * * *", {WerewolfApi.Game.Scheduled, :setup, [6, "thirty_minute"]}},
     # Every 24 hours at 16:00
