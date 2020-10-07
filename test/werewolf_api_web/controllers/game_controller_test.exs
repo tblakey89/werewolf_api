@@ -22,12 +22,12 @@ defmodule WerewolfApiWeb.GameControllerTest do
     end
 
     test "returns no games started more than one day ago" do
-      three_days_ago =
+      two_days_ago =
         NaiveDateTime.utc_now()
-        |> NaiveDateTime.add(-60 * 60 * 24 * 3)
+        |> NaiveDateTime.add(-60 * 60 * 24 * 2)
 
       user = insert(:user)
-      game = insert(:game, started: true, inserted_at: three_days_ago)
+      game = insert(:game, started: true, inserted_at: two_days_ago)
 
       response = index_response(conn, user, 200)
       assert length(response["games"]) == 0

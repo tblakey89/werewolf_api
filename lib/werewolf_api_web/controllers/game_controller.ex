@@ -8,7 +8,7 @@ defmodule WerewolfApiWeb.GameController do
   def index(conn, _param) do
     two_days_ago =
       NaiveDateTime.utc_now()
-      |> NaiveDateTime.add(-60 * 60 * 24 * 2)
+      |> NaiveDateTime.add(-60 * 60 * 24 * 1)
 
     games =
       from(g in Game,
