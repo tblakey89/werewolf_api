@@ -1,6 +1,7 @@
 defmodule WerewolfApi.Game.Announcement do
   alias WerewolfApi.Notification
   alias WerewolfApi.User
+  alias WerewolfApi.Game
   require Integer
 
   def announce(game, _state, {:ok, :add_player, user}) do
@@ -20,14 +21,14 @@ defmodule WerewolfApi.Game.Announcement do
   end
 
   def announce(game, _state, {:ok, :action, :day_phase, :vote, user, target, vote_result}) do
-    target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+    username = User.display_name(Game.user_from_game(game, target))
 
     broadcast_message(
       game,
       "day_vote",
-      "A vote has been cast: #{User.display_name(user)} has voted for #{
-        User.display_name(target_user)
-      }. #{show_vote_result(vote_result)}"
+      "A vote has been cast: #{User.display_name(user)} has voted for #{username}. #{
+        show_vote_result(game, vote_result)
+      }"
     )
   end
 
@@ -36,6 +37,7 @@ defmodule WerewolfApi.Game.Announcement do
 
     WerewolfApi.Conversation.Announcement.announce(
       conversation,
+      game,
       {:action, user, target, vote_result}
     )
   end
@@ -49,14 +51,14 @@ defmodule WerewolfApi.Game.Announcement do
         broadcast_message(
           game,
           "village_win",
-          night_begin_death_message(state, targets) <> " " <> village_win_message
+          night_begin_death_message(game, state, targets) <> " " <> village_win_message
         )
 
       true ->
         broadcast_message(
           game,
           "village_win",
-          day_begin_death_message(state, targets) <> " " <> village_win_message
+          day_begin_death_message(game, state, targets) <> " " <> village_win_message
         )
     end
 
@@ -72,14 +74,14 @@ defmodule WerewolfApi.Game.Announcement do
         broadcast_message(
           game,
           "werewolf_win",
-          night_begin_death_message(state, targets) <> " " <> werewolf_win_message
+          night_begin_death_message(game, state, targets) <> " " <> werewolf_win_message
         )
 
       true ->
         broadcast_message(
           game,
           "werewolf_win",
-          day_begin_death_message(state, targets) <> " " <> werewolf_win_message
+          day_begin_death_message(game, state, targets) <> " " <> werewolf_win_message
         )
     end
 
@@ -91,7 +93,7 @@ defmodule WerewolfApi.Game.Announcement do
     day_phase_number = round(phase_number / 2)
 
     message =
-      day_begin_death_message(state, targets) <>
+      day_begin_death_message(game, state, targets) <>
         " Day phase #{day_phase_number} begins now. Go to the 'Role' page to vote for who you want to lynch when you're ready."
 
     broadcast_message(game, "day_begin", message)
@@ -101,21 +103,21 @@ defmodule WerewolfApi.Game.Announcement do
     night_phase_number = round(phase_number / 2)
 
     message =
-      night_begin_death_message(state, targets) <>
+      night_begin_death_message(game, state, targets) <>
         " Night phase #{night_phase_number} begins now."
 
     broadcast_message(game, "night_begin", message)
   end
 
   def announce(game, state, {:fool_win, targets, phase_number}) do
-    target_user = WerewolfApi.Repo.get(WerewolfApi.User, targets[:vote])
+    username = User.display_name(Game.user_from_game(game, targets[:vote]))
 
     broadcast_message(
       game,
       "fool_win",
-      night_begin_death_message(state, targets) <>
-        " Suddenly #{User.display_name(target_user)} started laughing crazily. It turns out they wanted to be lynched. Suddenly, all the villagers and werewolves dropped down dead. #{
-          User.display_name(target_user)
+      night_begin_death_message(game, state, targets) <>
+        " Suddenly #{username} started laughing crazily. It turns out they wanted to be lynched. Suddenly, all the villagers and werewolves dropped down dead. #{
+          username
         }, the fool, wins the game."
     )
 
@@ -131,14 +133,14 @@ defmodule WerewolfApi.Game.Announcement do
         broadcast_message(
           game,
           "too_many_phases",
-          night_begin_death_message(state, targets) <> " " <> too_many_phases_message
+          night_begin_death_message(game, state, targets) <> " " <> too_many_phases_message
         )
 
       false ->
         broadcast_message(
           game,
           "too_many_phases",
-          day_begin_death_message(state, targets) <> " " <> too_many_phases_message
+          day_begin_death_message(game, state, targets) <> " " <> too_many_phases_message
         )
     end
 
@@ -165,63 +167,65 @@ defmodule WerewolfApi.Game.Announcement do
 
   def announce(_game, _state, _), do: nil
 
-  defp show_vote_result({0, :none}), do: nil
+  defp show_vote_result(game, {votes, :none}) when length(votes) == 0, do: nil
 
-  defp show_vote_result({vote_count, :none}) do
-    "There is currently a tie with #{Integer.to_string(vote_count)} #{
-      Inflex.inflect("vote", vote_count)
-    } each. If there is a tie at the end of the phase, no player will be lynched."
+  defp show_vote_result(game, {votes, :none}) do
+    "There is currently a tie, if there is still a tie at the end of the phase, no player will be lynched.\n" <>
+      vote_list(game, votes)
   end
 
-  defp show_vote_result({vote_count, target}) do
-    target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+  defp show_vote_result(game, {votes, target}) do
+    username = User.display_name(Game.user_from_game(game, target))
 
-    "The player with the most votes is #{User.display_name(target_user)} with #{
-      Integer.to_string(vote_count)
-    } #{Inflex.inflect("vote", vote_count)}. Unless the votes change, #{
-      User.display_name(target_user)
-    } will be lynched at the end of the phase."
+    "The player with the most votes is #{username}. Unless the votes change, #{username} will be lynched at the end of the phase.\n" <>
+      vote_list(game, votes)
   end
 
-  defp day_begin_death_message(_, targets) when map_size(targets) == 0 do
+  defp vote_list(game, votes) do
+    Enum.map(votes, fn {target, vote_count} ->
+      username = User.display_name(Game.user_from_game(game, target))
+      "#{username}: #{vote_count} #{Inflex.inflect("vote", vote_count)}"
+    end)
+    |> Enum.join("\n")
+  end
+
+  defp day_begin_death_message(_, _, targets) when map_size(targets) == 0 do
     "The sun came up on a new day, everyone left their homes, and everyone seemed to be ok."
   end
 
-  defp day_begin_death_message(state, targets) do
+  defp day_begin_death_message(game, state, targets) do
     Enum.reverse(targets)
     |> Enum.map(fn {type, target} ->
-      target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+      username = User.display_name(Game.user_from_game(game, target))
       role = state.game.players[target].role
 
       case type do
         :werewolf ->
-          "The sun came up on a new day, and #{User.display_name(target_user)} was found dead. It turns out #{
-            User.display_name(target_user)
-          } was a #{role}."
+          "The sun came up on a new day, and #{username} was found dead. It turns out #{username} was a #{
+            role
+          }."
 
         :hunter ->
           "The hunter had left a dead man switch. Suddenly, there was an explosion. The villagers rushed over, only to find #{
-            User.display_name(target_user)
+            username
           }. It turns out they were a #{role}."
       end
     end)
     |> Enum.join(" ")
   end
 
-  defp night_begin_death_message(_, targets) when map_size(targets) == 0 do
+  defp night_begin_death_message(_, _, targets) when map_size(targets) == 0 do
     "The people voted, but no decision could be made. Everyone went to bed hoping they would make it through the night."
   end
 
-  defp night_begin_death_message(state, targets) do
+  defp night_begin_death_message(game, state, targets) do
     Enum.map(targets, fn {type, target} ->
-      target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+      username = User.display_name(Game.user_from_game(game, target))
       role = state.game.players[target].role
 
       case type do
         :vote ->
-          "The people voted, and #{User.display_name(target_user)} was lynched. It turns out #{
-            User.display_name(target_user)
-          } was a #{role}."
+          "The people voted, and #{username} was lynched. It turns out #{username} was a #{role}."
       end
     end)
     |> Enum.join(" ")

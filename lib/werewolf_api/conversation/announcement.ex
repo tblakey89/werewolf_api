@@ -1,6 +1,7 @@
 defmodule WerewolfApi.Conversation.Announcement do
   alias WerewolfApi.Notification
   alias WerewolfApi.User
+  alias WerewolfApi.Game
 
   def announce(conversation, {:werewolf, game_name}) do
     broadcast_conversation(
@@ -18,36 +19,40 @@ defmodule WerewolfApi.Conversation.Announcement do
     )
   end
 
-  def announce(conversation, {:action, user, target, vote_result}) do
-    target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+  def announce(conversation, game, {:action, user, target, vote_result}) do
+    username = User.display_name(Game.user_from_game(game, target))
 
     broadcast_message(
       conversation,
       "werewolf_vote",
-      "#{User.display_name(user)} wants to kill #{User.display_name(target_user)}. #{
-        show_vote_result(vote_result)
+      "#{User.display_name(user)} wants to kill #{username}. #{
+        show_vote_result(game, vote_result)
       }"
     )
   end
 
   def announce(_conversation, _), do: nil
 
-  defp show_vote_result({0, :none}), do: nil
+  defp show_vote_result(game, {votes, :none}) when length(votes) == 0, do: nil
 
-  defp show_vote_result({vote_count, :none}) do
-    "There is currently a tie with #{Integer.to_string(vote_count)} #{
-      Inflex.inflect("vote", vote_count)
-    } each. If there is a tie at the end of the night phase, no player will be killed."
+  defp show_vote_result(game, {votes, :none}) do
+    "There is currently a tie, if there is still a tie at the end of the night phase, no player will be killed.\n" <>
+      vote_list(game, votes)
   end
 
-  defp show_vote_result({vote_count, target}) do
-    target_user = WerewolfApi.Repo.get(WerewolfApi.User, target)
+  defp show_vote_result(game, {votes, target}) do
+    username = User.display_name(Game.user_from_game(game, target))
 
-    "The player with the most votes is #{User.display_name(target_user)} with #{
-      Integer.to_string(vote_count)
-    } #{Inflex.inflect("vote", vote_count)}. Unless the votes change, #{
-      User.display_name(target_user)
-    } will be killed at the end of the night phase."
+    "The player with the most votes is #{username}. Unless the votes change, #{username} will be killed at the end of the night phase.\n" <>
+      vote_list(game, votes)
+  end
+
+  defp vote_list(game, votes) do
+    Enum.map(votes, fn {target, vote_count} ->
+      username = User.display_name(Game.user_from_game(game, target))
+      "#{username}: #{vote_count} #{Inflex.inflect("vote", vote_count)}"
+    end)
+    |> Enum.join("\n")
   end
 
   defp broadcast_conversation(conversation, type, message) do

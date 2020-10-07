@@ -174,6 +174,10 @@ defmodule WerewolfApi.Game do
     )
   end
 
+  def user_from_game(game, user_id) do
+    Enum.find(game.users, fn user -> user.id == user_id end)
+  end
+
   defp start_at(hours) do
     {:ok, start_time} = DateTime.from_unix(DateTime.to_unix(DateTime.utc_now()) + 60 * 60 * hours)
     start_time

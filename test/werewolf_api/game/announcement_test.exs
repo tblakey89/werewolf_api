@@ -7,15 +7,23 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
   setup do
     user = insert(:user)
+    target = insert(:user)
     conversation = insert(:conversation, users: [user])
     game = insert(:game, conversation_id: conversation.id)
+
     insert(:users_game, user: user, game: game)
+    insert(:users_game, user: target, game: game)
+
+    game =
+      game
+      |> WerewolfApi.Repo.preload(:users)
+
     {:ok, jwt, _} = encode_and_sign(user)
     {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
     {:ok, _, socket} = subscribe_and_join(socket, "game:#{game.id}", %{})
     {:ok, _, socket} = subscribe_and_join(socket, "conversation:#{conversation.id}", %{})
 
-    {:ok, socket: socket, game: game, user: user}
+    {:ok, socket: socket, game: game, user: user, target: target}
   end
 
   describe "announce/3 add_player" do
@@ -69,13 +77,15 @@ defmodule WerewolfApi.Game.AnnouncementTest do
   end
 
   describe "announce/3 player vote" do
-    test "when user votes for a target, not a tie, 1 vote", %{user: user, game: game} do
-      target = insert(:user)
-
+    test "when user votes for a target, not a tie, 1 vote", %{
+      user: user,
+      game: game,
+      target: target
+    } do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:ok, :action, :day_phase, :vote, user, target.id, {1, target.id}}
+        {:ok, :action, :day_phase, :vote, user, target.id, {[{target.id, 1}], target.id}}
       )
 
       assert_broadcast("new_message", %{body: sent_message})
@@ -84,9 +94,9 @@ defmodule WerewolfApi.Game.AnnouncementTest do
                "#{User.display_name(user)} has voted for #{User.display_name(target)}"
 
       assert sent_message =~
-               "votes is #{User.display_name(target)} with 1 vote. Unless the votes change, #{
+               "votes is #{User.display_name(target)}. Unless the votes change, #{
                  User.display_name(target)
-               } will be lynched at the end of the phase."
+               } will be lynched at the end of the phase.\n#{User.display_name(target)}: 1 vote"
 
       assert WerewolfApi.Repo.get_by(
                WerewolfApi.Game.Message,
@@ -94,13 +104,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
              ).type == "day_vote"
     end
 
-    test "when user votes for a target, a tie, 3 vote", %{user: user, game: game} do
-      target = insert(:user)
-
+    test "when user votes for a target, a tie, 3 vote", %{user: user, game: game, target: target} do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:ok, :action, :day_phase, :vote, user, target.id, {3, :none}}
+        {:ok, :action, :day_phase, :vote, user, target.id,
+         {[{user.id, 3}, {target.id, 3}], :none}}
       )
 
       assert_broadcast("new_message", %{body: sent_message})
@@ -109,19 +118,19 @@ defmodule WerewolfApi.Game.AnnouncementTest do
                "#{User.display_name(user)} has voted for #{User.display_name(target)}"
 
       assert sent_message =~
-               "a tie with 3 votes each. If there is a tie at the end of the phase, no player will be lynched."
+               "There is currently a tie, if there is still a tie at the end of the phase, no player will be lynched."
     end
 
     test "when user votes for a target on night phase, not a tie, 1 vote", %{
       user: user,
-      game: game
+      game: game,
+      target: target
     } do
-      target = insert(:user)
-
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:ok, :action, :night_phase, :vote, user, target.id, {1, target.id}}
+        {:ok, :action, :night_phase, :vote, user, target.id,
+         {[{user.id, 2}, {target.id, 3}], target.id}}
       )
 
       assert_broadcast("new_message", %{body: sent_message})

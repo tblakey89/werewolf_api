@@ -44,4 +44,18 @@ defmodule WerewolfApi.Game.GameTest do
       assert updated_game.state["game"]["phase_length"] == "day"
     end
   end
+
+  describe "user_from_game/2" do
+    test "returns the user" do
+      game = insert(:game)
+      user = insert(:user)
+      insert(:users_game, user: user, game: game)
+
+      game_with_users =
+        WerewolfApi.Repo.get(Game, game.id)
+        |> WerewolfApi.Repo.preload(:users)
+
+      assert user.id == Game.user_from_game(game_with_users, user.id).id
+    end
+  end
 end

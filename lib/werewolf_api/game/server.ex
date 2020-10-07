@@ -112,7 +112,10 @@ defmodule WerewolfApi.Game.Server do
 
   defp handle_game_callback(state, game_response) do
     Task.start_link(fn ->
-      game = WerewolfApi.Repo.get(Game, state.game.id)
+      game =
+        WerewolfApi.Repo.get(Game, state.game.id)
+        |> WerewolfApi.Repo.preload(:users)
+
       Game.Event.handle(game, state, game_response)
       Game.Announcement.announce(game, state, game_response)
     end)
