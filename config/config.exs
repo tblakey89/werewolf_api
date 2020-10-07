@@ -64,7 +64,8 @@ config :werewolf_api, WerewolfApi.Scheduler,
     # Every day at 15:00 with 5 hour timer
     {"0 14 * * *", {WerewolfApi.Game.Scheduled, :setup, [5, "five_minute", "Daily Europe Game"]}},
     # Every day at 20:00 with 6 hour timer
-    {"0 19 * * *", {WerewolfApi.Game.Scheduled, :setup, [6, "five_minute", "Daily Americas Game"]}},
+    {"0 19 * * *",
+     {WerewolfApi.Game.Scheduled, :setup, [6, "five_minute", "Daily Americas Game"]}}
     # Every 6 hours
     # {"0 */6 * * *", {WerewolfApi.Game.Scheduled, :setup, [6, "thirty_minute"]}},
     # Every 24 hours at 16:00

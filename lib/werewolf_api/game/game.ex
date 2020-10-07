@@ -123,8 +123,8 @@ defmodule WerewolfApi.Game do
       type: "scheduled",
       invitation_token: invitation_token,
       invitation_url: dynamic_url().new_link(invitation_token),
+      # don't forget to re-add mason
       allowed_roles:
-        # don't forget to re-add mason
         Enum.take_random(["detective", "doctor", "little_girl", "hunter", "devil"], 3)
     })
   end

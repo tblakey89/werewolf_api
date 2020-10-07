@@ -23,7 +23,12 @@ defmodule WerewolfApi.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     # try one_for_all for now, normal is one_for_one
-    opts = [strategy: :one_for_all, max_restarts: 10, max_seconds: 20, name: WerewolfApi.Supervisor]
+    opts = [
+      strategy: :one_for_all,
+      max_restarts: 10,
+      max_seconds: 20,
+      name: WerewolfApi.Supervisor
+    ]
 
     {:ok, _} = Logger.add_backend(Sentry.LoggerBackend)
 
