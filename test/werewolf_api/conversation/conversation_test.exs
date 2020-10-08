@@ -46,5 +46,10 @@ defmodule WerewolfApi.ConversationTest do
       attrs = %{"user_ids" => []}
       assert :error = Conversation.find_or_create(attrs)
     end
+
+    test "when given list of one", %{user: user} do
+      attrs = %{"user_ids" => [user.id]}
+      assert :error = Conversation.find_or_create(attrs)
+    end
   end
 end

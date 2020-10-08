@@ -29,13 +29,16 @@ defmodule WerewolfApi.Conversation do
       length(conversations) > 0 ->
         {:ok, Enum.at(conversations, 0)}
 
+      length(sorted_user_ids) == 0 ->
+        :error
+
       true ->
         changeset = __MODULE__.changeset(%__MODULE__{}, params, user)
         Repo.insert(changeset)
     end
   end
 
-  def find_or_create(%{"user_ids" => user_ids}) when length(user_ids) == 0 do
+  def find_or_create(%{"user_ids" => user_ids}) when length(user_ids) < 2 do
     :error
   end
 
