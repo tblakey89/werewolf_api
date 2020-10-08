@@ -14,7 +14,7 @@ defmodule WerewolfApiWeb.GameNotStartedWorker do
         Repo.get(User, Game.find_host_id(game))
         |> Repo.preload(:games)
 
-      if length(game.users_games) < 8 do
+      if !game.started do
         broadcast_game(
           game,
           "new_game_discord",
