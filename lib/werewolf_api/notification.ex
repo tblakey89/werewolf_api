@@ -24,7 +24,8 @@ defmodule WerewolfApi.Notification do
         },
         %{
           type: "conversation",
-          id: message.conversation_id
+          id: message.conversation_id,
+          message: WerewolfApiWeb.MessageView.render("message.json", %{message: message})
         }
       )
       |> Pigeon.FCM.push()
@@ -52,7 +53,8 @@ defmodule WerewolfApi.Notification do
         },
         %{
           type: "game",
-          id: message.game_id
+          id: message.game_id,
+          message: WerewolfApiWeb.GameMessageView.render("game_message.json", %{game_message: message})
         }
       )
       |> Pigeon.FCM.push()
