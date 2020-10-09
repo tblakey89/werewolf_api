@@ -33,13 +33,18 @@ defmodule WerewolfApi.Game.Announcement do
   end
 
   def announce(game, _state, {:ok, :action, :night_phase, :vote, user, target, vote_result}) do
-    conversation = WerewolfApi.Repo.get(WerewolfApi.Conversation, game.conversation_id)
+    case game.conversation_id do
+      nil ->
+        :error
+      conversation_id ->
+        conversation = WerewolfApi.Repo.get(WerewolfApi.Conversation, game.conversation_id)
 
-    WerewolfApi.Conversation.Announcement.announce(
-      conversation,
-      game,
-      {:action, user, target, vote_result}
-    )
+        WerewolfApi.Conversation.Announcement.announce(
+          conversation,
+          game,
+          {:action, user, target, vote_result}
+        )
+    end
   end
 
   def announce(game, state, {:village_win, targets, phase_number}) do
