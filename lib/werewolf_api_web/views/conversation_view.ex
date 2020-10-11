@@ -28,6 +28,7 @@ defmodule WerewolfApiWeb.ConversationView do
     %{
       id: conversation.id,
       name: conversation.name,
+      created_at: conversation.inserted_at,
       users: render_many(conversation.users, WerewolfApiWeb.UserView, "simple_user.json")
     }
   end
@@ -38,6 +39,7 @@ defmodule WerewolfApiWeb.ConversationView do
       name: conversation.name,
       users: render_many(conversation.users, WerewolfApiWeb.UserView, "simple_user.json"),
       messages: render_many(conversation.messages, WerewolfApiWeb.MessageView, "message.json"),
+      created_at: conversation.inserted_at,
       users_conversations:
         render_many(
           conversation.users_conversations,

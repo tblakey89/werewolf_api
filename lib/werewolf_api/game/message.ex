@@ -6,6 +6,8 @@ defmodule WerewolfApi.Game.Message do
     field(:body, :string)
     field(:bot, :boolean, default: false)
     field(:type, :string)
+    field(:destination, :string, default: "standard")
+    field(:uuid, :binary_id)
     belongs_to(:user, WerewolfApi.User, foreign_key: :user_id)
     belongs_to(:game, WerewolfApi.Game, foreign_key: :game_id)
 
@@ -17,7 +19,7 @@ defmodule WerewolfApi.Game.Message do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:body, :bot, :type])
+    |> cast(params, [:body, :bot, :type, :uuid, :destination])
     |> validate_required([:body])
   end
 

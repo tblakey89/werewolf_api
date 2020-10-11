@@ -6,6 +6,7 @@ defmodule WerewolfApi.Conversation.Message do
     field(:body, :string)
     field(:bot, :boolean, default: false)
     field(:type, :string)
+    field(:uuid, :binary_id)
     belongs_to(:user, WerewolfApi.User)
     belongs_to(:conversation, WerewolfApi.Conversation)
 
@@ -15,7 +16,7 @@ defmodule WerewolfApi.Conversation.Message do
   @doc false
   def changeset(message, attrs) do
     message
-    |> cast(attrs, [:body, :bot, :type])
+    |> cast(attrs, [:body, :bot, :type, :uuid])
     |> validate_required([:body])
   end
 
