@@ -36,6 +36,7 @@ defmodule WerewolfApi.Game.Announcement do
     case game.conversation_id do
       nil ->
         :error
+
       conversation_id ->
         conversation = WerewolfApi.Repo.get(WerewolfApi.Conversation, game.conversation_id)
 

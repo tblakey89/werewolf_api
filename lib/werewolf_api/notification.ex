@@ -54,7 +54,8 @@ defmodule WerewolfApi.Notification do
         %{
           type: "game",
           id: message.game_id,
-          message: WerewolfApiWeb.GameMessageView.render("game_message.json", %{game_message: message})
+          message:
+            WerewolfApiWeb.GameMessageView.render("game_message.json", %{game_message: message})
         }
       )
       |> Pigeon.FCM.push()
