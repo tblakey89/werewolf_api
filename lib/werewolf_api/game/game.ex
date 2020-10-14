@@ -160,14 +160,19 @@ defmodule WerewolfApi.Game do
     :crypto.strong_rand_bytes(15) |> Base.url_encode64() |> binary_part(0, 15)
   end
 
-  def participating_games(user_id) do
+  def participating_games(user_id, refresh_date \\ ~N[2019-08-26 00:00:00]) do
     from(
       g in WerewolfApi.Game,
       join: ug in WerewolfApi.UsersGame,
       where: ug.user_id == ^user_id and ug.game_id == g.id and ug.state != "rejected",
       preload: [
         [
-          messages: ^from(m in WerewolfApi.Game.Message, order_by: [desc: m.id], preload: :user)
+          messages:
+            ^from(m in WerewolfApi.Game.Message,
+              where: m.inserted_at >= ^refresh_date,
+              order_by: [desc: m.id],
+              preload: :user
+            )
         ],
         users_games: :user
       ]

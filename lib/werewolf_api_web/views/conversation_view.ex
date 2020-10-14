@@ -28,7 +28,8 @@ defmodule WerewolfApiWeb.ConversationView do
     %{
       id: conversation.id,
       name: conversation.name,
-      created_at: conversation.inserted_at,
+      created_at:
+        DateTime.to_unix(DateTime.from_naive!(conversation.inserted_at, "Etc/UTC"), :millisecond),
       users: render_many(conversation.users, WerewolfApiWeb.UserView, "simple_user.json")
     }
   end
@@ -39,7 +40,8 @@ defmodule WerewolfApiWeb.ConversationView do
       name: conversation.name,
       users: render_many(conversation.users, WerewolfApiWeb.UserView, "simple_user.json"),
       messages: render_many(conversation.messages, WerewolfApiWeb.MessageView, "message.json"),
-      created_at: conversation.inserted_at,
+      created_at:
+        DateTime.to_unix(DateTime.from_naive!(conversation.inserted_at, "Etc/UTC"), :millisecond),
       users_conversations:
         render_many(
           conversation.users_conversations,

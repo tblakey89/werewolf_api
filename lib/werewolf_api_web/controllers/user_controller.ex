@@ -53,6 +53,37 @@ defmodule WerewolfApiWeb.UserController do
     |> render("me.json", user: user)
   end
 
+  def refresh_me(conn, %{"timestamp" => timestamp}) do
+    user = Guardian.Plug.current_resource(conn)
+    refresh_date = DateTime.from_unix!(String.to_integer(timestamp), :millisecond)
+
+    user =
+      Repo.preload(
+        user,
+        [
+          :blocks,
+          friendships: [:friend, :user],
+          reverse_friendships: [:friend, :user],
+          conversations: [
+            :users,
+            :users_conversations,
+            [
+              messages:
+                from(m in WerewolfApi.Conversation.Message,
+                  where: m.inserted_at >= ^refresh_date,
+                  order_by: [desc: m.id],
+                  preload: :user
+                )
+            ]
+          ],
+          games: WerewolfApi.Game.participating_games(user.id, refresh_date)
+        ]
+      )
+
+    conn
+    |> render("me.json", user: user)
+  end
+
   def index(conn, _params) do
     users = Repo.all(User)
 
