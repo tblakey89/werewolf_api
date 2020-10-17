@@ -109,10 +109,65 @@ defmodule WerewolfApiWeb.UserControllerTest do
     end
   end
 
+  describe "me_v2/2" do
+    test "responds with current logged in user", %{conn: conn} do
+      user = insert(:user)
+
+      {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+      response =
+        conn
+        |> put_req_header("authorization", "bearer: " <> token)
+        |> get(user_path(conn, :me_v2))
+        |> json_response(200)
+
+      assert response["user"]["email"] == user.email
+    end
+
+    test "responds with 20 games only", %{conn: conn} do
+      user = insert(:user)
+      Enum.each(0..25, fn i -> insert(:users_game, user: user) end)
+
+      {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+      response =
+        conn
+        |> put_req_header("authorization", "bearer: " <> token)
+        |> get(user_path(conn, :me_v2))
+        |> json_response(200)
+
+      assert response["user"]["email"] == user.email
+      assert length(response["user"]["games"]) == 20
+    end
+
+    test "responds with no games if rejected game", %{conn: conn} do
+      user = insert(:user)
+      insert(:users_game, user: user, state: "rejected")
+
+      {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+      response =
+        conn
+        |> put_req_header("authorization", "bearer: " <> token)
+        |> get(user_path(conn, :me_v2))
+        |> json_response(200)
+
+      assert length(response["user"]["games"]) == 0
+    end
+
+    test "responds 401 when not authenticated", %{conn: conn} do
+      conn
+      |> get(user_path(conn, :me_v2))
+      |> response(401)
+    end
+  end
+
   describe "refresh_me/2" do
     test "responds with current logged in user and message", %{conn: conn} do
       user = insert(:user)
       conversation = insert(:conversation)
+      game = insert(:game)
+      insert(:users_game, user: user, game: game)
       insert(:users_conversation, user: user, conversation: conversation)
       insert(:message, conversation: conversation, inserted_at: ~U[2020-10-14 20:49:40Z])
 
@@ -126,6 +181,41 @@ defmodule WerewolfApiWeb.UserControllerTest do
 
       assert response["user"]["email"] == user.email
       assert length(Enum.at(response["user"]["conversations"], 0)["messages"]) == 1
+      assert length(response["user"]["games"]) == 1
+    end
+
+    test "responds without game if not included in games_ids but game_ids provided", %{conn: conn} do
+      user = insert(:user)
+      game = insert(:game)
+      insert(:users_game, user: user, game: game)
+
+      {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+      response =
+        conn
+        |> put_req_header("authorization", "bearer: " <> token)
+        |> get(user_path(conn, :refresh_me, %{"timestamp" => 1_602_708_575_000, "game_ids" => "[]"}))
+        |> json_response(200)
+
+      assert response["user"]["email"] == user.email
+      assert length(response["user"]["games"]) == 0
+    end
+
+    test "responds with game if not included in games_ids", %{conn: conn} do
+      user = insert(:user)
+      game = insert(:game)
+      insert(:users_game, user: user, game: game)
+
+      {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+      response =
+        conn
+        |> put_req_header("authorization", "bearer: " <> token)
+        |> get(user_path(conn, :refresh_me, %{"timestamp" => 1_602_708_575_000, "game_ids" => "[#{game.id}]"}))
+        |> json_response(200)
+
+      assert response["user"]["email"] == user.email
+      assert length(response["user"]["games"]) == 1
     end
 
     test "responds with no messages if older than timestamp", %{conn: conn} do

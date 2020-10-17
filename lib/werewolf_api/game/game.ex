@@ -160,7 +160,9 @@ defmodule WerewolfApi.Game do
     :crypto.strong_rand_bytes(15) |> Base.url_encode64() |> binary_part(0, 15)
   end
 
-  def participating_games(user_id, refresh_date \\ ~N[2019-08-26 00:00:00]) do
+  def participating_games(user_id, game_ids, refresh_date \\ ~N[2019-08-26 00:00:00])
+
+  def participating_games(user_id, nil, refresh_date) do
     from(
       g in WerewolfApi.Game,
       join: ug in WerewolfApi.UsersGame,
@@ -176,6 +178,45 @@ defmodule WerewolfApi.Game do
         ],
         users_games: :user
       ]
+    )
+  end
+
+  def participating_games(user_id, game_ids, refresh_date) do
+    from(
+      g in WerewolfApi.Game,
+      join: ug in WerewolfApi.UsersGame,
+      where: ug.user_id == ^user_id and ug.game_id == g.id and ug.state != "rejected" and g.id in ^game_ids,
+      preload: [
+        [
+          messages:
+            ^from(m in WerewolfApi.Game.Message,
+              where: m.inserted_at >= ^refresh_date,
+              order_by: [desc: m.id],
+              preload: :user
+            )
+        ],
+        users_games: :user
+      ]
+    )
+  end
+
+  def limited_participating_games(user_id, limit \\ 20, refresh_date \\ ~N[2019-08-26 00:00:00]) do
+    from(
+      g in WerewolfApi.Game,
+      join: ug in WerewolfApi.UsersGame,
+      where: ug.user_id == ^user_id and ug.game_id == g.id and ug.state != "rejected",
+      order_by: [desc: :updated_at],
+      preload: [
+        [
+          messages:
+            ^from(m in WerewolfApi.Game.Message,
+              where: m.inserted_at >= ^refresh_date,
+              preload: :user,
+            )
+        ],
+        users_games: :user
+      ],
+      limit: ^limit
     )
   end
 

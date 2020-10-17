@@ -45,7 +45,7 @@ defmodule WerewolfApiWeb.UserController do
                 from(m in WerewolfApi.Conversation.Message, order_by: [desc: m.id], preload: :user)
             ]
           ],
-          games: WerewolfApi.Game.participating_games(user.id)
+          games: WerewolfApi.Game.participating_games(user.id, nil)
         ]
       )
 
@@ -53,9 +53,35 @@ defmodule WerewolfApiWeb.UserController do
     |> render("me.json", user: user)
   end
 
-  def refresh_me(conn, %{"timestamp" => timestamp}) do
+  def me_v2(conn, _params) do
     user = Guardian.Plug.current_resource(conn)
-    refresh_date = DateTime.from_unix!(String.to_integer(timestamp), :millisecond)
+
+    user =
+      Repo.preload(
+        user,
+        [
+          :blocks,
+          friendships: [:friend, :user],
+          reverse_friendships: [:friend, :user],
+          conversations: [
+            :users,
+            :users_conversations,
+            [
+              messages:
+                from(m in WerewolfApi.Conversation.Message, preload: :user)
+            ]
+          ],
+          games: WerewolfApi.Game.limited_participating_games(user.id, 20)
+        ]
+      )
+
+    conn
+    |> render("me.json", user: user)
+  end
+
+  def refresh_me(conn, params) do
+    user = Guardian.Plug.current_resource(conn)
+    refresh_date = DateTime.from_unix!(String.to_integer(params["timestamp"]), :millisecond)
 
     user =
       Repo.preload(
@@ -76,7 +102,7 @@ defmodule WerewolfApiWeb.UserController do
                 )
             ]
           ],
-          games: WerewolfApi.Game.participating_games(user.id, refresh_date)
+          games: WerewolfApi.Game.participating_games(user.id, parsed_game_ids(params["game_ids"]), refresh_date)
         ]
       )
 
@@ -136,4 +162,7 @@ defmodule WerewolfApiWeb.UserController do
       password: user_params["password"]
     }
   end
+
+  defp parsed_game_ids(nil), do: nil
+  defp parsed_game_ids(game_ids), do: Jason.decode!(game_ids)
 end
