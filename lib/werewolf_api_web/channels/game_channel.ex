@@ -66,6 +66,15 @@ defmodule WerewolfApiWeb.GameChannel do
     {:reply, :ok, socket}
   end
 
+  def handle_in("request_state_update", params, socket) do
+    user = Guardian.Phoenix.Socket.current_resource(socket)
+    game_id = socket.assigns.game_id
+    {:ok, state} = WerewolfApi.Game.Server.get_state(game_id)
+    WerewolfApiWeb.UserChannel.broadcast_state_update_to_user(user, game_id, state)
+
+    {:reply, :ok, socket}
+  end
+
   defp handle_game_response(response, socket, game_id, user) do
     case response do
       :ok ->

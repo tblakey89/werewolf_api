@@ -259,6 +259,40 @@ defmodule WerewolfApiWeb.GameChannelTest do
     end
   end
 
+  describe "request_state_update event" do
+    test "game state is sent", %{socket: socket, users_game: users_game} do
+      user = insert(:user)
+      game = insert(:game)
+      game_id = game.id
+      user_id = user.id
+      insert(:users_game, user: user, game: game, state: "host")
+
+      state = %{
+        game: %Werewolf.Game{
+          end_phase_unix_time: nil,
+          id: game_id,
+          phase_length: :day,
+          phases: 0,
+          players: build_players(user.id)
+        },
+        rules: %Werewolf.Rules{state: :ready}
+      }
+
+      {:ok, jwt, _} = encode_and_sign(user)
+      {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
+      {:ok, _, game_socket} = subscribe_and_join(socket, "game:#{game.id}", %{})
+      {:ok, _, user_socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
+
+      ref = push(game_socket, "request_state_update", %{})
+
+      assert_broadcast("game_state_update", %{
+        id: ^game_id
+      })
+
+      assert_reply(ref, :ok)
+    end
+  end
+
   defp build_players(user_id) do
     Enum.reduce(0..6, %{}, fn i, acc ->
       player = insert(:user)

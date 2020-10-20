@@ -1,7 +1,9 @@
 defmodule WerewolfApiWeb.UserChannel do
   use Phoenix.Channel
   alias WerewolfApi.Notification
-  require IEx
+  alias WerewolfApi.Repo
+  alias WerewolfApi.UsersGame
+  alias WerewolfApi.UsersConversation
 
   def join("user:" <> user_id, _message, socket) do
     case Guardian.Phoenix.Socket.current_resource(socket).id == String.to_integer(user_id) do
@@ -14,6 +16,20 @@ defmodule WerewolfApiWeb.UserChannel do
     Guardian.Phoenix.Socket.current_resource(socket)
     |> WerewolfApi.User.update_fcm_token_changeset(params["fcm_token"])
     |> WerewolfApi.Repo.update()
+
+    {:reply, :ok, socket}
+  end
+
+  def handle_in("request_game", %{"game_id" => game_id}, socket) do
+    Guardian.Phoenix.Socket.current_resource(socket)
+    |> broadcast_game_to_user(game_id)
+
+    {:reply, :ok, socket}
+  end
+
+  def handle_in("request_conversation", %{"conversation_id" => conversation_id}, socket) do
+    Guardian.Phoenix.Socket.current_resource(socket)
+    |> broadcast_conversation_to_user(conversation_id)
 
     {:reply, :ok, socket}
   end
@@ -54,19 +70,23 @@ defmodule WerewolfApiWeb.UserChannel do
       users_games = WerewolfApi.UsersGame.by_game_id(game_id)
 
       Enum.each(users_games, fn users_game ->
-        WerewolfApiWeb.Endpoint.broadcast(
-          "user:#{users_game.user_id}",
-          "game_state_update",
-          WerewolfApiWeb.GameView.render("state.json", %{
-            data: %{
-              state: state,
-              game_id: game_id,
-              user: users_game.user
-            }
-          })
-        )
+        broadcast_state_update_to_user(users_game.user, game_id, state)
       end)
     end)
+  end
+
+  def broadcast_state_update_to_user(user, game_id, state) do
+    WerewolfApiWeb.Endpoint.broadcast(
+      "user:#{user.id}",
+      "game_state_update",
+      WerewolfApiWeb.GameView.render("state.json", %{
+        data: %{
+          state: state,
+          game_id: game_id,
+          user: user
+        }
+      })
+    )
   end
 
   def broadcast_invitation_rejected_to_users(game_id) do
@@ -116,6 +136,48 @@ defmodule WerewolfApiWeb.UserChannel do
       end)
 
       Notification.accepted_friend_request(friendship)
+    end)
+  end
+
+  defp broadcast_conversation_to_user(user, conversation_id) do
+    Task.start_link(fn ->
+      user_conversation =
+        Repo.get_by(UsersConversation, [user_id: user.id, conversation_id: conversation_id])
+        |> Repo.preload(conversation: [:users, :users_conversations, messages: :user])
+
+      WerewolfApiWeb.Endpoint.broadcast(
+        "user:#{user.id}",
+        "new_conversation",
+        WerewolfApiWeb.ConversationView.render("conversation_with_messages.json", %{
+          conversation: user_conversation.conversation
+        })
+      )
+    end)
+  end
+
+  defp broadcast_game_to_user(user, game_id) do
+    Task.start_link(fn ->
+      users_game =
+        Repo.get_by(UsersGame, [user_id: user.id, game_id: game_id])
+        |> Repo.preload(game: [messages: :user, users_games: :user])
+
+      {:ok, state} = WerewolfApi.Game.Server.get_state(game_id)
+
+      case users_game.state do
+        "rejected" -> nil
+        _ ->
+          WerewolfApiWeb.Endpoint.broadcast(
+            "user:#{user.id}",
+            "new_game",
+            WerewolfApiWeb.GameView.render("game_with_state.json", %{
+              data: %{
+                game: users_game.game,
+                state: state,
+                user: user
+              }
+            })
+          )
+      end
     end)
   end
 

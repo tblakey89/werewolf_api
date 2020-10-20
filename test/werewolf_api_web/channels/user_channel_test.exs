@@ -45,6 +45,46 @@ defmodule WerewolfApiWeb.UserChannelTest do
     end
   end
 
+  describe "request_conversation event" do
+    test "broadcasts conversation again" do
+      user = insert(:user)
+      user_id = user.id
+      conversation = insert(:conversation)
+      conversation_id = conversation.id
+      insert(:users_conversation, conversation: conversation, user: user)
+
+      {:ok, jwt, _} = encode_and_sign(user)
+      {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
+      {:ok, _, user_socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
+
+      ref = push(user_socket, "request_conversation", %{conversation_id: conversation_id})
+
+      assert_reply(ref, :ok)
+
+      assert_broadcast("new_conversation", %{id: ^conversation_id})
+    end
+  end
+
+  describe "request_game event" do
+    test "broadcasts game again" do
+      user = insert(:user)
+      user_id = user.id
+      game = insert(:game)
+      game_id = game.id
+      insert(:users_game, game: game, user: user)
+
+      {:ok, jwt, _} = encode_and_sign(user)
+      {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
+      {:ok, _, user_socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
+
+      ref = push(user_socket, "request_game", %{game_id: game_id})
+
+      assert_reply(ref, :ok)
+
+      assert_broadcast("new_game", %{id: ^game_id})
+    end
+  end
+
   describe "broadcast_conversation_creation_to_users" do
     test "when function called new_conversation is broadcast", %{user: user} do
       conversation =
