@@ -126,6 +126,24 @@ defmodule WerewolfApiWeb.GameControllerTest do
     end
   end
 
+  describe "show/2" do
+    test "shows user", %{conn: conn} do
+      user = insert(:user)
+      game = insert(:game)
+      users_game = insert(:users_game, game: game, user: user, state: "host")
+
+      response = show_response(conn, game.id, user, 200)
+
+      assert response["game"]["id"] == game.id
+    end
+
+    test "responds 401 when not authenticated", %{conn: conn} do
+      conn
+      |> get(game_path(conn, :show, 10))
+      |> response(401)
+    end
+  end
+
   defp index_response(conn, user, expected_response) do
     {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
 
@@ -150,6 +168,15 @@ defmodule WerewolfApiWeb.GameControllerTest do
     conn
     |> put_req_header("authorization", "bearer: " <> token)
     |> put(game_path(conn, :update, id, game: game_attrs))
+    |> json_response(expected_response)
+  end
+
+  defp show_response(conn, id, user, expected_response) do
+    {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
+
+    conn
+    |> put_req_header("authorization", "bearer: " <> token)
+    |> get(game_path(conn, :show, id))
     |> json_response(expected_response)
   end
 end

@@ -14,6 +14,18 @@ defmodule WerewolfApiWeb.GameView do
     }
   end
 
+  def render("show.json", %{game: game, user: user}) do
+    %{
+      game:
+        render_one(
+        %{game: game, user: user, state: WerewolfApi.Game.current_state(game)},
+        WerewolfApiWeb.GameView,
+        "game_with_state.json",
+        as: :data
+        )
+    }
+  end
+
   def render("show.json", %{game: game}) do
     %{
       game:
