@@ -41,7 +41,15 @@ defmodule WerewolfApi.Notification do
           WerewolfApi.UsersGame.pending_and_accepted_only_with_user(message.game.id)
         )
 
-      participating_users = Enum.map(users_games, fn users_game -> users_game.user end)
+      {:ok, recipient_ids} =
+        Game.Server.get_relevant_players(
+          message.game_id,
+          String.to_existing_atom(message.destination)
+        )
+
+      participating_users =
+        Enum.map(users_games, fn users_game -> users_game.user end)
+        |> Enum.filter(fn user -> Enum.member?(recipient_ids, user.id) end)
 
       WerewolfApi.User.valid_fcm_tokens(participating_users, message.user_id, message.user_id)
       |> Pigeon.FCM.Notification.new(

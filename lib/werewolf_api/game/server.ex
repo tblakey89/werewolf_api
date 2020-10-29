@@ -17,6 +17,11 @@ defmodule WerewolfApi.Game.Server do
     |> Werewolf.GameServer.get_state()
   end
 
+  def get_relevant_players(game_id, type) do
+    get_pid(game_id)
+    |> Werewolf.GameServer.relevant_players(type)
+  end
+
   def add_player(game_id, user) do
     response =
       get_pid(game_id)

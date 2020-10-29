@@ -82,14 +82,15 @@ defmodule WerewolfApiWeb.GameController do
 
   def show(conn, %{"id" => id}) do
     user = Guardian.Plug.current_resource(conn)
+
     game =
       user
       |> Ecto.assoc(:games)
       |> Repo.get(id)
-      |> Repo.preload([
+      |> Repo.preload(
         messages: :user,
         users_games: :user
-      ])
+      )
 
     render(conn, "show.json", game: game, user: user)
   end

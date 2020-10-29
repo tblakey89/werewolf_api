@@ -185,7 +185,9 @@ defmodule WerewolfApi.Game do
     from(
       g in WerewolfApi.Game,
       join: ug in WerewolfApi.UsersGame,
-      where: ug.user_id == ^user_id and ug.game_id == g.id and ug.state != "rejected" and g.id in ^game_ids,
+      where:
+        ug.user_id == ^user_id and ug.game_id == g.id and ug.state != "rejected" and
+          g.id in ^game_ids,
       preload: [
         [
           messages:
@@ -211,7 +213,7 @@ defmodule WerewolfApi.Game do
           messages:
             ^from(m in WerewolfApi.Game.Message,
               where: m.inserted_at >= ^refresh_date,
-              preload: :user,
+              preload: :user
             )
         ],
         users_games: :user

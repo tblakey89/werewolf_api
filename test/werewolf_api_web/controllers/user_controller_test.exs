@@ -194,7 +194,9 @@ defmodule WerewolfApiWeb.UserControllerTest do
       response =
         conn
         |> put_req_header("authorization", "bearer: " <> token)
-        |> get(user_path(conn, :refresh_me, %{"timestamp" => 1_602_708_575_000, "game_ids" => "[]"}))
+        |> get(
+          user_path(conn, :refresh_me, %{"timestamp" => 1_602_708_575_000, "game_ids" => "[]"})
+        )
         |> json_response(200)
 
       assert response["user"]["email"] == user.email
@@ -211,7 +213,12 @@ defmodule WerewolfApiWeb.UserControllerTest do
       response =
         conn
         |> put_req_header("authorization", "bearer: " <> token)
-        |> get(user_path(conn, :refresh_me, %{"timestamp" => 1_602_708_575_000, "game_ids" => "[#{game.id}]"}))
+        |> get(
+          user_path(conn, :refresh_me, %{
+            "timestamp" => 1_602_708_575_000,
+            "game_ids" => "[#{game.id}]"
+          })
+        )
         |> json_response(200)
 
       assert response["user"]["email"] == user.email

@@ -67,8 +67,7 @@ defmodule WerewolfApiWeb.UserController do
             :users,
             :users_conversations,
             [
-              messages:
-                from(m in WerewolfApi.Conversation.Message, preload: :user)
+              messages: from(m in WerewolfApi.Conversation.Message, preload: :user)
             ]
           ],
           games: WerewolfApi.Game.limited_participating_games(user.id, 20)
@@ -102,7 +101,12 @@ defmodule WerewolfApiWeb.UserController do
                 )
             ]
           ],
-          games: WerewolfApi.Game.participating_games(user.id, parsed_game_ids(params["game_ids"]), refresh_date)
+          games:
+            WerewolfApi.Game.participating_games(
+              user.id,
+              parsed_game_ids(params["game_ids"]),
+              refresh_date
+            )
         ]
       )
 
