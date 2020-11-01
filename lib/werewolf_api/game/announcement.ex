@@ -20,6 +20,24 @@ defmodule WerewolfApi.Game.Announcement do
     )
   end
 
+  def announce(game, :werewolf) do
+    broadcast_message(
+      game,
+      "werewolf_chat",
+      "This is the werewolf group chat for #{game.name}. Please place your votes on the role tab for who you want to kill.",
+      :werewolf
+    )
+  end
+
+  def announce(game, :mason) do
+    broadcast_message(
+      game,
+      "mason_chat",
+      "This is the mason group chat for #{game.name}. Please work together to try and find the werewolves.",
+      :mason
+    )
+  end
+
   def announce(game, _state, {:ok, :action, :day_phase, :vote, user, target, vote_result}) do
     username = User.display_name(Game.user_from_game(game, target))
 
@@ -46,6 +64,17 @@ defmodule WerewolfApi.Game.Announcement do
           {:action, user, target, vote_result}
         )
     end
+
+    username = User.display_name(Game.user_from_game(game, target))
+
+    broadcast_message(
+      game,
+      "werewolf_vote",
+      "#{User.display_name(user)} wants to kill #{username}. #{
+        show_vote_result(game, vote_result)
+      }",
+      :werewolf
+    )
   end
 
   def announce(game, state, {:village_win, targets, phase_number}) do
@@ -245,11 +274,16 @@ defmodule WerewolfApi.Game.Announcement do
     )
   end
 
-  defp broadcast_message(game, type, message) do
+  defp broadcast_message(game, type, message, destination \\ :standard) do
     # why is this not in game_channel.ex?
     changeset =
       Ecto.build_assoc(game, :messages, user_id: 0)
-      |> WerewolfApi.Game.Message.changeset(%{bot: true, body: message, type: type})
+      |> WerewolfApi.Game.Message.changeset(%{
+        bot: true,
+        body: message,
+        type: type,
+        destination: Atom.to_string(destination)
+      })
 
     case WerewolfApi.Repo.insert(changeset) do
       {:ok, game_message} ->

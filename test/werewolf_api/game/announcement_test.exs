@@ -76,6 +76,34 @@ defmodule WerewolfApi.Game.AnnouncementTest do
     end
   end
 
+  describe "announce/3 werewolf message" do
+    test "announces to werewolf conversation", %{user: user, game: game} do
+      WerewolfApi.Game.Announcement.announce(game, :werewolf)
+
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "werewolf_chat",
+        destination: "werewolf"
+      })
+
+      assert sent_message =~ "This is the werewolf group chat for #{game.name}"
+    end
+  end
+
+  describe "announce/3 mason message" do
+    test "announces to mason conversation", %{user: user, game: game} do
+      WerewolfApi.Game.Announcement.announce(game, :mason)
+
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "mason_chat",
+        destination: "mason"
+      })
+
+      assert sent_message =~ "This is the mason group chat for #{game.name}"
+    end
+  end
+
   describe "announce/3 player vote" do
     test "when user votes for a target, not a tie, 1 vote", %{
       user: user,
@@ -135,13 +163,32 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
       assert_broadcast("new_message", %{body: sent_message})
 
-      refute sent_message =~
-               "#{User.display_name(user)} has voted for #{User.display_name(target)}"
-
-      refute sent_message =~
-               "votes is #{User.display_name(target)} with 1 vote. Unless the votes change, #{
+      assert sent_message =~
+               "#{User.display_name(user)} wants to kill #{User.display_name(target)}. The player with the most votes is #{
                  User.display_name(target)
-               } will be lynched at the end of the phase."
+               }. Unless the votes change, #{User.display_name(target)} will be killed at the end of the night phase.\n#{
+                 User.display_name(user)
+               }: 2 votes\n#{User.display_name(target)}: 3 votes"
+    end
+
+    test "when user votes for a target on night phase, but there is a tie", %{
+      user: user,
+      game: game,
+      target: target
+    } do
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:ok, :action, :night_phase, :vote, user, target.id,
+         {[{user.id, 3}, {target.id, 3}], :none}}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message})
+
+      assert sent_message =~
+               "#{User.display_name(user)} wants to kill #{User.display_name(target)}. There is currently a tie, if there is still a tie at the end of the night phase, no player will be killed.\n#{
+                 User.display_name(user)
+               }: 3 votes\n#{User.display_name(target)}: 3 votes"
     end
   end
 

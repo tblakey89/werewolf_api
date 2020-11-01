@@ -44,6 +44,7 @@ defmodule WerewolfApi.Game.Event do
     case Conversation.find_or_create(%{"user_ids" => player_ids_by_role(state, role)}) do
       {:ok, conversation} ->
         Conversation.Announcement.announce(conversation, {role, game.name})
+        Game.Announcement.announce(game, role)
         conversation.id
 
       :error ->
