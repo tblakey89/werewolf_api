@@ -37,7 +37,7 @@ defmodule WerewolfApiWeb.GameChannel do
 
         Notification.new_game_message(game_message)
 
-        update_last_read_at(socket)
+        update_last_read_at(socket, params["message"]["destination"] || "standard")
         {:reply, :ok, socket}
 
       {:error, changeset} ->
@@ -62,7 +62,7 @@ defmodule WerewolfApiWeb.GameChannel do
   end
 
   def handle_in("read_game", params, socket) do
-    update_last_read_at(socket)
+    update_last_read_at(socket, params["destination"] || "standard")
     {:reply, :ok, socket}
   end
 
@@ -85,10 +85,16 @@ defmodule WerewolfApiWeb.GameChannel do
     end
   end
 
-  defp update_last_read_at(socket) do
+  defp update_last_read_at(socket, destination) do
     WerewolfApi.UsersGame.update_last_read_at(
       Guardian.Phoenix.Socket.current_resource(socket).id,
       socket.assigns.game_id
+    )
+
+    WerewolfApi.UsersGame.update_last_read_at_map(
+      Guardian.Phoenix.Socket.current_resource(socket).id,
+      socket.assigns.game_id,
+      destination
     )
   end
 end

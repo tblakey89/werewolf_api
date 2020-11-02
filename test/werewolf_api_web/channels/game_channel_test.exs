@@ -254,8 +254,23 @@ defmodule WerewolfApiWeb.GameChannelTest do
       ref = push(socket, "read_game", %{})
       original_last_read_at = users_game.last_read_at
       assert_reply(ref, :ok)
-      new_last_read_at = Repo.get(WerewolfApi.UsersGame, users_game.id).last_read_at
-      assert(DateTime.to_unix(original_last_read_at) < DateTime.to_unix(new_last_read_at))
+      updated_users_game = Repo.get(WerewolfApi.UsersGame, users_game.id)
+
+      assert(
+        DateTime.to_unix(original_last_read_at) <
+          DateTime.to_unix(updated_users_game.last_read_at)
+      )
+
+      assert(
+        DateTime.to_unix(original_last_read_at) < updated_users_game.last_read_at_map["standard"]
+      )
+    end
+
+    test "users_game updates werewolf last read at", %{socket: socket, users_game: users_game} do
+      ref = push(socket, "read_game", %{"destination" => "werewolf"})
+      assert_reply(ref, :ok)
+      updated_users_game = Repo.get(WerewolfApi.UsersGame, users_game.id)
+      assert(0 < updated_users_game.last_read_at_map["werewolf"])
     end
   end
 
