@@ -38,6 +38,15 @@ defmodule WerewolfApi.Game.Announcement do
     )
   end
 
+  def announce(game, :dead) do
+    broadcast_message(
+      game,
+      "dead_chat",
+      "This is the dead group chat for #{game.name}. This is where all the dead players can discuss the game.",
+      :dead
+    )
+  end
+
   def announce(game, _state, {:ok, :action, :day_phase, :vote, user, target, vote_result}) do
     username = User.display_name(Game.user_from_game(game, target))
 
@@ -127,6 +136,8 @@ defmodule WerewolfApi.Game.Announcement do
       when Integer.is_even(phase_number) do
     day_phase_number = round(phase_number / 2)
 
+    announce(game, state, {:death, targets})
+
     message =
       day_begin_death_message(game, state, targets) <>
         " Day phase #{day_phase_number} begins now. Go to the 'Role' page to vote for who you want to lynch when you're ready."
@@ -137,11 +148,24 @@ defmodule WerewolfApi.Game.Announcement do
   def announce(game, state, {:no_win, targets, phase_number}) when Integer.is_odd(phase_number) do
     night_phase_number = round(phase_number / 2)
 
+    announce(game, state, {:death, targets})
+
     message =
       night_begin_death_message(game, state, targets) <>
         " Night phase #{night_phase_number} begins now."
 
     broadcast_message(game, "night_begin", message)
+  end
+
+  def announce(game, state, {:death, targets}) do
+    Enum.each(targets, fn({_type, target}) ->
+      username = User.display_name(Game.user_from_game(game, target))
+      role = state.game.players[target].role
+
+      message = "Welcome #{username} to the dead chat. They were a #{role}."
+
+      broadcast_message(game, "death_intro", message, :dead)
+    end)
   end
 
   def announce(game, state, {:fool_win, targets, phase_number}) do

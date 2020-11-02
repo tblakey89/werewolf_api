@@ -6,6 +6,7 @@ defmodule WerewolfApi.Game.Event do
   def handle(game, state, {:ok, :launch_game}) do
     conversation_id = setup_conversation(:werewolf, game, state)
     mason_conversation_id = setup_conversation(:mason, game, state)
+    Game.Announcement.announce(game, :dead)
 
     {:ok, game} =
       game

@@ -104,6 +104,20 @@ defmodule WerewolfApi.Game.AnnouncementTest do
     end
   end
 
+  describe "announce/3 dead message" do
+    test "announces to dead conversation", %{user: user, game: game} do
+      WerewolfApi.Game.Announcement.announce(game, :dead)
+
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "dead_chat",
+        destination: "dead"
+      })
+
+      assert sent_message =~ "This is the dead group chat for #{game.name}"
+    end
+  end
+
   describe "announce/3 player vote" do
     test "when user votes for a target, not a tie, 1 vote", %{
       user: user,
@@ -259,6 +273,9 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       assert_broadcast("new_message", %{body: sent_message, type: "day_begin"})
       assert sent_message =~ user.username
       assert sent_message =~ "sun came up"
+
+      assert_broadcast("new_message", %{body: dead_message, type: "death_intro"})
+      assert dead_message =~ "Welcome #{user.username} to the dead chat"
     end
 
     test "announces target of hunter", %{user: user, game: game} do
@@ -303,6 +320,9 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       assert sent_message =~ user.username
       assert sent_message =~ "villager"
       assert sent_message =~ "The people voted"
+
+      assert_broadcast("new_message", %{body: dead_message, type: "death_intro"})
+      assert dead_message =~ "Welcome #{user.username} to the dead chat"
     end
 
     test "announces no target", %{user: user, game: game} do
@@ -316,6 +336,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
       assert_broadcast("new_message", %{body: sent_message, type: "night_begin"})
       assert sent_message =~ "but no decision could be made"
+      refute_broadcast("new_message", %{type: "death_intro"})
     end
   end
 
