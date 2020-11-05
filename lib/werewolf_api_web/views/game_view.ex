@@ -162,7 +162,8 @@ defmodule WerewolfApiWeb.GameView do
       alive: player.alive,
       host: player.host,
       role: display_role(state, current_player, player),
-      actions: filter_actions(state, phase_number, current_player, player)
+      actions: filter_actions(state, phase_number, current_player, player),
+      items: player.items
     }
   end
 
