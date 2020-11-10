@@ -138,7 +138,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       assert sent_message =~
                "votes is #{User.display_name(target)}. Unless the votes change, #{
                  User.display_name(target)
-               } will be lynched at the end of the phase.\n#{User.display_name(target)}: 1 vote"
+               } will be killed at the end of the phase.\n#{User.display_name(target)}: 1 vote"
 
       assert WerewolfApi.Repo.get_by(
                WerewolfApi.Game.Message,
@@ -160,7 +160,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
                "#{User.display_name(user)} has voted for #{User.display_name(target)}"
 
       assert sent_message =~
-               "There is currently a tie, if there is still a tie at the end of the phase, no player will be lynched."
+               "There is currently a tie, if there is still a tie at the end of the phase, no player will be killed."
     end
 
     test "when user votes for a target on night phase, not a tie, 1 vote", %{
@@ -180,7 +180,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       assert sent_message =~
                "#{User.display_name(user)} wants to kill #{User.display_name(target)}. The player with the most votes is #{
                  User.display_name(target)
-               }. Unless the votes change, #{User.display_name(target)} will be killed at the end of the night phase.\n#{
+               }. Unless the votes change, #{User.display_name(target)} will be killed at the end of the phase.\n#{
                  User.display_name(user)
                }: 2 votes\n#{User.display_name(target)}: 3 votes"
     end
@@ -200,7 +200,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       assert_broadcast("new_message", %{body: sent_message})
 
       assert sent_message =~
-               "#{User.display_name(user)} wants to kill #{User.display_name(target)}. There is currently a tie, if there is still a tie at the end of the night phase, no player will be killed.\n#{
+               "#{User.display_name(user)} wants to kill #{User.display_name(target)}. There is currently a tie, if there is still a tie at the end of the phase, no player will be killed.\n#{
                  User.display_name(user)
                }: 3 votes\n#{User.display_name(target)}: 3 votes"
     end

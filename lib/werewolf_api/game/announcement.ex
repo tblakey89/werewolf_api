@@ -60,20 +60,6 @@ defmodule WerewolfApi.Game.Announcement do
   end
 
   def announce(game, _state, {:ok, :action, :night_phase, :vote, user, target, vote_result}) do
-    case game.conversation_id do
-      nil ->
-        :error
-
-      conversation_id ->
-        conversation = WerewolfApi.Repo.get(WerewolfApi.Conversation, game.conversation_id)
-
-        WerewolfApi.Conversation.Announcement.announce(
-          conversation,
-          game,
-          {:action, user, target, vote_result}
-        )
-    end
-
     username = User.display_name(Game.user_from_game(game, target))
 
     broadcast_message(
@@ -158,7 +144,7 @@ defmodule WerewolfApi.Game.Announcement do
   end
 
   def announce(game, state, {:death, targets}) do
-    Enum.each(targets, fn({_type, target}) ->
+    Enum.each(targets, fn {_type, target} ->
       username = User.display_name(Game.user_from_game(game, target))
       role = state.game.players[target].role
 
@@ -229,14 +215,14 @@ defmodule WerewolfApi.Game.Announcement do
   defp show_vote_result(game, {votes, :none}) when length(votes) == 0, do: nil
 
   defp show_vote_result(game, {votes, :none}) do
-    "There is currently a tie, if there is still a tie at the end of the phase, no player will be lynched.\n" <>
+    "There is currently a tie, if there is still a tie at the end of the phase, no player will be killed.\n" <>
       vote_list(game, votes)
   end
 
   defp show_vote_result(game, {votes, target}) do
     username = User.display_name(Game.user_from_game(game, target))
 
-    "The player with the most votes is #{username}. Unless the votes change, #{username} will be lynched at the end of the phase.\n" <>
+    "The player with the most votes is #{username}. Unless the votes change, #{username} will be killed at the end of the phase.\n" <>
       vote_list(game, votes)
   end
 
