@@ -250,10 +250,18 @@ defmodule WerewolfApi.Game.Announcement do
             role
           }."
 
-        :hunter ->
+        :hunt ->
           "The hunter had left a dead man switch. Suddenly, there was an explosion. The villagers rushed over, only to find #{
             username
           }. It turns out they were a #{role}."
+
+        :resurrect ->
+          "There was a bright flash, and #{username} returned to life, it seemed they had been resurrected by some kind of magic."
+
+        :poison ->
+          "#{username}'s body was discovered, it seems they had been killed by some kind of poisonous potion. It turns out they were a #{
+            role
+          }."
       end
     end)
     |> Enum.join(" ")

@@ -278,18 +278,48 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       assert dead_message =~ "Welcome #{user.username} to the dead chat"
     end
 
-    test "announces target of hunter", %{user: user, game: game} do
+    test "announces target of hunt", %{user: user, game: game} do
       phase_number = 2
 
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:no_win, %{hunter: user.id}, phase_number}
+        {:no_win, %{hunt: user.id}, phase_number}
       )
 
       assert_broadcast("new_message", %{body: sent_message, type: "day_begin"})
       assert sent_message =~ user.username
       assert sent_message =~ "The hunter had left a dead man switch"
+    end
+
+    test "announces target of poison", %{user: user, game: game} do
+      phase_number = 2
+
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:no_win, %{poison: user.id}, phase_number}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message, type: "day_begin"})
+      assert sent_message =~ user.username
+      assert sent_message =~ "it seems they had been killed by some kind of poisonous potion."
+    end
+
+    test "announces target of resurrect", %{user: user, game: game} do
+      phase_number = 2
+
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:no_win, %{resurrect: user.id}, phase_number}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message, type: "day_begin"})
+      assert sent_message =~ user.username
+
+      assert sent_message =~
+               "returned to life, it seemed they had been resurrected by some kind of magic."
     end
 
     test "announces no target", %{user: user, game: game} do
