@@ -30,6 +30,14 @@ defmodule WerewolfApiWeb.GameStateHelpers do
     player.role
   end
 
+  def display_role(
+        _,
+        %Werewolf.Player{role: :mason},
+        %Werewolf.Player{role: :mason} = player
+      ) do
+    player.role
+  end
+
   def display_role(_, _, %Werewolf.Player{alive: false} = player) do
     player.role
   end
