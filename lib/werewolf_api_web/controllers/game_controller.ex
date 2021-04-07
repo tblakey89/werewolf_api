@@ -70,12 +70,19 @@ defmodule WerewolfApiWeb.GameController do
     with true <- user.id == host_id,
          changeset <- Game.update_changeset(game, game_params),
          {:ok, game} <- Repo.update(changeset),
+         :ok =
+           Game.Server.edit_game(
+             game.id,
+             String.to_atom(game.time_period),
+             Enum.map(game.allowed_roles, &String.to_atom(&1))
+           ),
          game <- Repo.preload(game, users_games: :user, messages: :user) do
       WerewolfApiWeb.UserChannel.broadcast_game_update(game)
       Notification.received_game_invite(game, game_params[:user_ids] || game_params["user_ids"])
       render(conn, "show.json", game: game)
     else
       false -> forbidden(conn)
+      {:error, :invalid_action} -> forbidden(conn)
       {:error, changeset} -> unprocessable_entity(conn, changeset)
     end
   end

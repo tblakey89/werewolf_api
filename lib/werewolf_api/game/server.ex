@@ -12,6 +12,20 @@ defmodule WerewolfApi.Game.Server do
     )
   end
 
+  def edit_game(game_id, time_period, allowed_roles) do
+    response =
+      get_pid(game_id)
+      |> Werewolf.GameServer.edit_game(time_period, allowed_roles)
+
+    case response do
+      {:ok, :edit_game, state} ->
+        handle_success(game_id, nil, state)
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
   def get_state(game_id) do
     get_pid(game_id)
     |> Werewolf.GameServer.get_state()

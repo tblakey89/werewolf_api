@@ -88,6 +88,7 @@ defmodule WerewolfApiWeb.GameControllerTest do
     test "updates game by adding new users", %{conn: conn} do
       user = insert(:user)
       game = insert(:game)
+      WerewolfApi.Game.Server.start_game(user, game.id, :day, [])
       users_game = insert(:users_game, game: game, user: user, state: "host")
       new_user = insert(:user)
 

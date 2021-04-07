@@ -141,10 +141,15 @@ defmodule WerewolfApi.Game do
       end)
 
     # surely there has to be a better way?
-    attrs = %{users_games: Enum.concat(participants, existing_users_games)}
+    attrs = Map.merge(attrs, %{"users_games" => Enum.concat(participants, existing_users_games)})
 
     game
-    |> cast(attrs, [])
+    |> cast(attrs, [
+      :name,
+      :time_period,
+      :join_code,
+      :allowed_roles
+    ])
     |> cast_assoc(:users_games)
   end
 
