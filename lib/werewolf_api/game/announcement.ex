@@ -126,7 +126,7 @@ defmodule WerewolfApi.Game.Announcement do
 
     message =
       day_begin_death_message(game, state, targets) <>
-        " Day phase #{day_phase_number} begins now. Go to the 'Role' page to vote for who you want to lynch when you're ready."
+        " Day phase #{day_phase_number} begins now. Go to the 'Role' page to vote for who you want to burn when you're ready."
 
     broadcast_message(game, "day_begin", message)
   end
@@ -161,7 +161,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "fool_win",
       night_begin_death_message(game, state, targets) <>
-        " Suddenly #{username} started laughing crazily. It turns out they wanted to be lynched. Suddenly, all the villagers and werewolves dropped down dead. #{
+        " Suddenly #{username} started laughing crazily. It turns out they wanted to be burned. Suddenly, all the villagers and werewolves dropped down dead. #{
           username
         }, the fool, wins the game."
     )
@@ -251,7 +251,7 @@ defmodule WerewolfApi.Game.Announcement do
           }."
 
         :hunt ->
-          "The hunter had left a dead man switch. Suddenly, there was an explosion. The villagers rushed over, only to find #{
+          "A dead man switch had been triggered. Suddenly, there was an explosion. The villagers rushed over, only to find #{
             username
           }. It turns out they were a #{role}."
 
@@ -278,7 +278,7 @@ defmodule WerewolfApi.Game.Announcement do
 
       case type do
         :vote ->
-          "The people voted, and #{username} was lynched. It turns out #{username} was a #{role}."
+          "The people voted, and #{username} was burned. It turns out #{username} was a #{role}."
       end
     end)
     |> Enum.join(" ")
