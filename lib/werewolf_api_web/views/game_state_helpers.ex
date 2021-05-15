@@ -10,37 +10,39 @@ defmodule WerewolfApiWeb.GameStateHelpers do
   def filter_actions(
         :night_phase,
         phase_number,
-        %Werewolf.Player{role: :werewolf},
-        %Werewolf.Player{role: :werewolf} = player
+        %Werewolf.Player{team: :werewolf},
+        %Werewolf.Player{team: :werewolf} = player
       ) do
     Map.take(player.actions, [phase_number])
   end
 
   def filter_actions(_, _, _, _), do: nil
 
-  def display_role(:game_over, _, player) do
-    player.role
+  def display_value(:game_over, _, player, value) do
+    value
   end
 
-  def display_role(
+  def display_value(
         _,
-        %Werewolf.Player{role: :werewolf},
-        %Werewolf.Player{role: :werewolf} = player
+        %Werewolf.Player{team: :werewolf},
+        %Werewolf.Player{team: :werewolf},
+        value
       ) do
-    player.role
+    value
   end
 
-  def display_role(
+  def display_value(
         _,
         %Werewolf.Player{role: :mason},
-        %Werewolf.Player{role: :mason} = player
+        %Werewolf.Player{role: :mason},
+        value
       ) do
-    player.role
+    value
   end
 
-  def display_role(_, _, %Werewolf.Player{alive: false} = player) do
-    player.role
+  def display_value(_, _, %Werewolf.Player{alive: false}, value) do
+    value
   end
 
-  def display_role(_, _, _), do: "Unknown"
+  def display_value(_, _, _, _), do: "Unknown"
 end

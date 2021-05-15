@@ -289,7 +289,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
       assert_broadcast("new_message", %{body: sent_message, type: "day_begin"})
       assert sent_message =~ user.username
-      assert sent_message =~ "The hunter had left a dead man switch"
+      assert sent_message =~ "A dead man switch had been triggered."
     end
 
     test "announces target of poison", %{user: user, game: game} do

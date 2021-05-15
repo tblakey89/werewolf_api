@@ -55,7 +55,7 @@ defmodule WerewolfApiWeb.GameView do
       closed: game.closed,
       time_period: game.time_period,
       allowed_roles: game.allowed_roles || [],
-      join_code: game.join_code,
+      join_code: game.join_code
     }
   end
 
@@ -83,7 +83,7 @@ defmodule WerewolfApiWeb.GameView do
       closed: game.closed,
       time_period: game.time_period,
       allowed_roles: game.allowed_roles || [],
-      join_code: game.join_code,
+      join_code: game.join_code
     }
   end
 
@@ -148,7 +148,8 @@ defmodule WerewolfApiWeb.GameView do
       role: player.role,
       host: player.host,
       actions: player.actions,
-      items: player.items
+      items: player.items,
+      team: player.team
     }
   end
 
@@ -164,8 +165,9 @@ defmodule WerewolfApiWeb.GameView do
       id: player.id,
       alive: player.alive,
       host: player.host,
-      role: display_role(state, current_player, player),
-      actions: filter_actions(state, phase_number, current_player, player)
+      role: display_value(state, current_player, player, player.role),
+      actions: filter_actions(state, phase_number, current_player, player),
+      team: display_value(state, current_player, player, player.team)
     }
   end
 

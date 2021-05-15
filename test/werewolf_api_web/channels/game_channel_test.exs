@@ -172,14 +172,16 @@ defmodule WerewolfApiWeb.GameChannelTest do
               alive: true,
               host: true,
               id: user.id,
-              role: :villager
+              role: :villager,
+              team: :villager
             },
             (user.id + 1) => %Werewolf.Player{
               actions: %{},
               alive: true,
               host: false,
               id: other_id,
-              role: :villager
+              role: :villager,
+              team: :villager
             }
           }
         },
@@ -317,7 +319,8 @@ defmodule WerewolfApiWeb.GameChannelTest do
         alive: true,
         host: false,
         id: player.id,
-        role: :none
+        role: :none,
+        team: :none
       })
     end)
     |> Map.put(user_id, %Werewolf.Player{
@@ -333,7 +336,8 @@ defmodule WerewolfApiWeb.GameChannelTest do
       alive: true,
       host: true,
       id: user_id,
-      role: :none
+      role: :none,
+      team: :none
     })
   end
 end
