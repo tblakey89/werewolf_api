@@ -279,6 +279,11 @@ defmodule WerewolfApi.Game.Announcement do
       case type do
         :vote ->
           "The people voted, and #{username} was burned. It turns out #{username} was a #{role}."
+
+        :overrule ->
+          "The people voted, but the judge overruled, #{username} was burned. It turns out #{
+            username
+          } was a #{role}."
       end
     end)
     |> Enum.join(" ")
