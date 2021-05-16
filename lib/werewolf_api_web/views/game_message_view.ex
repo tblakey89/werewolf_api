@@ -12,7 +12,8 @@ defmodule WerewolfApiWeb.GameMessageView do
       game_id: game_message.game_id,
       type: game_message.type,
       uuid: game_message.uuid,
-      destination: game_message.destination
+      destination: game_message.destination,
+      phase_number: game_message.phase_number
     }
   end
 

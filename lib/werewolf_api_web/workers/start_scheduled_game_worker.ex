@@ -14,7 +14,9 @@ defmodule WerewolfApiWeb.StartScheduledGameWorker do
 
         Repo.update(Game.closed_changeset(game))
 
-        Game.Announcement.announce(game, game.state, :closed)
+        {:ok, state} = Game.Server.get_state(game.id)
+
+        Game.Announcement.announce(game, state, :closed)
     end
   end
 end

@@ -216,7 +216,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:village_win, %{werewolf: user.id}, phase_number}
       )
 
-      assert_broadcast("new_message", %{body: sent_message, type: "village_win"})
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "village_win",
+        phase_number: phase_number
+      })
+
       assert sent_message =~ user.username
       assert sent_message =~ "Villagers win"
 
@@ -234,7 +239,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:werewolf_win, %{vote: user.id}, phase_number}
       )
 
-      assert_broadcast("new_message", %{body: sent_message, type: "werewolf_win"})
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "werewolf_win",
+        phase_number: phase_number
+      })
+
       assert sent_message =~ user.username
       assert sent_message =~ "people voted"
       assert sent_message =~ "Werewolves win"
@@ -251,7 +261,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:werewolf_win, %{werewolf: user.id}, phase_number}
       )
 
-      assert_broadcast("new_message", %{body: sent_message, type: "werewolf_win"})
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "werewolf_win",
+        phase_number: phase_number
+      })
+
       assert sent_message =~ user.username
       assert sent_message =~ "sun came up"
       assert sent_message =~ "Werewolves win"
@@ -270,7 +285,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:no_win, %{werewolf: user.id}, phase_number}
       )
 
-      assert_broadcast("new_message", %{body: sent_message, type: "day_begin"})
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "day_begin",
+        phase_number: phase_number
+      })
+
       assert sent_message =~ user.username
       assert sent_message =~ "sun came up"
 
@@ -287,7 +307,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:no_win, %{hunt: user.id}, phase_number}
       )
 
-      assert_broadcast("new_message", %{body: sent_message, type: "day_begin"})
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "day_begin",
+        phase_number: phase_number
+      })
+
       assert sent_message =~ user.username
       assert sent_message =~ "A dead man switch had been triggered."
     end
@@ -301,7 +326,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:no_win, %{poison: user.id}, phase_number}
       )
 
-      assert_broadcast("new_message", %{body: sent_message, type: "day_begin"})
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "day_begin",
+        phase_number: phase_number
+      })
+
       assert sent_message =~ user.username
       assert sent_message =~ "it seems they had been killed by some kind of poisonous potion."
     end
@@ -315,7 +345,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:no_win, %{resurrect: user.id}, phase_number}
       )
 
-      assert_broadcast("new_message", %{body: sent_message, type: "day_begin"})
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "day_begin",
+        phase_number: phase_number
+      })
+
       assert sent_message =~ user.username
 
       assert sent_message =~
@@ -331,7 +366,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:no_win, %{}, phase_number}
       )
 
-      assert_broadcast("new_message", %{body: sent_message, type: "day_begin"})
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "day_begin",
+        phase_number: phase_number
+      })
+
       assert sent_message =~ "everyone seemed to be ok"
     end
   end
@@ -346,7 +386,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:no_win, %{vote: user.id}, phase_number}
       )
 
-      assert_broadcast("new_message", %{body: sent_message, type: "night_begin"})
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "night_begin",
+        phase_number: phase_number
+      })
+
       assert sent_message =~ user.username
       assert sent_message =~ "villager"
       assert sent_message =~ "The people voted"
@@ -364,7 +409,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:no_win, %{}, phase_number}
       )
 
-      assert_broadcast("new_message", %{body: sent_message, type: "night_begin"})
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "night_begin",
+        phase_number: phase_number
+      })
+
       assert sent_message =~ "but no decision could be made"
       refute_broadcast("new_message", %{type: "death_intro"})
     end
@@ -380,7 +430,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:fool_win, %{vote: user.id}, phase_number}
       )
 
-      assert_broadcast("new_message", %{body: sent_message, type: "fool_win"})
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "fool_win",
+        phase_number: phase_number
+      })
+
       assert sent_message =~ user.username
       assert sent_message =~ "the fool, wins the game."
 
@@ -398,7 +453,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:too_many_phases, %{werewolf: user.id}, phase_number}
       )
 
-      assert_broadcast("new_message", %{body: sent_message, type: "too_many_phases"})
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "too_many_phases",
+        phase_number: phase_number
+      })
+
       assert sent_message =~ user.username
       assert sent_message =~ "The game ends in a tie."
 
@@ -412,7 +472,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:too_many_phases, %{}, 1}
       )
 
-      assert_broadcast("new_message", %{body: sent_message, type: "too_many_phases"})
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "too_many_phases",
+        phase_number: phase_number
+      })
+
       assert sent_message =~ "The game ends in a tie."
 
       assert_broadcast("new_message", %{type: "complete"})
@@ -427,7 +492,12 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:host_end, %{}, 1}
       )
 
-      assert_broadcast("new_message", %{body: sent_message, type: "host_end"})
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "host_end",
+        phase_number: phase_number
+      })
+
       assert sent_message =~ "The game ends in a tie."
 
       assert_broadcast("new_message", %{type: "complete"})
@@ -436,7 +506,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
   describe "announce/3 closed" do
     test "announces closed", %{user: user, game: game} do
-      WerewolfApi.Game.Announcement.announce(game, nil, :closed)
+      WerewolfApi.Game.Announcement.announce(game, state(user.id, game.id), :closed)
 
       assert_broadcast("new_message", %{body: sent_message})
       assert sent_message =~ "We are really sorry, not enough players"
