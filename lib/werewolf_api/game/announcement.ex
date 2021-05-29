@@ -309,6 +309,10 @@ defmodule WerewolfApi.Game.Announcement do
           "The people voted, but the judge overruled, #{username} was burned. It turns out #{
             username
           } was a #{role}."
+        :defend ->
+          "#{username} had won the vote. However, suddenly an urgent envelope arrived containing #{
+            username
+          }'s defence case, the village decided to wait until the next day to further deliberate their decision."
       end
     end)
     |> Enum.join(" ")
