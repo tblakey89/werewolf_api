@@ -67,9 +67,7 @@ defmodule WerewolfApi.Game.Announcement do
     broadcast_message(
       game,
       "day_vote",
-      "A vote has been cast: #{User.display_name(user)} has voted for #{username}. #{
-        show_vote_result(game, vote_result)
-      }",
+      "A vote has been cast: #{User.display_name(user)} has voted for #{username}. #{show_vote_result(game, vote_result)}",
       state.game.phases
     )
   end
@@ -80,9 +78,7 @@ defmodule WerewolfApi.Game.Announcement do
     broadcast_message(
       game,
       "werewolf_vote",
-      "#{User.display_name(user)} wants to kill #{username}. #{
-        show_vote_result(game, vote_result)
-      }",
+      "#{User.display_name(user)} wants to kill #{username}. #{show_vote_result(game, vote_result)}",
       state.game.phases,
       :werewolf
     )
@@ -92,48 +88,23 @@ defmodule WerewolfApi.Game.Announcement do
     village_win_message =
       "With this, all the werewolves were gone and peace was restored to the village. Villagers win."
 
-    case Integer.is_even(phase_number) do
-      false ->
-        broadcast_message(
-          game,
-          "win",
-          night_begin_death_message(game, state, targets) <> " " <> village_win_message,
-          phase_number
-        )
-
-      true ->
-        broadcast_message(
-          game,
-          "win",
-          day_begin_death_message(game, state, targets) <> " " <> village_win_message,
-          phase_number
-        )
-    end
+    broadcast_message(
+      game,
+      "win",
+      village_win_message,
+      phase_number
+    )
 
     broadcast_complete_message(game, phase_number)
   end
 
   def announce(game, state, {:werewolf_win, targets, phase_number}) do
-    werewolf_win_message =
-      "With this, the werewolves outnumber the villagers, the remaining werewolves devoured the last survivors. Werewolves win."
-
-    case Integer.is_even(phase_number) do
-      false ->
-        broadcast_message(
-          game,
-          "win",
-          night_begin_death_message(game, state, targets) <> " " <> werewolf_win_message,
-          phase_number
-        )
-
-      true ->
-        broadcast_message(
-          game,
-          "win",
-          day_begin_death_message(game, state, targets) <> " " <> werewolf_win_message,
-          phase_number
-        )
-    end
+    broadcast_message(
+      game,
+      "win",
+      "With this, the werewolves outnumber the villagers, the remaining werewolves devoured the last survivors. Werewolves win.",
+      phase_number
+    )
 
     broadcast_complete_message(game, phase_number)
   end
@@ -145,8 +116,7 @@ defmodule WerewolfApi.Game.Announcement do
     announce(game, state, {:death, targets})
 
     message =
-      day_begin_death_message(game, state, targets) <>
-        " Day phase #{day_phase_number} begins now. Go to the 'Role' page to vote for who you want to burn when you're ready."
+      "Day phase #{day_phase_number} begins now. Go to the 'Role' page to vote for who you want to burn when you're ready."
 
     broadcast_message(game, "phase_begin", message, phase_number)
   end
@@ -156,19 +126,17 @@ defmodule WerewolfApi.Game.Announcement do
 
     announce(game, state, {:death, targets})
 
-    message =
-      night_begin_death_message(game, state, targets) <>
-        " Night phase #{night_phase_number} begins now."
+    message = "Night phase #{night_phase_number} begins now."
 
     broadcast_message(game, "phase_begin", message, phase_number)
   end
 
   def announce(game, state, {:death, targets}) do
-    Enum.each(targets, fn {_type, target} ->
+    Enum.filter(targets, fn {type, _target} -> type != :defend && type != :resurrect end)
+    |> Enum.each(fn {_type, target} ->
       username = User.display_name(Game.user_from_game(game, target))
-      role = state.game.players[target].role
 
-      message = "Welcome #{username} to the dead chat. They were a #{role}."
+      message = "Welcome #{username} to the dead chat"
 
       broadcast_message(game, "death_intro", message, target, :dead)
     end)
@@ -180,10 +148,7 @@ defmodule WerewolfApi.Game.Announcement do
     broadcast_message(
       game,
       "win",
-      night_begin_death_message(game, state, targets) <>
-        " Suddenly #{username} started laughing crazily. It turns out they wanted to be burned. Suddenly, all the villagers and werewolves dropped down dead. #{
-          username
-        }, the fool, wins the game.",
+      " Suddenly #{username} started laughing crazily. It turns out they wanted to be burned. Suddenly, all the villagers and werewolves dropped down dead. #{username}, the fool, wins the game.",
       phase_number
     )
 
@@ -194,23 +159,12 @@ defmodule WerewolfApi.Game.Announcement do
     too_many_phases_message =
       "The villagers and werewolves grew tired of fighting each other. They had been fighting for so long. They decided to make peace and move on with their lives. The game ends in a tie."
 
-    case Integer.is_even(phase_number) do
-      true ->
-        broadcast_message(
-          game,
-          "win",
-          night_begin_death_message(game, state, targets) <> " " <> too_many_phases_message,
-          phase_number
-        )
-
-      false ->
-        broadcast_message(
-          game,
-          "win",
-          day_begin_death_message(game, state, targets) <> " " <> too_many_phases_message,
-          phase_number
-        )
-    end
+    broadcast_message(
+      game,
+      "win",
+      too_many_phases_message,
+      phase_number
+    )
 
     broadcast_complete_message(game, state.game.phases)
   end
@@ -263,59 +217,8 @@ defmodule WerewolfApi.Game.Announcement do
     "The sun came up on a new day, everyone left their homes, and everyone seemed to be ok."
   end
 
-  defp day_begin_death_message(game, state, targets) do
-    Enum.reverse(targets)
-    |> Enum.map(fn {type, target} ->
-      username = User.display_name(Game.user_from_game(game, target))
-      role = state.game.players[target].role
-
-      case type do
-        :werewolf ->
-          "The sun came up on a new day, and #{username} was found dead. It turns out #{username} was a #{
-            role
-          }."
-
-        :hunt ->
-          "A dead man switch had been triggered. Suddenly, there was an explosion. The villagers rushed over, only to find #{
-            username
-          }. It turns out they were a #{role}."
-
-        :resurrect ->
-          "There was a bright flash, and #{username} returned to life, it seemed they had been resurrected by some kind of magic."
-
-        :poison ->
-          "#{username}'s body was discovered, it seems they had been killed by some kind of poisonous potion. It turns out they were a #{
-            role
-          }."
-      end
-    end)
-    |> Enum.join(" ")
-  end
-
   defp night_begin_death_message(_, _, targets) when map_size(targets) == 0 do
     "The people voted, but no decision could be made. Everyone went to bed hoping they would make it through the night."
-  end
-
-  defp night_begin_death_message(game, state, targets) do
-    Enum.map(targets, fn {type, target} ->
-      username = User.display_name(Game.user_from_game(game, target))
-      role = state.game.players[target].role
-
-      case type do
-        :vote ->
-          "The people voted, and #{username} was burned. It turns out #{username} was a #{role}."
-
-        :overrule ->
-          "The people voted, but the judge overruled, #{username} was burned. It turns out #{
-            username
-          } was a #{role}."
-        :defend ->
-          "#{username} had won the vote. However, suddenly an urgent envelope arrived containing #{
-            username
-          }'s defence case, the village decided to wait until the next day to further deliberate their decision."
-      end
-    end)
-    |> Enum.join(" ")
   end
 
   defp broadcast_complete_message(game, phase_number) do

@@ -15,7 +15,8 @@ defmodule WerewolfApi.Application do
       # start fetching google jwk verification
       GoogleAuthStrategy,
       WerewolfApi.Scheduler,
-      supervisor(Exq, [])
+      supervisor(Exq, []),
+      {Phoenix.PubSub, [name: WerewolfApi.PubSub, adapter: Phoenix.PubSub.PG2]}
       # Start your own worker by calling: WerewolfApi.Worker.start_link(arg1, arg2, arg3)
       # worker(WerewolfApi.Worker, [arg1, arg2, arg3]),
     ]

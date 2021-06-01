@@ -33,15 +33,16 @@ defmodule WerewolfApi.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.8"},
-      {:phoenix_pubsub, "~> 1.0"},
+      {:phoenix, "~> 1.5.9"},
+      {:phoenix_pubsub, "~> 2.0.0"},
       {:ecto_sql, "~> 3.1.0"},
       {:phoenix_ecto, "~> 4.0"},
       {:postgrex, ">= 0.0.0"},
       {:gettext, "~> 0.11"},
       {:plug_cowboy, "~> 2.0"},
       {:plug, "~> 1.7"},
-      {:guardian, "~> 1.0"},
+      {:guardian, "~> 2.0"},
+      {:guardian_phoenix, "~> 2.0"},
       {:comeonin, "~> 4.0"},
       {:bcrypt_elixir, "~> 0.12"},
       {:ex_machina, "~> 2.3", only: :test},
@@ -50,7 +51,7 @@ defmodule WerewolfApi.Mixfile do
       {:arc_ecto, "~> 0.11.1"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
-      {:hackney, "~> 1.6"},
+      {:hackney, "~> 1.17.4"},
       {:poison, "~> 3.1"},
       {:jason, "~> 1.0"},
       {:sweet_xml, "~> 0.6"},

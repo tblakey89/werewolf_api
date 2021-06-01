@@ -79,11 +79,12 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
     end
   end
 
-  describe "display_value/4" do
+  describe "display_value/5" do
     test 'when game_over returns player role' do
       player = player(1, :villager)
 
-      assert player.role == GameStateHelpers.display_value(:game_over, nil, player, player.role)
+      assert player.role ==
+               GameStateHelpers.display_value(1, :game_over, nil, player, player.role)
     end
 
     test 'when current player is villager, other player is villager, role is unknown' do
@@ -91,7 +92,7 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
       current_player = player(2, :villager)
 
       assert "Unknown" ==
-               GameStateHelpers.display_value(:day_phase, current_player, player, player.role)
+               GameStateHelpers.display_value(1, :day_phase, current_player, player, player.role)
     end
 
     test 'when current player is villager, other player is werewolf, role is unknown' do
@@ -99,7 +100,7 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
       current_player = player(2, :villager)
 
       assert "Unknown" ==
-               GameStateHelpers.display_value(:day_phase, current_player, player, player.role)
+               GameStateHelpers.display_value(1, :day_phase, current_player, player, player.role)
     end
 
     test 'when current player is werewolf, other player is villager, role is unknown' do
@@ -107,7 +108,7 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
       current_player = player(2, :werewolf)
 
       assert "Unknown" ==
-               GameStateHelpers.display_value(:day_phase, current_player, player, player.role)
+               GameStateHelpers.display_value(1, :day_phase, current_player, player, player.role)
     end
 
     test 'when current player is werewolf, other player is werewolf, role is werewolf' do
@@ -115,19 +116,26 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
       current_player = player(2, :werewolf)
 
       assert :werewolf ==
-               GameStateHelpers.display_value(:day_phase, current_player, player, player.role)
+               GameStateHelpers.display_value(1, :day_phase, current_player, player, player.role)
     end
 
     test 'when player is werewolf and player is dead role is werewolf' do
       player = player(1, :werewolf, false)
 
-      assert :werewolf == GameStateHelpers.display_value(:day_phase, nil, player, player.role)
+      assert :werewolf == GameStateHelpers.display_value(1, :day_phase, nil, player, player.role)
     end
 
     test 'when player is villager and player is dead role is villager' do
       player = player(1, :villager, false)
 
-      assert :villager == GameStateHelpers.display_value(:day_phase, nil, player, player.role)
+      assert :villager == GameStateHelpers.display_value(1, :day_phase, nil, player, player.role)
+    end
+
+    test 'when id is 2433 when player is villager and player is dead role is villager' do
+      player = player(1, :villager, false)
+
+      assert "Unknown" ==
+               GameStateHelpers.display_value(2433, :day_phase, nil, player, player.role)
     end
   end
 

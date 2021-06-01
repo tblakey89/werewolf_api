@@ -11,7 +11,7 @@ defmodule WerewolfApiWeb.GameControllerTest do
   import WerewolfApi.Guardian
 
   describe "index/1" do
-    test "returns only games not started" do
+    test "returns only games not started", %{conn: conn} do
       user = insert(:user)
       game_started = insert(:game, started: true)
       game_unstarted = insert(:game, started: false, closed: false)
@@ -21,7 +21,7 @@ defmodule WerewolfApiWeb.GameControllerTest do
       assert Enum.at(response["games"], 0)["id"] == game_unstarted.id
     end
 
-    test "returns no games started more than one day ago" do
+    test "returns no games started more than one day ago", %{conn: conn} do
       two_days_ago =
         NaiveDateTime.utc_now()
         |> NaiveDateTime.add(-60 * 60 * 24 * 2)
@@ -33,7 +33,7 @@ defmodule WerewolfApiWeb.GameControllerTest do
       assert length(response["games"]) == 0
     end
 
-    test "returns no closed game" do
+    test "returns no closed game", %{conn: conn} do
       user = insert(:user)
       game = insert(:game, closed: true)
 

@@ -15,7 +15,7 @@ config :werewolf_api, WerewolfApiWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "felaXnGnmezcInMWq2Hczr6lVrIVkMlX1d3OUs9BcCJ6t/H0GOXdpBQ5qRqxkf79",
   render_errors: [view: WerewolfApiWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: WerewolfApi.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub_server: WerewolfApi.PubSub
 
 # Configures Elixir's Logger
 config :logger, :console,

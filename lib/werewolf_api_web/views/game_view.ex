@@ -98,6 +98,7 @@ defmodule WerewolfApiWeb.GameView do
       players:
         render_one(
           %{
+            game_id: game_id,
             players: state.game.players,
             user: user,
             state: state.rules.state,
@@ -112,7 +113,13 @@ defmodule WerewolfApiWeb.GameView do
   end
 
   def render("players.json", %{
-        data: %{players: players, user: user, state: state, phase_number: phase_number}
+        data: %{
+          game_id: game_id,
+          players: players,
+          user: user,
+          state: state,
+          phase_number: phase_number
+        }
       }) do
     current_player = players[user.id]
 
@@ -126,6 +133,7 @@ defmodule WerewolfApiWeb.GameView do
           false ->
             render_one(
               %{
+                game_id: game_id,
                 player: player,
                 current_player: current_player,
                 state: state,
@@ -155,6 +163,7 @@ defmodule WerewolfApiWeb.GameView do
 
   def render("other_player.json", %{
         data: %{
+          game_id: game_id,
           player: player,
           current_player: current_player,
           state: state,
@@ -165,9 +174,9 @@ defmodule WerewolfApiWeb.GameView do
       id: player.id,
       alive: player.alive,
       host: player.host,
-      role: display_value(state, current_player, player, player.role),
+      role: display_value(game_id, state, current_player, player, player.role),
       actions: filter_actions(state, phase_number, current_player, player),
-      team: display_value(state, current_player, player, player.team)
+      team: display_value(game_id, state, current_player, player, player.team)
     }
   end
 

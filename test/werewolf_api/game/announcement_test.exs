@@ -140,9 +140,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
                "#{User.display_name(user)} has voted for #{User.display_name(target)}"
 
       assert sent_message =~
-               "votes is #{User.display_name(target)}. Unless the votes change, #{
-                 User.display_name(target)
-               } will be killed at the end of the phase.\n#{User.display_name(target)}: 1 vote"
+               "votes is #{User.display_name(target)}. Unless the votes change, #{User.display_name(target)} will be killed at the end of the phase.\n#{User.display_name(target)}: 1 vote"
 
       assert WerewolfApi.Repo.get_by(
                WerewolfApi.Game.Message,
@@ -182,11 +180,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       assert_broadcast("new_message", %{body: sent_message})
 
       assert sent_message =~
-               "#{User.display_name(user)} wants to kill #{User.display_name(target)}. The player with the most votes is #{
-                 User.display_name(target)
-               }. Unless the votes change, #{User.display_name(target)} will be killed at the end of the phase.\n#{
-                 User.display_name(user)
-               }: 2 votes\n#{User.display_name(target)}: 3 votes"
+               "#{User.display_name(user)} wants to kill #{User.display_name(target)}. The player with the most votes is #{User.display_name(target)}. Unless the votes change, #{User.display_name(target)} will be killed at the end of the phase.\n#{User.display_name(user)}: 2 votes\n#{User.display_name(target)}: 3 votes"
     end
 
     test "when user votes for a target on night phase, but there is a tie", %{
@@ -204,9 +198,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       assert_broadcast("new_message", %{body: sent_message})
 
       assert sent_message =~
-               "#{User.display_name(user)} wants to kill #{User.display_name(target)}. There is currently a tie, if there is still a tie at the end of the phase, no player will be killed.\n#{
-                 User.display_name(user)
-               }: 3 votes\n#{User.display_name(target)}: 3 votes"
+               "#{User.display_name(user)} wants to kill #{User.display_name(target)}. There is currently a tie, if there is still a tie at the end of the phase, no player will be killed.\n#{User.display_name(user)}: 3 votes\n#{User.display_name(target)}: 3 votes"
     end
   end
 
@@ -226,7 +218,6 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         extra: ^phase_number
       })
 
-      assert sent_message =~ user.username
       assert sent_message =~ "Villagers win"
 
       assert_broadcast("new_message", %{type: "complete"})
@@ -249,8 +240,6 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         extra: ^phase_number
       })
 
-      assert sent_message =~ user.username
-      assert sent_message =~ "people voted"
       assert sent_message =~ "Werewolves win"
 
       assert_broadcast("new_message", %{type: "complete"})
@@ -271,8 +260,6 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         extra: ^phase_number
       })
 
-      assert sent_message =~ user.username
-      assert sent_message =~ "sun came up"
       assert sent_message =~ "Werewolves win"
 
       assert_broadcast("new_message", %{type: "complete"})
@@ -280,7 +267,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
   end
 
   describe "announce/3 end of night phase" do
-    test "announces target of werewolves", %{user: user, game: game} do
+    test "announces end of night 1", %{user: user, game: game} do
       phase_number = 2
 
       WerewolfApi.Game.Announcement.announce(
@@ -295,52 +282,13 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         extra: ^phase_number
       })
 
-      assert sent_message =~ user.username
-      assert sent_message =~ "sun came up"
+      assert sent_message =~ "Day phase 1 begins now."
 
       assert_broadcast("new_message", %{body: dead_message, type: "death_intro"})
       assert dead_message =~ "Welcome #{user.username} to the dead chat"
     end
 
-    test "announces target of hunt", %{user: user, game: game} do
-      phase_number = 2
-
-      WerewolfApi.Game.Announcement.announce(
-        game,
-        state(user.id, game.id),
-        {:no_win, %{hunt: user.id}, phase_number}
-      )
-
-      assert_broadcast("new_message", %{
-        body: sent_message,
-        type: "phase_begin",
-        extra: ^phase_number
-      })
-
-      assert sent_message =~ user.username
-      assert sent_message =~ "A dead man switch had been triggered."
-    end
-
-    test "announces target of poison", %{user: user, game: game} do
-      phase_number = 2
-
-      WerewolfApi.Game.Announcement.announce(
-        game,
-        state(user.id, game.id),
-        {:no_win, %{poison: user.id}, phase_number}
-      )
-
-      assert_broadcast("new_message", %{
-        body: sent_message,
-        type: "phase_begin",
-        extra: ^phase_number
-      })
-
-      assert sent_message =~ user.username
-      assert sent_message =~ "it seems they had been killed by some kind of poisonous potion."
-    end
-
-    test "announces target of resurrect", %{user: user, game: game} do
+    test "no death message for resurrect", %{user: user, game: game} do
       phase_number = 2
 
       WerewolfApi.Game.Announcement.announce(
@@ -349,39 +297,24 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         {:no_win, %{resurrect: user.id}, phase_number}
       )
 
-      assert_broadcast("new_message", %{
-        body: sent_message,
-        type: "phase_begin",
-        extra: ^phase_number
-      })
-
-      assert sent_message =~ user.username
-
-      assert sent_message =~
-               "returned to life, it seemed they had been resurrected by some kind of magic."
+      refute_broadcast("new_message", %{body: dead_message, type: "death_intro"})
     end
 
-    test "announces no target", %{user: user, game: game} do
+    test "no death message for defend", %{user: user, game: game} do
       phase_number = 2
 
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:no_win, %{}, phase_number}
+        {:no_win, %{defend: user.id}, phase_number}
       )
 
-      assert_broadcast("new_message", %{
-        body: sent_message,
-        type: "phase_begin",
-        extra: ^phase_number
-      })
-
-      assert sent_message =~ "everyone seemed to be ok"
+      refute_broadcast("new_message", %{body: dead_message, type: "death_intro"})
     end
   end
 
   describe "announce/3 end of day phase" do
-    test "announces target of vote", %{user: user, game: game} do
+    test "announces end of day 0", %{user: user, game: game} do
       phase_number = 1
 
       WerewolfApi.Game.Announcement.announce(
@@ -396,31 +329,10 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         extra: ^phase_number
       })
 
-      assert sent_message =~ user.username
-      assert sent_message =~ "villager"
-      assert sent_message =~ "The people voted"
+      assert sent_message =~ "Night phase 1 begins now."
 
       assert_broadcast("new_message", %{body: dead_message, type: "death_intro"})
       assert dead_message =~ "Welcome #{user.username} to the dead chat"
-    end
-
-    test "announces no target", %{user: user, game: game} do
-      phase_number = 1
-
-      WerewolfApi.Game.Announcement.announce(
-        game,
-        state(user.id, game.id),
-        {:no_win, %{}, phase_number}
-      )
-
-      assert_broadcast("new_message", %{
-        body: sent_message,
-        type: "phase_begin",
-        extra: ^phase_number
-      })
-
-      assert sent_message =~ "but no decision could be made"
-      refute_broadcast("new_message", %{type: "death_intro"})
     end
   end
 
@@ -463,7 +375,6 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         extra: ^phase_number
       })
 
-      assert sent_message =~ user.username
       assert sent_message =~ "The game ends in a tie."
 
       assert_broadcast("new_message", %{type: "complete"})
