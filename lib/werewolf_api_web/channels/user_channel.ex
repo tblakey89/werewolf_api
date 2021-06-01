@@ -65,6 +65,31 @@ defmodule WerewolfApiWeb.UserChannel do
     broadcast_game_change_to_each_user("game_update", game)
   end
 
+  def broadcast_game_update_to_user(game_id, user) do
+    Task.start_link(fn ->
+      game =
+        WerewolfApi.Repo.get(WerewolfApi.Game, game_id)
+        |> WerewolfApi.Repo.preload(
+          users_games: WerewolfApi.UsersGame.pending_and_accepted_only_with_user(game_id),
+          messages: :user
+        )
+
+      {:ok, state} = WerewolfApi.Game.Server.get_state(game.id)
+
+      WerewolfApiWeb.Endpoint.broadcast(
+        "user:#{user.id}",
+        "game_update",
+        WerewolfApiWeb.GameView.render("game_with_state.json", %{
+          data: %{
+            game: game,
+            state: state,
+            user: user
+          }
+        })
+      )
+    end)
+  end
+
   def broadcast_state_update(game_id, state) do
     Task.start_link(fn ->
       users_games = WerewolfApi.UsersGame.by_game_id(game_id)

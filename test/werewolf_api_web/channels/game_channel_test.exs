@@ -310,6 +310,29 @@ defmodule WerewolfApiWeb.GameChannelTest do
     end
   end
 
+  describe "request_game_update event" do
+    test "game is sent", %{socket: socket, users_game: users_game} do
+      user = insert(:user)
+      game = insert(:game)
+      game_id = game.id
+      user_id = user.id
+      insert(:users_game, user: user, game: game, state: "host")
+
+      {:ok, jwt, _} = encode_and_sign(user)
+      {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
+      {:ok, _, game_socket} = subscribe_and_join(socket, "game:#{game.id}", %{})
+      {:ok, _, user_socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
+
+      ref = push(game_socket, "request_game_update", %{})
+
+      assert_broadcast("game_update", %{
+        id: ^game_id
+      })
+
+      assert_reply(ref, :ok)
+    end
+  end
+
   defp build_players(user_id) do
     Enum.reduce(0..6, %{}, fn i, acc ->
       player = insert(:user)
