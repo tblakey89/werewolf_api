@@ -143,7 +143,7 @@ defmodule WerewolfApi.Game.Announcement do
   end
 
   def announce(game, state, {:fool_win, targets, phase_number}) do
-    username = User.display_name(Game.user_from_game(game, targets[:vote]))
+    username = User.display_name(Game.user_from_game(game, targets[:vote] || targets[:overrule]))
 
     broadcast_message(
       game,

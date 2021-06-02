@@ -357,6 +357,27 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
       assert_broadcast("new_message", %{type: "complete"})
     end
+
+    test "announces that the fool wins the game when overruled", %{user: user, game: game} do
+      phase_number = 1
+
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:fool_win, %{overrule: user.id}, phase_number}
+      )
+
+      assert_broadcast("new_message", %{
+        body: sent_message,
+        type: "win",
+        extra: ^phase_number
+      })
+
+      assert sent_message =~ user.username
+      assert sent_message =~ "the fool, wins the game."
+
+      assert_broadcast("new_message", %{type: "complete"})
+    end
   end
 
   describe "announce/3 too_many_phases" do
