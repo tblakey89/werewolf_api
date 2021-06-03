@@ -46,6 +46,10 @@ defmodule WerewolfApiWeb.GameStateHelpers do
     "Unknown"
   end
 
+  def display_value(2463, _, _, _, value) do
+    "Unknown"
+  end
+
   def display_value(_, _, _, %Werewolf.Player{alive: false}, value) do
     value
   end
