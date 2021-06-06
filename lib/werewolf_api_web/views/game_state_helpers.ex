@@ -42,7 +42,7 @@ defmodule WerewolfApiWeb.GameStateHelpers do
     value
   end
 
-  def display_value(2433, _, _, _, value) do
+  def display_value(2491, _, _, _, value) do
     "Unknown"
   end
 
