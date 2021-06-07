@@ -42,11 +42,7 @@ defmodule WerewolfApiWeb.GameStateHelpers do
     value
   end
 
-  def display_value(2491, _, _, _, value) do
-    "Unknown"
-  end
-
-  def display_value(2463, _, _, _, value) do
+  def display_value(%Werewolf.Options{reveal_role: false}, _, _, _, value) do
     "Unknown"
   end
 
@@ -55,4 +51,24 @@ defmodule WerewolfApiWeb.GameStateHelpers do
   end
 
   def display_value(_, _, _, _, _), do: "Unknown"
+
+  def display_targets(targets, %Werewolf.Options{reveal_type_of_death: true}) do
+    targets
+  end
+
+  def display_targets(targets, %Werewolf.Options{reveal_type_of_death: false}) do
+    Enum.reduce(targets, %{}, fn {phase, phase_targets}, cleared_targets ->
+      Map.put(
+        cleared_targets,
+        phase,
+        Enum.map(phase_targets, fn target ->
+          case target.type do
+            :resurrect -> target
+            :defend -> target
+            _ -> Map.put(target, :type, :death)
+          end
+        end)
+      )
+    end)
+  end
 end
