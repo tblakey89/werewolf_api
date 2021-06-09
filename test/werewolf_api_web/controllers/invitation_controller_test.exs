@@ -8,7 +8,7 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
     user = insert(:user)
     game = insert(:game)
     insert(:users_game, state: "host", game: game, user: user)
-    WerewolfApi.Game.Server.start_game(user, game.id, :day, [])
+    WerewolfApi.Game.Server.start_game(user, game.id, :day, [], Werewolf.Options.new(%{}))
 
     on_exit(fn ->
       Werewolf.GameSupervisor.stop_game(game.id)
@@ -144,7 +144,7 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
     test "when game is private, and correct join_code is passed", %{conn: conn, user: user} do
       new_user = insert(:user)
       game = insert(:game, join_code: "correct")
-      WerewolfApi.Game.Server.start_game(user, game.id, :day, [])
+      WerewolfApi.Game.Server.start_game(user, game.id, :day, [], Werewolf.Options.new(%{}))
       game_id = game.id
       WerewolfApiWeb.Endpoint.subscribe("user:#{new_user.id}")
 

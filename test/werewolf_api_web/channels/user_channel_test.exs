@@ -117,7 +117,7 @@ defmodule WerewolfApiWeb.UserChannelTest do
       insert(:users_game, user: user, game: game)
       game_id = game.id
 
-      WerewolfApi.Game.Server.start_game(user, game_id, :day, [])
+      WerewolfApi.Game.Server.start_game(user, game_id, :day, [], Werewolf.Options.new(%{}))
       WerewolfApiWeb.UserChannel.broadcast_game_update(game)
       assert_broadcast("game_update", %{id: ^game_id})
     end
@@ -152,7 +152,7 @@ defmodule WerewolfApiWeb.UserChannelTest do
         rules: %Werewolf.Rules{state: :initialized}
       }
 
-      WerewolfApi.Game.Server.start_game(user, game_id, :day, [])
+      WerewolfApi.Game.Server.start_game(user, game_id, :day, [], Werewolf.Options.new(%{}))
       WerewolfApiWeb.UserChannel.broadcast_state_update(game_id, state)
       assert_broadcast("game_state_update", %{id: ^game_id, players: %{1 => %{id: 1}}})
     end

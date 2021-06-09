@@ -13,7 +13,8 @@ defmodule WerewolfApi.Game.Scheduled do
             nil,
             game.id,
             String.to_atom(game.time_period),
-            Enum.map(game.allowed_roles, &String.to_atom(&1))
+            Enum.map(game.allowed_roles, &String.to_atom(&1)),
+            Werewolf.Options.new(%{})
           )
 
         {:ok, state} = Game.Server.get_state(game.id)

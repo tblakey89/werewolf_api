@@ -15,7 +15,8 @@ defmodule WerewolfApiWeb.StartScheduledGameWorkerTest do
         nil,
         game.id,
         String.to_atom(game.time_period),
-        []
+        [],
+        Werewolf.Options.new(%{})
       )
 
     {:ok, state} = Game.Server.get_state(game.id)

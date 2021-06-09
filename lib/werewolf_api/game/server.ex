@@ -1,14 +1,15 @@
 defmodule WerewolfApi.Game.Server do
   alias WerewolfApi.Game
 
-  def start_game(user, game_id, time_period, allowed_roles) do
+  def start_game(user, game_id, time_period, allowed_roles, options) do
     Werewolf.GameSupervisor.start_game(
       user,
       game_id,
       time_period,
       nil,
       &handle_game_callback/2,
-      allowed_roles
+      allowed_roles,
+      options
     )
   end
 

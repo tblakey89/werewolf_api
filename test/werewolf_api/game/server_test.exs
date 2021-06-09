@@ -13,7 +13,7 @@ defmodule WerewolfApi.Game.ServerTest do
       user = insert(:user)
       game = insert(:game)
 
-      WerewolfApi.Game.Server.start_game(user, game.id, :day, [])
+      WerewolfApi.Game.Server.start_game(user, game.id, :day, [], Werewolf.Options.new(%{}))
 
       assert Werewolf.GameSupervisor.pid_from_name(game.id) != nil
     end
@@ -95,6 +95,6 @@ defmodule WerewolfApi.Game.ServerTest do
 
   defp start_game(game) do
     user = insert(:user)
-    WerewolfApi.Game.Server.start_game(user, game.id, :day, [])
+    WerewolfApi.Game.Server.start_game(user, game.id, :day, [], Werewolf.Options.new(%{}))
   end
 end
