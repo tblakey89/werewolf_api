@@ -118,10 +118,10 @@ defmodule WerewolfApi.Game.Server do
     end
   end
 
-  def end_phase(game_id) do
+  def end_phase(game_id, user) do
     response =
       get_pid(game_id)
-      |> Werewolf.GameServer.end_phase()
+      |> Werewolf.GameServer.end_phase(user)
 
     case response do
       {win_status, target, phases, state} ->

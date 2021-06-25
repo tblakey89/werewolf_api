@@ -69,6 +69,14 @@ defmodule WerewolfApiWeb.GameChannel do
     |> handle_game_response(socket, game_id, user)
   end
 
+  def handle_in("end_phase", params, socket) do
+    user = Guardian.Phoenix.Socket.current_resource(socket)
+    game_id = socket.assigns.game_id
+
+    Server.end_phase(game_id, user)
+    |> handle_game_response(socket, game_id, user)
+  end
+
   def handle_in("read_game", params, socket) do
     update_last_read_at(socket, params["destination"] || "standard")
     {:reply, :ok, socket}
