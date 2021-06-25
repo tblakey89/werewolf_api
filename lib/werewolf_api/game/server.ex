@@ -20,7 +20,7 @@ defmodule WerewolfApi.Game.Server do
 
     case response do
       {:ok, :edit_game, state} ->
-        handle_success(game_id, nil, state)
+        handle_success(game_id, nil, nil)
 
       {:error, reason} ->
         {:error, reason}
@@ -97,6 +97,20 @@ defmodule WerewolfApi.Game.Server do
         handle_success(game_id, user, state)
 
       {:ok, :action, state} ->
+        handle_success(game_id, user, state)
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  def claim_role(game_id, user, claim) do
+    response =
+      get_pid(game_id)
+      |> Werewolf.GameServer.claim_role(user, claim)
+
+    case response do
+      {:ok, :claim_role, user, claim, state} ->
         handle_success(game_id, user, state)
 
       {:error, reason} ->

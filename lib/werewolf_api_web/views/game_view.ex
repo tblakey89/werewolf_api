@@ -158,7 +158,8 @@ defmodule WerewolfApiWeb.GameView do
       host: player.host,
       actions: player.actions,
       items: player.items,
-      team: player.team
+      team: player.team,
+      claim: player.claim
     }
   end
 
@@ -177,7 +178,8 @@ defmodule WerewolfApiWeb.GameView do
       host: player.host,
       role: display_value(options, state, current_player, player, player.role),
       actions: filter_actions(state, phase_number, current_player, player),
-      team: display_value(options, state, current_player, player, player.team)
+      team: display_value(options, state, current_player, player, player.team),
+      claim: player.claim
     }
   end
 

@@ -9,7 +9,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "add_player",
       "#{User.display_name(user)} has joined the game.",
-      user.id
+      to_string(user.id)
     )
   end
 
@@ -18,7 +18,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "remove_player",
       "#{User.display_name(user)} has left the game.",
-      user.id
+      to_string(user.id)
     )
   end
 
@@ -27,7 +27,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "launch_game",
       "The game has launched. The first night phase has begun. Please check the role button for your roles and actions.",
-      state.game.phases
+      to_string(state.game.phases)
     )
   end
 
@@ -36,7 +36,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "werewolf_chat",
       "This is the werewolf group chat for #{game.name}. Please place your votes on the role tab for who you want to kill.",
-      0,
+      "0",
       :werewolf
     )
   end
@@ -46,7 +46,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "mason_chat",
       "This is the mason group chat for #{game.name}. Please work together to try and find the werewolves.",
-      0,
+      "0",
       :mason
     )
   end
@@ -56,8 +56,19 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "dead_chat",
       "This is the dead group chat for #{game.name}. This is where all the dead players can discuss the game.",
-      0,
+      "0",
       :dead
+    )
+  end
+
+  def announce(game, state, {:ok, :claim_role, user, claim}) do
+    username = User.display_name(user)
+
+    broadcast_message(
+      game,
+      "claim",
+      "#{User.display_name(user)} claims they are a #{claim}",
+      claim
     )
   end
 
@@ -68,7 +79,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "day_vote",
       "A vote has been cast: #{User.display_name(user)} has voted for #{username}. #{show_vote_result(game, vote_result)}",
-      state.game.phases
+      to_string(state.game.phases)
     )
   end
 
@@ -79,7 +90,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "werewolf_vote",
       "#{User.display_name(user)} wants to kill #{username}. #{show_vote_result(game, vote_result)}",
-      state.game.phases,
+      to_string(state.game.phases),
       :werewolf
     )
   end
@@ -92,7 +103,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "win",
       village_win_message,
-      phase_number
+      to_string(phase_number)
     )
 
     broadcast_complete_message(game, phase_number)
@@ -103,7 +114,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "win",
       "With this, the werewolves outnumber the villagers, the remaining werewolves devoured the last survivors. Werewolves win.",
-      phase_number
+      to_string(phase_number)
     )
 
     broadcast_complete_message(game, phase_number)
@@ -118,7 +129,7 @@ defmodule WerewolfApi.Game.Announcement do
     message =
       "Day phase #{day_phase_number} begins now. Go to the 'Role' page to vote for who you want to burn when you're ready."
 
-    broadcast_message(game, "phase_begin", message, phase_number)
+    broadcast_message(game, "phase_begin", message, to_string(phase_number))
   end
 
   def announce(game, state, {:no_win, targets, phase_number}) when Integer.is_odd(phase_number) do
@@ -128,7 +139,7 @@ defmodule WerewolfApi.Game.Announcement do
 
     message = "Night phase #{night_phase_number} begins now."
 
-    broadcast_message(game, "phase_begin", message, phase_number)
+    broadcast_message(game, "phase_begin", message, to_string(phase_number))
   end
 
   def announce(game, state, {:death, targets}) do
@@ -138,7 +149,7 @@ defmodule WerewolfApi.Game.Announcement do
 
       message = "Welcome #{username} to the dead chat"
 
-      broadcast_message(game, "death_intro", message, target, :dead)
+      broadcast_message(game, "death_intro", message, to_string(target), :dead)
     end)
   end
 
@@ -149,7 +160,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "win",
       " Suddenly #{username} started laughing crazily. It turns out they wanted to be burned. Suddenly, all the villagers and werewolves dropped down dead. #{username}, the fool, wins the game.",
-      phase_number
+      to_string(phase_number)
     )
 
     broadcast_complete_message(game, state.game.phases)
@@ -163,7 +174,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "win",
       too_many_phases_message,
-      phase_number
+      to_string(phase_number)
     )
 
     broadcast_complete_message(game, state.game.phases)
@@ -174,7 +185,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "win",
       "The host has decided to end the game. The game ends in a tie.",
-      phase_number
+      to_string(phase_number)
     )
 
     broadcast_complete_message(game, state.game.phases)
@@ -185,7 +196,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "closed_game",
       "We are really sorry, not enough players were found for this game. Why don't you join our discord server and meet other players eager for a game of Werewolf: https://discord.gg/FtB8Gnj",
-      state.game.phases
+      to_string(state.game.phases)
     )
   end
 
@@ -226,7 +237,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "complete",
       "Thank you for playing Werewolf on WolfChat. We hope you enjoyed it!",
-      phase_number
+      to_string(phase_number)
     )
   end
 
