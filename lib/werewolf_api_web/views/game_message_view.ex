@@ -13,7 +13,8 @@ defmodule WerewolfApiWeb.GameMessageView do
       type: game_message.type,
       uuid: game_message.uuid,
       destination: game_message.destination,
-      extra: game_message.extra
+      extra: game_message.extra,
+      custom: game_message.custom
     }
   end
 
