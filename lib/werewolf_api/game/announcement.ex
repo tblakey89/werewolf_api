@@ -68,7 +68,7 @@ defmodule WerewolfApi.Game.Announcement do
       game,
       "claim",
       "#{User.display_name(user)} claims they are a #{claim}",
-      0,
+      user.id,
       :standard,
       claim
     )
