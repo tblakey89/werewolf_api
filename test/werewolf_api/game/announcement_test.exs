@@ -141,6 +141,20 @@ defmodule WerewolfApi.Game.AnnouncementTest do
   end
 
   describe "announce/3 player vote" do
+    test "when user votes for a target, but display votes off", %{
+      user: user,
+      game: game,
+      target: target
+    } do
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:ok, :action, :day_phase, :vote, user, target.id, {[{target.id, 1}], target.id, false}}
+      )
+
+      refute_broadcast("new_message", %{body: sent_message})
+    end
+
     test "when user votes for a target, not a tie, 1 vote", %{
       user: user,
       game: game,
@@ -149,7 +163,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:ok, :action, :day_phase, :vote, user, target.id, {[{target.id, 1}], target.id}}
+        {:ok, :action, :day_phase, :vote, user, target.id, {[{target.id, 1}], target.id}, true}
       )
 
       assert_broadcast("new_message", %{body: sent_message})
@@ -171,7 +185,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         game,
         state(user.id, game.id),
         {:ok, :action, :day_phase, :vote, user, target.id,
-         {[{user.id, 3}, {target.id, 3}], :none}}
+         {[{user.id, 3}, {target.id, 3}], :none}, true}
       )
 
       assert_broadcast("new_message", %{body: sent_message})
@@ -192,7 +206,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         game,
         state(user.id, game.id),
         {:ok, :action, :night_phase, :vote, user, target.id,
-         {[{user.id, 2}, {target.id, 3}], target.id}}
+         {[{user.id, 2}, {target.id, 3}], target.id}, true}
       )
 
       assert_broadcast("new_message", %{body: sent_message})
@@ -210,7 +224,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
         game,
         state(user.id, game.id),
         {:ok, :action, :night_phase, :vote, user, target.id,
-         {[{user.id, 3}, {target.id, 3}], :none}}
+         {[{user.id, 3}, {target.id, 3}], :none}, true}
       )
 
       assert_broadcast("new_message", %{body: sent_message})

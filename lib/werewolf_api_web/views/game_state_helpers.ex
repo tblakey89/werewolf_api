@@ -1,13 +1,14 @@
 defmodule WerewolfApiWeb.GameStateHelpers do
-  def filter_actions(:game_over, _, _, player) do
+  def filter_actions(_, :game_over, _, _, player) do
     player.actions
   end
 
-  def filter_actions(:day_phase, phase_number, _, player) do
+  def filter_actions(%Werewolf.Options{display_votes: true}, :day_phase, phase_number, _, player) do
     Map.take(player.actions, [phase_number])
   end
 
   def filter_actions(
+        _,
         :night_phase,
         phase_number,
         %Werewolf.Player{team: :werewolf},
@@ -16,7 +17,7 @@ defmodule WerewolfApiWeb.GameStateHelpers do
     Map.take(player.actions, [phase_number])
   end
 
-  def filter_actions(_, _, _, _), do: nil
+  def filter_actions(_, _, _, _, _), do: nil
 
   def display_value(_, :game_over, _, player, value) do
     value

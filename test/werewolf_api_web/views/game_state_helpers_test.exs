@@ -6,35 +6,65 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
     test 'when game_over returns player actions' do
       player = player(1, :villager)
 
-      actions = GameStateHelpers.filter_actions(:game_over, nil, nil, player)
+      actions = GameStateHelpers.filter_actions(%Werewolf.Options{}, :game_over, nil, nil, player)
+      assert player.actions == actions
+    end
+
+    test 'when game_over returns player actions, even when display votes false' do
+      player = player(1, :villager)
+
+      actions =
+        GameStateHelpers.filter_actions(
+          %Werewolf.Options{display_votes: false},
+          :game_over,
+          nil,
+          nil,
+          player
+        )
+
       assert player.actions == actions
     end
 
     test 'when day returns player actions for that day' do
       player = player(1, :villager)
 
-      actions = GameStateHelpers.filter_actions(:day_phase, 1, nil, player)
+      actions = GameStateHelpers.filter_actions(%Werewolf.Options{}, :day_phase, 1, nil, player)
       assert %{1 => player.actions[1]} == actions
+    end
+
+    test 'when day returns player actions for that day, unless display_votes off' do
+      player = player(1, :villager)
+
+      actions =
+        GameStateHelpers.filter_actions(
+          %Werewolf.Options{display_votes: false},
+          :day_phase,
+          1,
+          nil,
+          player
+        )
+
+      assert nil == actions
     end
 
     test 'when day returns player actions for that day if werewolf' do
       player = player(1, :werewolf)
 
-      actions = GameStateHelpers.filter_actions(:day_phase, 1, nil, player)
+      actions = GameStateHelpers.filter_actions(%Werewolf.Options{}, :day_phase, 1, nil, player)
       assert %{1 => player.actions[1]} == actions
     end
 
     test 'when day returns player actions for different day on different phase' do
       player = player(1, :villager)
 
-      actions = GameStateHelpers.filter_actions(:day_phase, 2, nil, player)
+      actions = GameStateHelpers.filter_actions(%Werewolf.Options{}, :day_phase, 2, nil, player)
       assert %{2 => player.actions[2]} == actions
     end
 
     test 'when day returns no player actions if no actions that day' do
       player = player(1, :villager)
 
-      actions = GameStateHelpers.filter_actions(:day_phase, 3, nil, player)
+      actions = GameStateHelpers.filter_actions(%Werewolf.Options{}, :day_phase, 3, nil, player)
       assert %{} == actions
     end
 
@@ -42,7 +72,15 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
       player = player(1, :werewolf)
       current_player = player(2, :villager)
 
-      actions = GameStateHelpers.filter_actions(:night_phase, 1, current_player, player)
+      actions =
+        GameStateHelpers.filter_actions(
+          %Werewolf.Options{},
+          :night_phase,
+          1,
+          current_player,
+          player
+        )
+
       assert nil == actions
     end
 
@@ -50,7 +88,15 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
       player = player(1, :villager)
       current_player = player(2, :werewolf)
 
-      actions = GameStateHelpers.filter_actions(:night_phase, 1, current_player, player)
+      actions =
+        GameStateHelpers.filter_actions(
+          %Werewolf.Options{},
+          :night_phase,
+          1,
+          current_player,
+          player
+        )
+
       assert nil == actions
     end
 
@@ -58,7 +104,15 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
       player = player(1, :werewolf)
       current_player = player(2, :werewolf)
 
-      actions = GameStateHelpers.filter_actions(:night_phase, 1, current_player, player)
+      actions =
+        GameStateHelpers.filter_actions(
+          %Werewolf.Options{},
+          :night_phase,
+          1,
+          current_player,
+          player
+        )
+
       assert %{1 => player.actions[1]} == actions
     end
 
@@ -66,7 +120,15 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
       player = player(1, :werewolf)
       current_player = player(2, :werewolf)
 
-      actions = GameStateHelpers.filter_actions(:night_phase, 2, current_player, player)
+      actions =
+        GameStateHelpers.filter_actions(
+          %Werewolf.Options{},
+          :night_phase,
+          2,
+          current_player,
+          player
+        )
+
       assert %{2 => player.actions[2]} == actions
     end
 
@@ -74,7 +136,9 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
       player = player(1, :werewolf)
       current_player = player(2, :werewolf)
 
-      actions = GameStateHelpers.filter_actions(:pause, 1, current_player, player)
+      actions =
+        GameStateHelpers.filter_actions(%Werewolf.Options{}, :pause, 1, current_player, player)
+
       assert nil == actions
     end
   end

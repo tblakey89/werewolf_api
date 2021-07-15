@@ -74,7 +74,11 @@ defmodule WerewolfApi.Game.Announcement do
     )
   end
 
-  def announce(game, state, {:ok, :action, :day_phase, :vote, user, target, vote_result}) do
+  def announce(game, state, {:ok, :action, :day_phase, :vote, _, _, _, false}) do
+    nil
+  end
+
+  def announce(game, state, {:ok, :action, :day_phase, :vote, user, target, vote_result, _}) do
     username = User.display_name(Game.user_from_game(game, target))
 
     broadcast_message(
@@ -85,7 +89,7 @@ defmodule WerewolfApi.Game.Announcement do
     )
   end
 
-  def announce(game, state, {:ok, :action, :night_phase, :vote, user, target, vote_result}) do
+  def announce(game, state, {:ok, :action, :night_phase, :vote, user, target, vote_result, _}) do
     username = User.display_name(Game.user_from_game(game, target))
 
     broadcast_message(

@@ -93,7 +93,7 @@ defmodule WerewolfApi.Game.Server do
       |> Werewolf.GameServer.action(user, target, action_type)
 
     case response do
-      {:ok, :action, _, _, _, _, _, state} ->
+      {:ok, :action, _, _, _, _, _, state, _} ->
         handle_success(game_id, user, state)
 
       {:ok, :action, state} ->
