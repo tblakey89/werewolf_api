@@ -79,7 +79,11 @@ defmodule WerewolfApi.Game.Announcement do
   end
 
   def announce(game, state, {:ok, :action, :day_phase, :vote, user, target, vote_result, _}) do
-    username = User.display_name(Game.user_from_game(game, target))
+    username =
+      case target do
+        "no_kill" -> "no one to be burned"
+        _ -> User.display_name(Game.user_from_game(game, target))
+      end
 
     broadcast_message(
       game,
@@ -90,12 +94,16 @@ defmodule WerewolfApi.Game.Announcement do
   end
 
   def announce(game, state, {:ok, :action, :night_phase, :vote, user, target, vote_result, _}) do
-    username = User.display_name(Game.user_from_game(game, target))
+    kill_string =
+      case target do
+        "no_kill" -> "no one to be killed"
+        _ -> "to kill #{User.display_name(Game.user_from_game(game, target))}"
+      end
 
     broadcast_message(
       game,
       "werewolf_vote",
-      "#{User.display_name(user)} wants to kill #{username}. #{show_vote_result(game, vote_result)}",
+      "#{User.display_name(user)} wants #{kill_string}. #{show_vote_result(game, vote_result)}",
       state.game.phases,
       :werewolf
     )
@@ -215,6 +223,11 @@ defmodule WerewolfApi.Game.Announcement do
       vote_list(game, votes)
   end
 
+  defp show_vote_result(game, {votes, "no_kill"}) do
+    "Unless the votes change, no player will be killed at the end of the phase.\n" <>
+      vote_list(game, votes)
+  end
+
   defp show_vote_result(game, {votes, target}) do
     username = User.display_name(Game.user_from_game(game, target))
 
@@ -224,7 +237,12 @@ defmodule WerewolfApi.Game.Announcement do
 
   defp vote_list(game, votes) do
     Enum.map(votes, fn {target, vote_count} ->
-      username = User.display_name(Game.user_from_game(game, target))
+      username =
+        case target do
+          "no_kill" -> "No kill"
+          _ ->
+            username = User.display_name(Game.user_from_game(game, target))
+        end
       "#{username}: #{vote_count} #{Inflex.inflect("vote", vote_count)}"
     end)
     |> Enum.join("\n")

@@ -180,6 +180,30 @@ defmodule WerewolfApi.Game.AnnouncementTest do
              ).type == "day_vote"
     end
 
+    test "when user votes for no kill, not a tie, 1 vote", %{
+      user: user,
+      game: game
+    } do
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:ok, :action, :day_phase, :vote, user, "no_kill", {[{"no_kill", 1}], "no_kill"}, true}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message})
+
+      assert sent_message =~
+               "#{User.display_name(user)} has voted for no one to be burned"
+
+      assert sent_message =~
+               "Unless the votes change, no player will be killed at the end of the phase.\nNo kill: 1 vote"
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Game.Message,
+               game_id: game.id
+             ).type == "day_vote"
+    end
+
     test "when user votes for a target, a tie, 3 vote", %{user: user, game: game, target: target} do
       WerewolfApi.Game.Announcement.announce(
         game,
@@ -213,6 +237,24 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
       assert sent_message =~
                "#{User.display_name(user)} wants to kill #{User.display_name(target)}. The player with the most votes is #{User.display_name(target)}. Unless the votes change, #{User.display_name(target)} will be killed at the end of the phase.\n#{User.display_name(user)}: 2 votes\n#{User.display_name(target)}: 3 votes"
+    end
+
+    test "when user votes for a no kill on night phase, not a tie", %{
+      user: user,
+      game: game,
+      target: target
+    } do
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:ok, :action, :night_phase, :vote, user, "no_kill",
+         {[{user.id, 2}, {"no_kill", 3}], "no_kill"}, true}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message})
+
+      assert sent_message =~
+               "#{User.display_name(user)} wants no one to be killed. Unless the votes change, no player will be killed at the end of the phase.\n#{User.display_name(user)}: 2 votes\nNo kill: 3 votes"
     end
 
     test "when user votes for a target on night phase, but there is a tie", %{
