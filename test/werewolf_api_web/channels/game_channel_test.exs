@@ -251,6 +251,113 @@ defmodule WerewolfApiWeb.GameChannelTest do
     end
   end
 
+  describe "cancel_action event" do
+    test "cancel_action responds with ok on success" do
+      user = insert(:user)
+      other_id = user.id + 1
+      game = insert(:game)
+      game_id = game.id
+      user_id = user.id
+
+      state = %{
+        game: %Werewolf.Game{
+          end_phase_unix_time: 1000,
+          id: game_id,
+          phase_length: :day,
+          phases: 2,
+          players: %{
+            user.id => %Werewolf.Player{
+              actions: %{
+                "2" => %{
+                  vote: %Werewolf.Action{
+                    type: :vote,
+                    target: 1
+                  }
+                }
+              },
+              alive: true,
+              host: true,
+              id: user.id,
+              role: :villager,
+              team: :villager
+            },
+            (user.id + 1) => %Werewolf.Player{
+              actions: %{},
+              alive: true,
+              host: false,
+              id: other_id,
+              role: :villager,
+              team: :villager
+            }
+          }
+        },
+        rules: %Werewolf.Rules{state: :day_phase}
+      }
+
+      WerewolfApi.Game.update_state(game, state)
+
+      insert(:users_game, user: user, game: game)
+      {:ok, jwt, _} = encode_and_sign(user)
+      {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
+      {:ok, _, game_socket} = subscribe_and_join(socket, "game:#{game.id}", %{})
+      {:ok, _, user_socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
+
+      ref = push(game_socket, "cancel_action", %{target: other_id, action_type: "vote"})
+
+      assert_broadcast("game_state_update", %{
+        id: ^game_id,
+        players: %{^user_id => %{actions: %{2 => %{}}}}
+      })
+
+      assert_reply(ref, :ok)
+    end
+
+    test "cancel_action responds with error on failure" do
+      user = insert(:user)
+      other_id = user.id + 1
+      game = insert(:game)
+      game_id = game.id
+      user_id = user.id
+
+      state = %{
+        game: %Werewolf.Game{
+          end_phase_unix_time: 1000,
+          id: game_id,
+          phase_length: :day,
+          phases: 2,
+          options: %Werewolf.Options{allow_action_changes: false},
+          players: %{
+            user.id => %Werewolf.Player{
+              actions: %{},
+              alive: true,
+              host: true,
+              id: user.id,
+              role: :villager
+            }
+          }
+        },
+        rules: %Werewolf.Rules{state: :ready}
+      }
+
+      WerewolfApi.Game.update_state(game, state)
+
+      insert(:users_game, user: user, game: game)
+      {:ok, jwt, _} = encode_and_sign(user)
+      {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
+      {:ok, _, game_socket} = subscribe_and_join(socket, "game:#{game.id}", %{})
+      {:ok, _, user_socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
+
+      ref = push(game_socket, "cancel_action", %{action_type: "vote"})
+
+      refute_broadcast("game_state_update", %{
+        id: ^game_id,
+        players: %{^user_id => %{actions: %{2 => %{vote: %{target: ^other_id}}}}}
+      })
+
+      assert_reply(ref, :error)
+    end
+  end
+
   describe "claim_role event" do
     test "claim_role responds with ok on success" do
       user = insert(:user)

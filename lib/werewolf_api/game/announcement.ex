@@ -239,10 +239,13 @@ defmodule WerewolfApi.Game.Announcement do
     Enum.map(votes, fn {target, vote_count} ->
       username =
         case target do
-          "no_kill" -> "No kill"
+          "no_kill" ->
+            "No kill"
+
           _ ->
             username = User.display_name(Game.user_from_game(game, target))
         end
+
       "#{username}: #{vote_count} #{Inflex.inflect("vote", vote_count)}"
     end)
     |> Enum.join("\n")

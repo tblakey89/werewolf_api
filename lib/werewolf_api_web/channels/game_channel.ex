@@ -61,6 +61,14 @@ defmodule WerewolfApiWeb.GameChannel do
     |> handle_game_response(socket, game_id, user)
   end
 
+  def handle_in("cancel_action", params, socket) do
+    user = Guardian.Phoenix.Socket.current_resource(socket)
+    game_id = socket.assigns.game_id
+
+    Server.cancel_action(game_id, user, String.to_atom(params["action_type"]))
+    |> handle_game_response(socket, game_id, user)
+  end
+
   def handle_in("claim_role", params, socket) do
     user = Guardian.Phoenix.Socket.current_resource(socket)
     game_id = socket.assigns.game_id

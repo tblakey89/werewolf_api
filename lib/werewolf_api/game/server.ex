@@ -104,6 +104,20 @@ defmodule WerewolfApi.Game.Server do
     end
   end
 
+  def cancel_action(game_id, user, action_type) do
+    response =
+      get_pid(game_id)
+      |> Werewolf.GameServer.cancel_action(user, action_type)
+
+    case response do
+      {:ok, :cancel_action, action_type, state} ->
+        handle_success(game_id, user, state)
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
   def claim_role(game_id, user, claim) do
     response =
       get_pid(game_id)
