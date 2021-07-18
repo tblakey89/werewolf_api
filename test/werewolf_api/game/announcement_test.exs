@@ -140,6 +140,79 @@ defmodule WerewolfApi.Game.AnnouncementTest do
     end
   end
 
+  describe "announce/3 cancel player vote" do
+    test "when user cancels vote for a target, but display votes off", %{
+      user: user,
+      game: game,
+      target: target
+    } do
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:ok, :cancel_action, :day_phase, :vote, user, {[{target.id, 1}], target.id, false}}
+      )
+
+      refute_broadcast("new_message", %{body: sent_message})
+    end
+
+    test "when user cancels vote for a target, not a tie, 1 vote", %{
+      user: user,
+      game: game,
+      target: target
+    } do
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:ok, :cancel_action, :day_phase, :vote, user, {[{target.id, 1}], target.id}, true}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message})
+
+      assert sent_message =~
+               "#{User.display_name(user)} has cancelled their vote"
+
+      assert sent_message =~
+               "votes is #{User.display_name(target)}. Unless the votes change, #{User.display_name(target)} will be killed at the end of the phase.\n#{User.display_name(target)}: 1 vote"
+
+      assert WerewolfApi.Repo.get_by(
+               WerewolfApi.Game.Message,
+               game_id: game.id
+             ).type == "day_vote"
+    end
+
+    test "when user cancels inspect for a target", %{
+      user: user,
+      game: game,
+      target: target
+    } do
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:ok, :cancel_action, :day_phase, :inspect, user, {[{target.id, 1}], target.id, true}}
+      )
+
+      refute_broadcast("new_message", %{body: sent_message})
+    end
+
+    test "when user cancels vote for a target on night phase, not a tie, 1 vote", %{
+      user: user,
+      game: game,
+      target: target
+    } do
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:ok, :cancel_action, :night_phase, :vote, user,
+         {[{user.id, 2}, {target.id, 3}], target.id}, true}
+      )
+
+      assert_broadcast("new_message", %{body: sent_message})
+
+      assert sent_message =~
+               "#{User.display_name(user)} has cancelled their vote. The player with the most votes is #{User.display_name(target)}. Unless the votes change, #{User.display_name(target)} will be killed at the end of the phase.\n#{User.display_name(user)}: 2 votes\n#{User.display_name(target)}: 3 votes"
+    end
+  end
+
   describe "announce/3 player vote" do
     test "when user votes for a target, but display votes off", %{
       user: user,

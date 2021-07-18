@@ -67,8 +67,8 @@ defmodule WerewolfApi.Mixfile do
       {:exq, "~> 0.13.5"},
       {:quantum, "~> 3.0"},
       {:mox, "~> 0.5", only: :test},
-      {:werewolf, git: "https://github.com/tblakey89/werewolf.git"}
-      # {:werewolf, path: "../werewolf"}
+      # {:werewolf, git: "https://github.com/tblakey89/werewolf.git"}
+      {:werewolf, path: "../werewolf"}
     ]
   end
 

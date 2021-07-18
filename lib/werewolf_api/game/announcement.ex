@@ -74,6 +74,29 @@ defmodule WerewolfApi.Game.Announcement do
     )
   end
 
+  def announce(game, state, {:ok, :cancel_action, :day_phase, :vote, user, vote_result, true}) do
+    broadcast_message(
+      game,
+      "day_vote",
+      "#{User.display_name(user)} has cancelled their vote. #{show_vote_result(game, vote_result)}",
+      state.game.phases
+    )
+  end
+
+  def announce(game, state, {:ok, :cancel_action, :night_phase, :vote, user, vote_result, true}) do
+    broadcast_message(
+      game,
+      "werewolf_vote",
+      "#{User.display_name(user)} has cancelled their vote. #{show_vote_result(game, vote_result)}",
+      state.game.phases,
+      :werewolf
+    )
+  end
+
+  def announce(game, state, {:ok, :cancel_action, _, _, _, _, _}) do
+    nil
+  end
+
   def announce(game, state, {:ok, :action, :day_phase, :vote, _, _, _, false}) do
     nil
   end
