@@ -10,6 +10,7 @@ defmodule WerewolfApi.Conversation.Message do
     field(:uuid, :binary_id, read_after_writes: true)
     belongs_to(:user, WerewolfApi.User)
     belongs_to(:conversation, WerewolfApi.Conversation)
+    belongs_to(:quote, __MODULE__, foreign_key: :quote_id)
 
     timestamps()
   end
@@ -17,7 +18,7 @@ defmodule WerewolfApi.Conversation.Message do
   @doc false
   def changeset(message, attrs) do
     message
-    |> cast(attrs, [:body, :bot, :type, :uuid])
+    |> cast(attrs, [:body, :bot, :type, :uuid, :quote_id])
     |> validate_required([:body])
   end
 

@@ -22,7 +22,8 @@ defmodule WerewolfApiWeb.MessageView do
       sender: render_optional_user(message),
       conversation_id: message.conversation_id,
       type: message.type,
-      uuid: message.uuid
+      uuid: message.uuid,
+      quote_id: message.quote_id
     }
   end
 
