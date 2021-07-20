@@ -6,6 +6,7 @@ defmodule WerewolfApi.UsersGame do
 
   schema "users_games" do
     field(:state, :string, default: "pending")
+    field(:notes, :binary)
     field(:last_read_at, :utc_datetime, default: DateTime.truncate(DateTime.utc_now(), :second))
     field(:last_read_at_map, :map, default: %{})
 
@@ -26,6 +27,11 @@ defmodule WerewolfApi.UsersGame do
     |> cast(attrs, [:state])
     |> force_change(:state, attrs[:state])
     |> validate_inclusion(:state, ~w(accepted rejected))
+  end
+
+  def notes_changeset(users_game, attrs) do
+    users_game
+    |> cast(attrs, [:notes])
   end
 
   def by_game_id(game_id) do

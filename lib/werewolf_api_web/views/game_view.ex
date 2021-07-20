@@ -47,7 +47,8 @@ defmodule WerewolfApiWeb.GameView do
       mason_conversation_id: game.mason_conversation_id,
       created_at:
         DateTime.to_unix(DateTime.from_naive!(game.inserted_at, "Etc/UTC"), :millisecond),
-      users_games: render_many(game.users_games, WerewolfApiWeb.UsersGameView, "users_game.json"),
+      users_games:
+        render_many(game.users_games, WerewolfApiWeb.UsersGameView, "simple_users_game.json"),
       messages: render_many(game.messages, WerewolfApiWeb.GameMessageView, "game_message.json"),
       has_join_code: game.join_code != nil,
       type: game.type,
@@ -69,7 +70,15 @@ defmodule WerewolfApiWeb.GameView do
       url: game.invitation_url,
       conversation_id: game.conversation_id,
       mason_conversation_id: game.mason_conversation_id,
-      users_games: render_many(game.users_games, WerewolfApiWeb.UsersGameView, "users_game.json"),
+      users_games:
+        render_many(
+          Enum.map(game.users_games, fn users_game ->
+            %{users_game: users_game, user: user}
+          end),
+          WerewolfApiWeb.UsersGameView,
+          "users_game.json",
+          as: :data
+        ),
       messages: render_many(game.messages, WerewolfApiWeb.GameMessageView, "game_message.json"),
       state:
         render_one(

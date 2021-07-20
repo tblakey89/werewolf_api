@@ -35,3 +35,6 @@ config :exq,
   queue_adapter: Exq.Adapters.Queue.Mock
 
 config :werewolf_api, dynamic_url: DynamicLinkBehaviourMock
+
+config :ex_unit,
+  assert_receive_timeout: 500

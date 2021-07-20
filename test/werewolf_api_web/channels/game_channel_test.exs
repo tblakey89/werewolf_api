@@ -14,7 +14,8 @@ defmodule WerewolfApiWeb.GameChannelTest do
         :users_game,
         user: user,
         game: game,
-        last_read_at: DateTime.from_naive!(~N[2018-11-15 10:00:00], "Etc/UTC")
+        last_read_at: DateTime.from_naive!(~N[2018-11-15 10:00:00], "Etc/UTC"),
+        notes: "test game"
       )
 
     {:ok, jwt, _} = encode_and_sign(user)
@@ -623,6 +624,16 @@ defmodule WerewolfApiWeb.GameChannelTest do
       })
 
       assert_reply(ref, :ok)
+    end
+  end
+
+  describe "update notes" do
+    test "notes are updated", %{socket: socket, users_game: users_game} do
+      ref = push(socket, "update_notes", %{"notes" => "new note"})
+      assert_reply(ref, :ok)
+      updated_users_game = Repo.get(WerewolfApi.UsersGame, users_game.id)
+
+      assert(updated_users_game.notes == "new note")
     end
   end
 

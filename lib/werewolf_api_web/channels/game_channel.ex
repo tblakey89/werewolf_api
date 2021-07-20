@@ -77,6 +77,16 @@ defmodule WerewolfApiWeb.GameChannel do
     |> handle_game_response(socket, game_id, user)
   end
 
+  def handle_in("update_notes", params, socket) do
+    user = Guardian.Phoenix.Socket.current_resource(socket)
+
+    Repo.get_by(UsersGame, game_id: socket.assigns.game_id, user_id: user.id)
+    |> UsersGame.notes_changeset(params)
+    |> Repo.update()
+
+    {:reply, :ok, socket}
+  end
+
   def handle_in("end_phase", params, socket) do
     user = Guardian.Phoenix.Socket.current_resource(socket)
     game_id = socket.assigns.game_id
