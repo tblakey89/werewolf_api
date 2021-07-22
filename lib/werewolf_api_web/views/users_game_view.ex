@@ -10,8 +10,7 @@ defmodule WerewolfApiWeb.UsersGameView do
         DateTime.to_unix(DateTime.from_naive!(users_game.inserted_at, "Etc/UTC"), :millisecond),
       last_read_at: DateTime.to_unix(users_game.last_read_at, :millisecond),
       last_read_at_map: users_game.last_read_at_map,
-      user: render_one(users_game.user, WerewolfApiWeb.UserView, "simple_user.json"),
-      notes: if(user.id == users_game.user_id, do: users_game.notes, else: "")
+      user: render_one(users_game.user, WerewolfApiWeb.UserView, "simple_user.json")
     }
   end
 

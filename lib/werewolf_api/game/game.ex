@@ -227,6 +227,12 @@ defmodule WerewolfApi.Game do
     )
   end
 
+  def getNotes(game, user) do
+    Enum.find(game.users_games, fn users_game ->
+      users_game.user_id == user.id
+    end).notes
+  end
+
   def user_from_game(game, user_id) do
     Enum.find(game.users, fn user -> user.id == user_id end)
   end
