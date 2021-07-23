@@ -136,6 +136,7 @@ defmodule WerewolfApiWeb.GameControllerTest do
       response = show_response(conn, game.id, user, 200)
 
       assert response["game"]["id"] == game.id
+      assert Enum.at(response["game"]["users_games"], 0)["user"]["id"] == user.id
     end
 
     test "responds 401 when not authenticated", %{conn: conn} do
