@@ -76,7 +76,7 @@ defmodule WerewolfApiWeb.GameController do
              game.id,
              String.to_atom(game.time_period),
              Enum.map(game.allowed_roles, &String.to_atom(&1)),
-             Werewolf.Options.new(game_params["options"] || %{})
+             Werewolf.Options.new(game_params["options"] || get_in(game.state, ["game", "options"]) || %{})
            ),
          game <- Repo.preload(game, users_games: :user, messages: :user) do
       WerewolfApiWeb.UserChannel.broadcast_game_update(game)
