@@ -116,7 +116,9 @@ defmodule WerewolfApiWeb.UserChannel do
 
   def broadcast_invitation_rejected_to_users(game_id) do
     Task.start_link(fn ->
-      users_games = WerewolfApi.Repo.all(WerewolfApi.UsersGame.rejected(game_id))
+      users_games =
+        WerewolfApi.Repo.all(WerewolfApi.UsersGame.rejected(game_id))
+        |> WerewolfApi.Repo.preload(:user)
 
       Enum.each(users_games, fn users_game ->
         broadcast_invitation_rejected(users_game)

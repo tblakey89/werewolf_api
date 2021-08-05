@@ -56,6 +56,7 @@ defmodule WerewolfApiWeb.InvitationController do
          changeset <-
            UsersGame.update_state_changeset(users_game, state_change_params(users_game_params)),
          {:ok, users_game} <- Repo.update(changeset) do
+           users_game = Repo.preload(users_game, :user)
       WerewolfApiWeb.UserChannel.broadcast_game_update(Repo.get(Game, users_game.game_id))
       WerewolfApiWeb.UserChannel.broadcast_invitation_rejected(users_game)
       render(conn, "success.json", %{users_game: users_game})

@@ -50,7 +50,7 @@ defmodule WerewolfApi.UsersGame do
   end
 
   def rejected(game_id) do
-    from(ug in __MODULE__, where: ug.state == "rejected" and ug.game_id == ^game_id)
+    from(ug in __MODULE__, where: ug.state == "rejected" and ug.game_id == ^game_id, preload: :user)
   end
 
   def pending_and_accepted_only_with_user(game_id) do
