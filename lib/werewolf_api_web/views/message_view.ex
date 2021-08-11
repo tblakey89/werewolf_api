@@ -23,7 +23,7 @@ defmodule WerewolfApiWeb.MessageView do
       conversation_id: message.conversation_id,
       type: message.type,
       uuid: message.uuid,
-      quote_id: message.quote_id
+      quote_uuid: message.quote_uuid
     }
   end
 

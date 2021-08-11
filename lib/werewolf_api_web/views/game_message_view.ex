@@ -15,7 +15,7 @@ defmodule WerewolfApiWeb.GameMessageView do
       destination: game_message.destination,
       extra: game_message.extra,
       custom: game_message.custom,
-      quote_id: game_message.quote_id
+      quote_uuid: game_message.quote_uuid
     }
   end
 
