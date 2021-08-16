@@ -6,13 +6,13 @@ defmodule WerewolfApiWeb.GameController do
   alias WerewolfApi.Notification
 
   def index(conn, _param) do
-    two_days_ago =
+    days_ago =
       NaiveDateTime.utc_now()
       |> NaiveDateTime.add(-60 * 60 * 24 * 1)
 
     games =
       from(g in Game,
-        where: g.started == false and g.inserted_at >= ^two_days_ago and g.closed != true,
+        where: g.started == false and g.inserted_at >= ^days_ago and g.closed != true,
         order_by: [desc: g.inserted_at],
         limit: 20
       )
@@ -76,7 +76,9 @@ defmodule WerewolfApiWeb.GameController do
              game.id,
              String.to_atom(game.time_period),
              Enum.map(game.allowed_roles, &String.to_atom(&1)),
-             Werewolf.Options.new(game_params["options"] || get_in(game.state, ["game", "options"]) || %{})
+             Werewolf.Options.new(
+               game_params["options"] || get_in(game.state, ["game", "options"]) || %{}
+             )
            ),
          game <- Repo.preload(game, users_games: :user, messages: :user) do
       WerewolfApiWeb.UserChannel.broadcast_game_update(game)

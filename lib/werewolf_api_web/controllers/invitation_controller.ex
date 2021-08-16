@@ -25,6 +25,7 @@ defmodule WerewolfApiWeb.InvitationController do
 
     with %Game{started: false} <- game = find_game(game_attributes),
          true <- matches_join_code(game.join_code, game_attributes),
+         _ <- UsersGame.destroy_rejected(game.id, user.id),
          nil <- Repo.get_by(UsersGame, game_id: game.id, user_id: user.id),
          changeset <-
            UsersGame.changeset(%UsersGame{}, %{
@@ -56,7 +57,7 @@ defmodule WerewolfApiWeb.InvitationController do
          changeset <-
            UsersGame.update_state_changeset(users_game, state_change_params(users_game_params)),
          {:ok, users_game} <- Repo.update(changeset) do
-           users_game = Repo.preload(users_game, :user)
+      users_game = Repo.preload(users_game, :user)
       WerewolfApiWeb.UserChannel.broadcast_game_update(Repo.get(Game, users_game.game_id))
       WerewolfApiWeb.UserChannel.broadcast_invitation_rejected(users_game)
       render(conn, "success.json", %{users_game: users_game})
@@ -83,11 +84,11 @@ defmodule WerewolfApiWeb.InvitationController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
+  def delete(conn, %{"id" => id} = params) do
     user = Guardian.Plug.current_resource(conn)
 
     removed_state = %{
-      state: "rejected"
+      state: params["state"] || "rejected"
     }
 
     with {:ok, users_game} <- find_users_game_with_user(id),

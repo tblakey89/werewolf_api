@@ -26,7 +26,7 @@ defmodule WerewolfApi.UsersGame do
     users_game
     |> cast(attrs, [:state])
     |> force_change(:state, attrs[:state])
-    |> validate_inclusion(:state, ~w(accepted rejected))
+    |> validate_inclusion(:state, ~w(accepted rejected booted))
   end
 
   def notes_changeset(users_game, attrs) do
@@ -50,13 +50,16 @@ defmodule WerewolfApi.UsersGame do
   end
 
   def rejected(game_id) do
-    from(ug in __MODULE__, where: ug.state == "rejected" and ug.game_id == ^game_id, preload: :user)
+    from(ug in __MODULE__,
+      where: ug.state == "rejected" and ug.game_id == ^game_id,
+      preload: :user
+    )
   end
 
   def pending_and_accepted_only_with_user(game_id) do
     from(
       ug in __MODULE__,
-      where: ug.game_id == ^game_id and ug.state != "rejected",
+      where: ug.game_id == ^game_id and ug.state != "rejected" and ug.state != "booted",
       preload: [user: :blocks]
     )
   end
@@ -85,5 +88,12 @@ defmodule WerewolfApi.UsersGame do
     users_game
     |> change(last_read_at_map: last_read_at_map)
     |> Repo.update()
+  end
+
+  def destroy_rejected(game_id, user_id) do
+    from(ug in __MODULE__,
+      where: ug.game_id == ^game_id and ug.user_id == ^user_id and ug.state == "rejected"
+    )
+    |> Repo.delete_all()
   end
 end

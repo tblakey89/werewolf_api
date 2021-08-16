@@ -107,6 +107,19 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
       assert response["error"] == "Game already joined"
     end
 
+    test "when game already joined, but rejected", %{conn: conn, game: game} do
+      rejected_user = insert(:user)
+      insert(:users_game, state: "rejected", game: game, user: rejected_user)
+      game_id = game.id
+      WerewolfApiWeb.Endpoint.subscribe("user:#{rejected_user.id}")
+
+      response = create_response(conn, rejected_user, game.invitation_token, 200)
+
+      assert_broadcast("game_update", %{id: ^game_id})
+      assert response["success"] == "Joined the game"
+      assert response["game"]["id"] == game_id
+    end
+
     test "when game does not exist", %{conn: conn} do
       user = insert(:user)
 
@@ -201,7 +214,7 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
       WerewolfApi.Game.Server.add_player(game.id, user)
       WerewolfApiWeb.Endpoint.subscribe("user:#{users_game.user_id}")
 
-      response = delete_response(conn, user, users_game, 200)
+      response = delete_response(conn, user, users_game, "rejected", 200)
 
       refute_broadcast("game_update", %{id: ^game_id})
       assert_broadcast("invitation_rejected", %{id: ^users_game_id})
@@ -217,7 +230,7 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
       WerewolfApi.Game.Server.add_player(game.id, other_user)
       WerewolfApiWeb.Endpoint.subscribe("user:#{other_user.id}")
 
-      response = delete_response(conn, user, users_game, 200)
+      response = delete_response(conn, user, users_game, "booted", 200)
 
       refute_broadcast("game_update", %{id: ^game_id})
       assert_broadcast("invitation_rejected", %{id: ^users_game_id})
@@ -234,7 +247,7 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
       WerewolfApi.Game.Server.add_player(game.id, other_user)
       WerewolfApiWeb.Endpoint.subscribe("user:#{other_user.id}")
 
-      response = delete_response(conn, not_host, users_game, 401)
+      response = delete_response(conn, not_host, users_game, "rejected", 401)
 
       assert response["error"] == "Not authorized"
     end
@@ -282,12 +295,12 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
     |> json_response(expected_response)
   end
 
-  defp delete_response(conn, user, users_game, expected_response) do
+  defp delete_response(conn, user, users_game, state, expected_response) do
     {:ok, token, _} = encode_and_sign(user, %{}, token_type: :access)
 
     conn
     |> put_req_header("authorization", "bearer: " <> token)
-    |> delete(invitation_path(conn, :delete, users_game.id))
+    |> delete(invitation_path(conn, :delete, users_game.id, state: state))
     |> json_response(expected_response)
   end
 end
