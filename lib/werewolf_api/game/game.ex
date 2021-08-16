@@ -227,7 +227,7 @@ defmodule WerewolfApi.Game do
     )
   end
 
-  def getNotes(game, user) do
+  def get_notes(game, user) do
     Enum.find(game.users_games, fn users_game ->
       users_game.user_id == user.id
     end).notes
@@ -236,6 +236,8 @@ defmodule WerewolfApi.Game do
   def user_from_game(game, user_id) do
     Enum.find(game.users, fn user -> user.id == user_id end)
   end
+
+  def is_scheduled?(game), do: game.type == "scheduled"
 
   defp start_at(hours) do
     {:ok, start_time} = DateTime.from_unix(DateTime.to_unix(DateTime.utc_now()) + 60 * 60 * hours)

@@ -92,8 +92,7 @@ defmodule WerewolfApiWeb.InvitationController do
     }
 
     with {:ok, users_game} <- find_users_game_with_user(id),
-         true <-
-           Game.find_host_id(users_game.game) == user.id || users_game.user_id == user.id,
+         true <- able_to_leave?(user, users_game),
          changeset <- UsersGame.update_state_changeset(users_game, removed_state),
          :ok <- Game.Server.remove_player(users_game.game_id, users_game.user),
          {:ok, users_game} <- Repo.update(changeset) do
@@ -148,6 +147,12 @@ defmodule WerewolfApiWeb.InvitationController do
         users_game = Repo.preload(users_game, game: :users_games)
         {:ok, users_game}
     end
+  end
+
+  defp able_to_leave?(user, users_game) do
+    Game.is_scheduled?(users_game.game) ||
+      Game.find_host_id(users_game.game) == user.id ||
+      users_game.user_id == user.id
   end
 
   defp game_joinable(conn, game) do

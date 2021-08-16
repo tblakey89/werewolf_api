@@ -93,7 +93,7 @@ defmodule WerewolfApiWeb.GameView do
       time_period: game.time_period,
       allowed_roles: game.allowed_roles || [],
       join_code: game.join_code,
-      notes: Game.getNotes(game, user)
+      notes: Game.get_notes(game, user)
     }
   end
 

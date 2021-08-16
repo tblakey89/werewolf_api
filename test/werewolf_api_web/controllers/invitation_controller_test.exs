@@ -221,6 +221,26 @@ defmodule WerewolfApiWeb.InvitationControllerTest do
       assert response["success"] == "Removed the user"
     end
 
+    test "when valid, scheduled game, removing self", %{conn: conn} do
+      user = insert(:user)
+      game = insert(:game, type: "scheduled")
+      users_game = insert(:users_game, state: "accepted", game: game, user: user)
+      WerewolfApi.Game.Server.start_game(nil, game.id, :day, [], Werewolf.Options.new(%{}))
+
+      users_game_id = users_game.id
+      game_id = game.id
+
+      WerewolfApi.Game.Server.add_player(game.id, user)
+      WerewolfApiWeb.Endpoint.subscribe("user:#{users_game.user_id}")
+
+      response = delete_response(conn, user, users_game, "rejected", 200)
+
+      refute_broadcast("game_update", %{id: ^game_id})
+      assert_broadcast("invitation_rejected", %{id: ^users_game_id})
+      assert response["success"] == "Removed the user"
+      Werewolf.GameSupervisor.stop_game(game.id)
+    end
+
     test "when valid, and host, removing other user", %{conn: conn, game: game, user: user} do
       other_user = insert(:user)
       users_game = insert(:users_game, state: "accepted", game: game, user: other_user)
