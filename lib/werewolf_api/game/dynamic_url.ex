@@ -30,7 +30,7 @@ defmodule WerewolfApi.Game.DynamicLink do
               socialDescription:
                 "Follow the link to join your friends on the WolfChat app for a game of Werewolf.",
               socialImageLink:
-                "https://werewolf-frontend.s3.eu-west-2.amazonaws.com/Icon-512.png",
+                "https://werewolf-frontend.s3.eu-west-2.amazonaws.com/icon.jpg",
               socialTitle: "WolfChat"
             }
           }
