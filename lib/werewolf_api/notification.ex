@@ -166,6 +166,10 @@ defmodule WerewolfApi.Notification do
 
   def new_game_creation_message(_game, _user), do: nil
 
+  defp limit_message_length(%Game.Message{type: "gif"} = message) do
+    "has used a gif"
+  end
+
   defp limit_message_length(message) do
     if String.length(message.body) > 200 do
       String.slice(message.body, 0, 200) <> "..."
