@@ -75,7 +75,7 @@ defmodule WerewolfApiWeb.InvitationController do
            UsersGame.update_state_changeset(users_game, state_change_params(users_game_params)),
          :ok <- Game.Server.add_player(users_game.game_id, user),
          {:ok, users_game} <- Repo.update(changeset) do
-           game = Repo.get(Game, users_game.game_id)
+      game = Repo.get(Game, users_game.game_id)
       WerewolfApiWeb.UserChannel.broadcast_game_update(game)
       {:ok, state} = Game.Server.get_state(game.id)
       game = Repo.preload(game, users_games: :user, messages: :user)

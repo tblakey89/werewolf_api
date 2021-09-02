@@ -147,6 +147,20 @@ defmodule WerewolfApi.Game.Server do
     end
   end
 
+  def end_game(game_id, user) do
+    response =
+      get_pid(game_id)
+      |> Werewolf.GameServer.end_game(user)
+
+    case response do
+      {:ok, :end_game, state} ->
+        handle_success(game_id, user, state)
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
   defp handle_success(game_id, _user, state) do
     :ok
   end
