@@ -28,7 +28,7 @@ defmodule WerewolfApi.Avatar do
 
   # Override the persisted filenames:
   def filename(version, {file, scope}) do
-    "#{scope.id}_#{scope.username}_#{version}"
+    "#{scope.id}__#{version}"
   end
 
   # Override the storage directory:
