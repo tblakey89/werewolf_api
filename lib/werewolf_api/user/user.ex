@@ -117,7 +117,7 @@ defmodule WerewolfApi.User do
 
   def update_changeset(%User{} = user, attrs) do
     user
-    |> cast(attrs, [:notify_on_game_creation])
+    |> cast(attrs, [:notify_on_game_creation, :username])
     |> optional_password_update(attrs)
   end
 
