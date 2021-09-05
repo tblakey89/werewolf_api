@@ -334,7 +334,7 @@ defmodule WerewolfApiWeb.UserControllerTest do
       response = avatar_response(conn, user.id, user, %{avatar: file}, 200)
 
       assert response["user"]["avatar"] ==
-               "/#{@upload_folder}/#{user.id}_#{user.username}_thumb.png"
+               "/#{@upload_folder}/#{user.id}__thumb.png"
 
       assert_broadcast("new_avatar", %{})
     end
