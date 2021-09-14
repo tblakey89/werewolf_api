@@ -57,7 +57,7 @@ defmodule WerewolfApiWeb.Endpoint do
     signing_salt: "H6NFQHp+"
   )
 
-  plug(CORSPlug, origin: ["http://localhost:3000", "https://www.wolfchat.app"])
+  plug(CORSPlug, origin: ["http://localhost:3000", "https://www.wolfchat.app", "http://localhost:61703"])
 
   plug(WerewolfApiWeb.Router)
 
