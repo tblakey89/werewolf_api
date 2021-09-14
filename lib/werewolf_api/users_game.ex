@@ -90,9 +90,9 @@ defmodule WerewolfApi.UsersGame do
     |> Repo.update()
   end
 
-  def destroy_rejected(game_id, user_id) do
+  def destroy_rejected_or_pending(game_id, user_id) do
     from(ug in __MODULE__,
-      where: ug.game_id == ^game_id and ug.user_id == ^user_id and ug.state == "rejected"
+      where: ug.game_id == ^game_id and ug.user_id == ^user_id and (ug.state == "rejected" or ug.state == "pending")
     )
     |> Repo.delete_all()
   end

@@ -25,7 +25,7 @@ defmodule WerewolfApiWeb.InvitationController do
 
     with %Game{started: false} <- game = find_game(game_attributes),
          true <- matches_join_code(game.join_code, game_attributes),
-         _ <- UsersGame.destroy_rejected(game.id, user.id),
+         _ <- UsersGame.destroy_rejected_or_pending(game.id, user.id),
          nil <- Repo.get_by(UsersGame, game_id: game.id, user_id: user.id),
          changeset <-
            UsersGame.changeset(%UsersGame{}, %{
