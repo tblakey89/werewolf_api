@@ -184,28 +184,30 @@ defmodule WerewolfApiWeb.UserChannel do
 
   defp broadcast_game_to_user(user, game_id) do
     Task.start_link(fn ->
-      users_game =
-        Repo.get_by(UsersGame, user_id: user.id, game_id: game_id)
-        |> Repo.preload(game: [messages: :user, users_games: :user])
+      with %UsersGame{} <-
+             users_game =
+               Repo.get_by(UsersGame, user_id: user.id, game_id: game_id)
+               |> Repo.preload(game: [messages: :user, users_games: :user]),
+           {:ok, state} <- WerewolfApi.Game.Server.get_state(game_id) do
+        case users_game.state do
+          "rejected" ->
+            nil
 
-      {:ok, state} = WerewolfApi.Game.Server.get_state(game_id)
-
-      case users_game.state do
-        "rejected" ->
-          nil
-
-        _ ->
-          WerewolfApiWeb.Endpoint.broadcast(
-            "user:#{user.id}",
-            "new_game",
-            WerewolfApiWeb.GameView.render("game_with_state.json", %{
-              data: %{
-                game: users_game.game,
-                state: state,
-                user: user
-              }
-            })
-          )
+          _ ->
+            WerewolfApiWeb.Endpoint.broadcast(
+              "user:#{user.id}",
+              "new_game",
+              WerewolfApiWeb.GameView.render("game_with_state.json", %{
+                data: %{
+                  game: users_game.game,
+                  state: state,
+                  user: user
+                }
+              })
+            )
+        end
+      else
+        nil -> nil
       end
     end)
   end

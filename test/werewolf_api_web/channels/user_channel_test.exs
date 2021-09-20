@@ -83,6 +83,23 @@ defmodule WerewolfApiWeb.UserChannelTest do
 
       assert_broadcast("new_game", %{id: ^game_id})
     end
+
+    test "does not broadcasts game if no user in game" do
+      user = insert(:user)
+      user_id = user.id
+      game = insert(:game)
+      game_id = game.id
+
+      {:ok, jwt, _} = encode_and_sign(user)
+      {:ok, socket} = connect(WerewolfApiWeb.UserSocket, %{"token" => jwt})
+      {:ok, _, user_socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
+
+      ref = push(user_socket, "request_game", %{game_id: game_id})
+
+      assert_reply(ref, :ok)
+
+      refute_broadcast("new_game", %{id: ^game_id})
+    end
   end
 
   describe "broadcast_conversation_creation_to_users" do
