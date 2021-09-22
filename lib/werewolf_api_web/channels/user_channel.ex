@@ -70,7 +70,7 @@ defmodule WerewolfApiWeb.UserChannel do
       game =
         WerewolfApi.Repo.get(WerewolfApi.Game, game_id)
         |> WerewolfApi.Repo.preload(
-          users_games: WerewolfApi.UsersGame.pending_and_accepted_only_with_user(game_id),
+          users_games: :user,
           messages: :user
         )
 
