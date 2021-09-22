@@ -138,7 +138,7 @@ defmodule WerewolfApi.Game.Server do
       |> Werewolf.GameServer.end_phase(user)
 
     case response do
-      {win_status, target, phases, state} ->
+      {win_status, wins, target, phases, state} ->
         WerewolfApiWeb.UserChannel.broadcast_state_update(game_id, Game.clean_state(state))
         :ok
 

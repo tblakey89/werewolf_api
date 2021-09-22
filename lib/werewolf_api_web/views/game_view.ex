@@ -104,6 +104,7 @@ defmodule WerewolfApiWeb.GameView do
       phase_length: state.game.phase_length,
       phases: state.game.phases,
       win_status: state.game.win_status,
+      wins: state.game.wins,
       targets: display_targets(state.game.targets, state.game.options),
       options: state.game.options,
       players:
