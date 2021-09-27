@@ -170,7 +170,10 @@ defmodule WerewolfApiWeb.GameView do
       actions: player.actions,
       items: player.items,
       team: player.team,
-      claim: player.claim
+      claim: player.claim,
+      statuses: player.statuses,
+      lover: player.lover,
+      win_condition: player.win_condition
     }
   end
 
@@ -190,7 +193,10 @@ defmodule WerewolfApiWeb.GameView do
       role: display_value(options, state, current_player, player, player.role),
       actions: filter_actions(options, state, phase_number, current_player, player),
       team: display_value(options, state, current_player, player, player.team),
-      claim: player.claim
+      claim: player.claim,
+      win_condition: :none,
+      statuses: [],
+      lover: display_value(options, state, current_player, player, player.lover)
     }
   end
 
