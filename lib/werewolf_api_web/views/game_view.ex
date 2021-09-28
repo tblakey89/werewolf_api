@@ -196,7 +196,7 @@ defmodule WerewolfApiWeb.GameView do
       claim: player.claim,
       win_condition: :none,
       statuses: [],
-      lover: display_value(options, state, current_player, player, player.lover)
+      lover: current_player && current_player.lover && player.lover
     }
   end
 

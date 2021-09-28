@@ -356,7 +356,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:village_win, %{werewolf: user.id}, phase_number}
+        {:village_win, [:village_win], %{werewolf: user.id}, phase_number}
       )
 
       assert_broadcast("new_message", %{
@@ -378,7 +378,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:werewolf_win, %{vote: user.id}, phase_number}
+        {:werewolf_win, [:werewolf_win], %{vote: user.id}, phase_number}
       )
 
       assert_broadcast("new_message", %{
@@ -398,7 +398,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:werewolf_win, %{werewolf: user.id}, phase_number}
+        {:werewolf_win, [:werewolf_win], %{werewolf: user.id}, phase_number}
       )
 
       assert_broadcast("new_message", %{
@@ -420,7 +420,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:no_win, %{werewolf: user.id}, phase_number}
+        {:no_win, [], %{werewolf: user.id}, phase_number}
       )
 
       assert_broadcast("new_message", %{
@@ -441,7 +441,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:no_win, %{resurrect: user.id}, phase_number}
+        {:no_win, [], %{resurrect: user.id}, phase_number}
       )
 
       refute_broadcast("new_message", %{body: dead_message, type: "death_intro"})
@@ -453,7 +453,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:no_win, %{defend: user.id}, phase_number}
+        {:no_win, [], %{defend: user.id}, phase_number}
       )
 
       refute_broadcast("new_message", %{body: dead_message, type: "death_intro"})
@@ -467,7 +467,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:no_win, %{vote: user.id}, phase_number}
+        {:no_win, [], %{vote: user.id}, phase_number}
       )
 
       assert_broadcast("new_message", %{
@@ -490,7 +490,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:fool_win, %{vote: user.id}, phase_number}
+        {:fool_win, [:fool_win], %{vote: user.id}, phase_number}
       )
 
       assert_broadcast("new_message", %{
@@ -511,7 +511,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:fool_win, %{overrule: user.id}, phase_number}
+        {:fool_win, [:fool_win], %{overrule: user.id}, phase_number}
       )
 
       assert_broadcast("new_message", %{
@@ -534,7 +534,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:too_many_phases, %{werewolf: user.id}, phase_number}
+        {:too_many_phases, [:too_many_phases], %{werewolf: user.id}, phase_number}
       )
 
       assert_broadcast("new_message", %{
@@ -552,7 +552,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:too_many_phases, %{}, 1}
+        {:too_many_phases, [:too_many_phases], %{}, 1}
       )
 
       assert_broadcast("new_message", %{
@@ -572,7 +572,7 @@ defmodule WerewolfApi.Game.AnnouncementTest do
       WerewolfApi.Game.Announcement.announce(
         game,
         state(user.id, game.id),
-        {:host_end, %{}, 1}
+        {:host_end, [:host_end], %{}, 1}
       )
 
       assert_broadcast("new_message", %{

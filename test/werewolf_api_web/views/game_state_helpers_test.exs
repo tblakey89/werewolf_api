@@ -239,34 +239,6 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
                )
     end
 
-    test 'when player is lover and other player is also lover' do
-      current_player = player(2, :werewolf, true, true)
-      player = player(1, :villager, true, true)
-
-      assert true ==
-               GameStateHelpers.display_value(
-                 %Werewolf.Options{},
-                 :day_phase,
-                 current_player,
-                 player,
-                 player.lover
-               )
-    end
-
-    test 'when player is lover and other player is not lover' do
-      current_player = player(2, :werewolf, true, false)
-      player = player(1, :villager, true, true)
-
-      assert "Unknown" ==
-               GameStateHelpers.display_value(
-                 %Werewolf.Options{},
-                 :day_phase,
-                 current_player,
-                 player,
-                 player.lover
-               )
-    end
-
     test 'when reveal role is false when player is villager and player is dead role is villager' do
       player = player(1, :villager, false)
 

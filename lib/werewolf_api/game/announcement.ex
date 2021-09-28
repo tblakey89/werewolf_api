@@ -51,6 +51,16 @@ defmodule WerewolfApi.Game.Announcement do
     )
   end
 
+  def announce(game, :lover) do
+    broadcast_message(
+      game,
+      "lover_chat",
+      "This is the lovers group chat for #{game.name}. Please work together to survive the game.",
+      0,
+      :lover
+    )
+  end
+
   def announce(game, :dead) do
     broadcast_message(
       game,
@@ -132,7 +142,7 @@ defmodule WerewolfApi.Game.Announcement do
     )
   end
 
-  def announce(game, state, {:village_win, targets, phase_number}) do
+  def announce(game, state, {:village_win, wins, targets, phase_number}) do
     village_win_message =
       "With this, all the werewolves were gone and peace was restored to the village. Villagers win."
 
@@ -146,7 +156,7 @@ defmodule WerewolfApi.Game.Announcement do
     broadcast_complete_message(game, phase_number)
   end
 
-  def announce(game, state, {:werewolf_win, targets, phase_number}) do
+  def announce(game, state, {:werewolf_win, wins, targets, phase_number}) do
     broadcast_message(
       game,
       "win",
@@ -157,7 +167,7 @@ defmodule WerewolfApi.Game.Announcement do
     broadcast_complete_message(game, phase_number)
   end
 
-  def announce(game, state, {:no_win, targets, phase_number})
+  def announce(game, state, {:no_win, [], targets, phase_number})
       when Integer.is_even(phase_number) do
     day_phase_number = round(phase_number / 2)
 
@@ -169,7 +179,8 @@ defmodule WerewolfApi.Game.Announcement do
     broadcast_message(game, "phase_begin", message, phase_number)
   end
 
-  def announce(game, state, {:no_win, targets, phase_number}) when Integer.is_odd(phase_number) do
+  def announce(game, state, {:no_win, [], targets, phase_number})
+      when Integer.is_odd(phase_number) do
     night_phase_number = round(phase_number / 2)
 
     announce(game, state, {:death, targets})
@@ -190,7 +201,7 @@ defmodule WerewolfApi.Game.Announcement do
     end)
   end
 
-  def announce(game, state, {:fool_win, targets, phase_number}) do
+  def announce(game, state, {:fool_win, wins, targets, phase_number}) do
     username = User.display_name(Game.user_from_game(game, targets[:vote] || targets[:overrule]))
 
     broadcast_message(
@@ -203,7 +214,7 @@ defmodule WerewolfApi.Game.Announcement do
     broadcast_complete_message(game, state.game.phases)
   end
 
-  def announce(game, state, {:too_many_phases, targets, phase_number}) do
+  def announce(game, state, {:too_many_phases, wins, targets, phase_number}) do
     too_many_phases_message =
       "The villagers and werewolves grew tired of fighting each other. They had been fighting for so long. They decided to make peace and move on with their lives. The game ends in a tie."
 
@@ -217,11 +228,22 @@ defmodule WerewolfApi.Game.Announcement do
     broadcast_complete_message(game, state.game.phases)
   end
 
-  def announce(game, state, {:host_end, targets, phase_number}) do
+  def announce(game, state, {:host_end, wins, targets, phase_number}) do
     broadcast_message(
       game,
       "win",
       "The host has decided to end the game. The game ends in a tie.",
+      phase_number
+    )
+
+    broadcast_complete_message(game, state.game.phases)
+  end
+
+  def announce(game, state, {:lover_win, wins, targets, phase_number}) do
+    broadcast_message(
+      game,
+      "win",
+      "The lovers embraced, they had survived this nightmare. They lived happily ever after. Lovers win!!!",
       phase_number
     )
 

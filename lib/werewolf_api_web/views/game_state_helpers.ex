@@ -36,16 +36,6 @@ defmodule WerewolfApiWeb.GameStateHelpers do
   def display_value(
         _,
         _,
-        %Werewolf.Player{lover: true},
-        %Werewolf.Player{lover: true},
-        value
-      ) do
-    value
-  end
-
-  def display_value(
-        _,
-        _,
         %Werewolf.Player{role: :mason},
         %Werewolf.Player{role: :mason},
         value
@@ -60,8 +50,6 @@ defmodule WerewolfApiWeb.GameStateHelpers do
   def display_value(_, _, _, %Werewolf.Player{alive: false}, value) do
     value
   end
-
-  def display_value(_, _, _, _, false), do: false
 
   def display_value(_, _, _, _, _), do: "Unknown"
 

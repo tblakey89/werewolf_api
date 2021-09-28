@@ -7,6 +7,7 @@ defmodule WerewolfApi.Game.Event do
     Game.Announcement.announce(game, :werewolf)
     Game.Announcement.announce(game, :mason)
     Game.Announcement.announce(game, :dead)
+    Game.Announcement.announce(game, :lover)
 
     {:ok, game} =
       game
