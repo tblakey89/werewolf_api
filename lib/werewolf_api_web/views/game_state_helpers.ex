@@ -53,6 +53,12 @@ defmodule WerewolfApiWeb.GameStateHelpers do
 
   def display_value(_, _, _, _, _), do: "Unknown"
 
+  def display_boolean(:game_over, _, bool), do: bool
+
+  def display_boolean(_, true, bool), do: bool
+
+  def display_boolean(_, false, _), do: false
+
   def display_targets(targets, %Werewolf.Options{reveal_type_of_death: true}) do
     targets
   end

@@ -301,6 +301,20 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
     end
   end
 
+  describe "display_boolean/3" do
+    test "when game over, show bool" do
+      assert GameStateHelpers.display_boolean(:game_over, false, true)
+    end
+
+    test "when other is true, show bool" do
+      assert GameStateHelpers.display_boolean(:day_phase, true, true)
+    end
+
+    test "when other is false, show false" do
+      assert !GameStateHelpers.display_boolean(:day_phase, false, true)
+    end
+  end
+
   defp player(id, role, alive \\ true, lover \\ false) do
     %Werewolf.Player{
       id: id,
