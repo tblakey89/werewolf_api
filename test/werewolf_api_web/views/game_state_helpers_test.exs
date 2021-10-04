@@ -268,6 +268,20 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
       assert Enum.at(targets[1], 0).type == :werewolf
     end
 
+    test "when passed targets with reveal type of death true, hides new_werewolf" do
+      targets =
+        GameStateHelpers.display_targets(
+          %{
+            1 => [
+              %Werewolf.KillTarget{type: :new_werewolf, target: 1}
+            ]
+          },
+          %Werewolf.Options{reveal_type_of_death: true}
+        )
+
+      assert length(targets[1]) == 0
+    end
+
     test "when passed targets with reveal type of death false" do
       targets =
         GameStateHelpers.display_targets(
@@ -280,6 +294,20 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
         )
 
       assert Enum.at(targets[1], 0).type == :death
+    end
+
+    test "when passed targets with reveal type of death false, new_werewolf removed" do
+      targets =
+        GameStateHelpers.display_targets(
+          %{
+            1 => [
+              %Werewolf.KillTarget{type: :new_werewolf, target: 1}
+            ]
+          },
+          %Werewolf.Options{reveal_type_of_death: false}
+        )
+
+      assert length(targets[1]) == 0
     end
 
     test "when passed resurrect and defend targets with reveal type of death false" do

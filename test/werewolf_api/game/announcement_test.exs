@@ -458,6 +458,19 @@ defmodule WerewolfApi.Game.AnnouncementTest do
 
       refute_broadcast("new_message", %{body: dead_message, type: "death_intro"})
     end
+
+    test "werewolf intro message for new_werewolf", %{user: user, game: game} do
+      phase_number = 2
+
+      WerewolfApi.Game.Announcement.announce(
+        game,
+        state(user.id, game.id),
+        {:no_win, [], %{new_werewolf: user.id}, phase_number}
+      )
+
+      assert_broadcast("new_message", %{body: dead_message, type: "werewolf_intro"})
+      assert dead_message =~ "Welcome #{user.username} to the werewolf chat"
+    end
   end
 
   describe "announce/3 end of day phase" do

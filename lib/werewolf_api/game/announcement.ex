@@ -192,12 +192,19 @@ defmodule WerewolfApi.Game.Announcement do
 
   def announce(game, state, {:death, targets}) do
     Enum.filter(targets, fn {type, _target} -> type != :defend && type != :resurrect end)
-    |> Enum.each(fn {_type, target} ->
+    |> Enum.each(fn {type, target} ->
       username = User.display_name(Game.user_from_game(game, target))
 
-      message = "Welcome #{username} to the dead chat"
+      case type do
+        :new_werewolf ->
+          message = "Welcome #{username} to the werewolf chat"
 
-      broadcast_message(game, "death_intro", message, target, :dead)
+          broadcast_message(game, "werewolf_intro", message, target, :werewolf)
+        _ ->
+          message = "Welcome #{username} to the dead chat"
+
+          broadcast_message(game, "death_intro", message, target, :dead)
+      end
     end)
   end
 

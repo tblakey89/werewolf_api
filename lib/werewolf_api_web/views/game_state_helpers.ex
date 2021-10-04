@@ -60,7 +60,13 @@ defmodule WerewolfApiWeb.GameStateHelpers do
   def display_boolean(_, false, _), do: false
 
   def display_targets(targets, %Werewolf.Options{reveal_type_of_death: true}) do
-    targets
+    Enum.reduce(targets, %{}, fn {phase, phase_targets}, cleared_targets ->
+      Map.put(
+        cleared_targets,
+        phase,
+        Enum.filter(phase_targets, fn target -> target.type != :new_werewolf end)
+      )
+    end)
   end
 
   def display_targets(targets, %Werewolf.Options{reveal_type_of_death: false}) do
@@ -68,7 +74,8 @@ defmodule WerewolfApiWeb.GameStateHelpers do
       Map.put(
         cleared_targets,
         phase,
-        Enum.map(phase_targets, fn target ->
+        Enum.filter(phase_targets, fn target -> target.type != :new_werewolf end)
+        |> Enum.map(fn target ->
           case target.type do
             :resurrect -> target
             :defend -> target
