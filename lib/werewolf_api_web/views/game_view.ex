@@ -140,7 +140,7 @@ defmodule WerewolfApiWeb.GameView do
         case key == user.id do
           # werewolf need to see other werewolf
           true ->
-            render_one(%{player: player}, WerewolfApiWeb.GameView, "self_player.json", as: :data)
+            render_one(%{player: player, state: state}, WerewolfApiWeb.GameView, "self_player.json", as: :data)
 
           false ->
             render_one(
@@ -161,7 +161,7 @@ defmodule WerewolfApiWeb.GameView do
     end)
   end
 
-  def render("self_player.json", %{data: %{player: player}}) do
+  def render("self_player.json", %{data: %{player: player, state: state}}) do
     %{
       id: player.id,
       alive: player.alive,
@@ -173,7 +173,8 @@ defmodule WerewolfApiWeb.GameView do
       claim: player.claim,
       statuses: player.statuses,
       lover: player.lover,
-      win_condition: player.win_condition
+      win_condition: player.win_condition,
+      lycan_curse: display_boolean(state, false, player.lycan_curse)
     }
   end
 
@@ -196,7 +197,8 @@ defmodule WerewolfApiWeb.GameView do
       claim: player.claim,
       win_condition: :none,
       statuses: [],
-      lover: current_player && display_boolean(state, current_player.lover, player.lover)
+      lover: current_player && display_boolean(state, current_player.lover, player.lover),
+      lycan_curse: display_boolean(state, false, player.lycan_curse)
     }
   end
 

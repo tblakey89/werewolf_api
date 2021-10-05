@@ -36,6 +36,16 @@ defmodule WerewolfApiWeb.GameStateHelpers do
   def display_value(
         _,
         _,
+        _,
+        %Werewolf.Player{role: :ghost},
+        value
+      ) do
+    value
+  end
+
+  def display_value(
+        _,
+        _,
         %Werewolf.Player{role: :mason},
         %Werewolf.Player{role: :mason},
         value

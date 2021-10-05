@@ -239,10 +239,23 @@ defmodule WerewolfApiWeb.GameStateHelpersTest do
                )
     end
 
-    test 'when reveal role is false when player is villager and player is dead role is villager' do
+    test 'when reveal role is false when player is villager and player is dead role is unknown' do
       player = player(1, :villager, false)
 
       assert "Unknown" ==
+               GameStateHelpers.display_value(
+                 %Werewolf.Options{reveal_role: false},
+                 :day_phase,
+                 nil,
+                 player,
+                 player.role
+               )
+    end
+
+    test 'when reveal role is false when player is ghost and player is dead role is ghost' do
+      player = player(1, :ghost, false)
+
+      assert :ghost ==
                GameStateHelpers.display_value(
                  %Werewolf.Options{reveal_role: false},
                  :day_phase,
