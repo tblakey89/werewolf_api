@@ -257,6 +257,17 @@ defmodule WerewolfApi.Game.Announcement do
     broadcast_complete_message(game, state.game.phases)
   end
 
+  def announce(game, state, {:serial_killer_win, wins, targets, phase_number}) do
+    broadcast_message(
+      game,
+      "win",
+      "The serial killer acheived their goal of killing all other players in the game. The serial killer wins!!!",
+      phase_number
+    )
+
+    broadcast_complete_message(game, state.game.phases)
+  end
+
   def announce(game, state, :closed) do
     broadcast_message(
       game,
